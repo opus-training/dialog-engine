@@ -209,6 +209,36 @@
       "label": "open_source_drill_end",
       "translation": "¡Felicidades! Este ejercicio de entrenamiento está completo.",
       "language": "es"
+    },
+    {
+      "label": "text_go",
+      "translation": "Text me the word GO when you're ready to start.",
+      "language": "en"
+    },
+    {
+      "label": "text_go",
+      "translation": "Enviame un texto con la palabra GO cuando estés listo para comenzar.",
+      "language": "es"
+    },
+    {
+      "label": "drill_intro_2",
+      "translation": "Your next drill is:",
+      "language": "en"
+    },
+    {
+      "label": "drill_intro_2",
+      "translation": "Su próxima entrenamiento es:",
+      "language": "es"
+    },
+    {
+      "label": "drill_1_title",
+      "translation": "Sample Drill 1",
+      "language": "en"
+    },
+    {
+      "label": "drill_1_title",
+      "translation": "Ejemplo Entrenamiento 1",
+      "language": "es"
     }
   ]
 }

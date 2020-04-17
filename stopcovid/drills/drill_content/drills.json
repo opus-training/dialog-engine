@@ -4,7 +4,27 @@
     "slug": "01-sample-drill",
     "prompts": [
       {
-        "slug": "1 - ",
+        "slug": "1 -",
+        "messages": [
+          {
+            "text": "Welcome! Choose your language:\nen - English\nes - Español"
+          }
+        ],
+        "response_user_profile_key": "language"
+      },
+      {
+        "slug": "2 -",
+        "messages": [
+          {
+            "text": "{{drill_intro_2}} {{drill_1_title}}."
+          },
+          {
+            "text": "{{text_go}}"
+          }
+        ]
+      },
+      {
+        "slug": "3 -",
         "messages": [
           {
             "text": "{{open_source_drill_1}}"
@@ -16,7 +36,7 @@
         "correct_response": "b) {{false}}"
       },
       {
-        "slug": "2 -",
+        "slug": "4 -",
         "messages": [
           {
             "text": "{{drill_how_to_fact_2}}"
@@ -28,7 +48,7 @@
         "correct_response": "b) {{soap_pumps_to_wash_hands}}"
       },
       {
-        "slug": "3 -",
+        "slug": "5 -",
         "messages": [
           {
             "text": "{{drill_how_to_fact_3}}"
@@ -40,7 +60,7 @@
         "correct_response": "c) {{your_fingers_and_under_your_fingernails}}"
       },
       {
-        "slug": "4 -",
+        "slug": "6 -",
         "messages": [
           {
             "text": "{{drill_how_to_fact_4}}"
@@ -52,7 +72,7 @@
         "correct_response": "b) {{for_twenty_seconds}}"
       },
       {
-        "slug": "5 -",
+        "slug": "7 -",
         "messages": [
           {
             "text": "{{drill_how_to_fact_5}}"
@@ -64,7 +84,7 @@
         "correct_response": "e) {{paper_towel_or_air_dryer}}"
       },
       {
-        "slug": "6 -",
+        "slug": "8 -",
         "messages": [
           {
             "text": "{{covid_1_fact_3}}"
@@ -81,7 +101,7 @@
     "slug": "02-sample-drill",
     "prompts": [
       {
-        "slug": "1 - ",
+        "slug": "1 -",
         "messages": [
           {
             "text": "{{open_source_drill_1}}"
@@ -158,7 +178,7 @@
     "slug": "03-sample-drill",
     "prompts": [
       {
-        "slug": "1 - ",
+        "slug": "1 -",
         "messages": [
           {
             "text": "{{open_source_drill_1}}"
