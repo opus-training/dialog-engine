@@ -1,0 +1,36 @@
+name: Unit tests
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      dynamodb-local:
+        image: amazon/dynamodb-local
+        ports:
+          - 9000:8000
+      postgres:
+        image: postgres:10
+        ports:
+          - 6543:5432
+        env:
+          POSTGRES_PASSWORD: testing
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+      with:
+        python-version: '3.7'
+        architecture: 'x64'
+
+    - name: Run unit tests
+      env:
+        AWS_ACCESS_KEY_ID: fakekey
+        AWS_SECRET_ACCESS_KEY: fakesecret
+        AWS_DEFAULT_REGION: us-east-1
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-dev.txt
+        python -m unittest

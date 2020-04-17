@@ -1,0 +1,8 @@
+.serverless
+__pycache__
+event.json
+payload.json
+node_modules
+.env*
+env
+.idea

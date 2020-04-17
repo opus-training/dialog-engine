@@ -1,0 +1,352 @@
+service: slowcovid
+app: slowcovid
+org: jeffreysilver
+
+custom:
+  enterprise:
+    collectLambdaLogs: false
+  logForwarding:
+      destinationARN: ${ssm:/stopcovid/${self:provider.stage}/logForwardingDestinationArn}
+  pythonRequirements:
+    slim: true
+    slimPatterns:
+      - __tests__/**
+      - .github/**
+      - db_local/**
+      - env/***
+      - node_modules/**
+
+provider:
+  name: aws
+  runtime: python3.7
+  stage: ${opt:stage, 'dev'}
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+        - kinesis:*
+        - sqs:*
+        - dynamodb:*
+        - rds-data:*
+        - secretsmanager:GetSecretValue
+        - s3:GetObject
+        - s3:GetObjectVersion
+      Resource: "*"
+
+  environment:
+    STAGE: ${self:provider.stage}
+    DEPLOY_STAGE: ${ssm:/stopcovid/${self:provider.stage}/deployStage}
+    TWILIO_MESSAGING_SERVICE_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioMessagingServiceSID~true}
+    TWILIO_ACCOUNT_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioAccountSID~true}
+    TWILIO_AUTH_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/twilioAuthToken~true}
+    DB_CLUSTER_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbClusterArn}
+    DB_SECRET_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbSecretArn}
+    DRILL_CONTENT_S3_BUCKET: ${ssm:/stopcovid/${self:provider.stage}/drillContentS3Bucket}
+
+        
+plugins:
+  - serverless-python-requirements
+  - serverless-log-forwarding
+
+functions:
+  registration:
+    handler: stopcovid/registration.handle_registration
+    events:
+      - http:
+          path: registration
+          method: post
+          cors: true
+    environment:
+      AUTH_USERNAME: ${ssm:/stopcovid/${self:provider.stage}/authUsername}
+      AUTH_PASSWORD: ${ssm:/stopcovid/${self:provider.stage}/authPassword~true}
+
+  twilioWebhook:
+    handler: stopcovid/sms/aws_lambdas/twilio_webhook.handler
+    timeout: 20
+    events:
+      - http:
+          path: webhooks/twilio
+          method: post
+
+  sendMessage:
+    handler: stopcovid/sms/aws_lambdas/send_sms_batch.handler
+    timeout: 60
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - OutboundSMSFifoQueue
+              - Arn
+
+  log_inbound_sms:
+    handler: stopcovid/sms/aws_lambdas/log_inbound_sms.handler
+    events:
+      - stream:
+          type: kinesis
+          arn:
+            Fn::GetAtt:
+              - CommandStream
+              - Arn
+          startingPosition: LATEST
+          maximumRetryAttempts: 10000
+
+  handleCommand:
+    handler: stopcovid/dialog/aws_lambdas/handle_command.handler
+    events:
+      - stream:
+          type: kinesis
+          arn:
+            Fn::GetAtt:
+              - CommandStream
+              - Arn
+          startingPosition: LATEST
+          maximumRetryAttempts: 5
+          bisectBatchOnFunctionError: true
+          destinations:
+            onFailure:
+              arn:
+                Fn::GetAtt:
+                  - CommandFailureQueue
+                  - Arn
+              type: sqs
+    environment:
+      DIALOG_TABLE_NAME_SUFFIX: ${self:provider.stage}
+      REGISTRATION_VALIDATION_URL: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationUrl}
+      REGISTRATION_VALIDATION_KEY: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationKey~true}
+
+
+  logMessage:
+    handler: stopcovid/sms/aws_lambdas/persist_logs.handle
+    timeout: 60  # Give aurora cluster time to cold start
+
+  distributeDialogEvents:
+    handler: stopcovid/sms/aws_lambdas/enqueue_sms_batch.handler
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - DialogEventBatches
+              - StreamArn
+          startingPosition: LATEST
+
+  updateDrillStatus:
+    handler: stopcovid/drill_progress/aws_lambdas/update_drill_status.handler
+    timeout: 60
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - DialogEventBatches
+              - StreamArn
+          startingPosition: LATEST
+
+  scheduleNextDrillsToTrigger:
+    handler: stopcovid/drill_progress/aws_lambdas/schedule_next_drills_to_trigger.handler
+    timeout: 60
+    events:
+      - schedule: cron(5 17 * * ? *)
+
+  triggerScheduledDrill:
+    handler: stopcovid/drill_progress/aws_lambdas/trigger_scheduled_drill.handler
+    timeout: 60
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - DrillTriggerSchedule
+              - StreamArn
+          startingPosition: LATEST
+          maximumRetryAttempts: 5
+
+  triggerReminders:
+    handler: stopcovid/drill_progress/aws_lambdas/trigger_reminders.handler
+    timeout: 60
+    events:
+      - schedule: cron(0/5 14-23 * * ? *)
+
+resources:
+  Resources:
+    AWSLambdaVPCAccessExecutionRole:
+      Type: AWS::IAM::ManagedPolicy
+      Properties:
+        Description: Creating policy for vpc and lambda.
+        Roles:
+          - { "Ref": "IamRoleLambdaExecution" }
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - ec2:CreateNetworkInterface
+                - ec2:DescribeNetworkInterfaces
+                - ec2:DeleteNetworkInterface
+              Resource: "*"
+
+    # COMMAND STREAM
+    CommandStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: command-stream-${self:provider.stage}
+        ShardCount: 2
+
+    # MESSAGE LOG STREAM
+    MessageLogStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: message-log-${self:provider.stage}
+        ShardCount: 2
+
+    WriteMessageEvent:
+      Type: AWS::Lambda::EventSourceMapping
+      Properties:
+        EventSourceArn:
+          Fn::GetAtt:
+            - MessageLogStream
+            - Arn
+        FunctionName:
+          Fn::GetAtt:
+            - LogMessageLambdaFunction
+            - Arn
+        StartingPosition: LATEST
+        MaximumRetryAttempts: 10000
+
+    # DB CLUSTER
+    AuroraCluster:
+      Type: AWS::RDS::DBCluster
+      Properties:
+        Engine: aurora-postgresql
+        EngineMode: serverless
+        BackupRetentionPeriod: 7
+        DatabaseName: postgres
+        DBClusterIdentifier: ${self:provider.stage}
+        DeletionProtection: true
+        EnableHttpEndpoint: true
+        EngineVersion: 10.7
+        MasterUsername: postgres
+        MasterUserPassword: ${ssm:/stopcovid/${self:provider.stage}/dbPassword~true}
+        StorageEncrypted: true
+        ScalingConfiguration:
+            AutoPause: false
+            MaxCapacity: 4
+            MinCapacity: 2
+
+    # OUTBOUND SMS
+    OutboundSMSFifoQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: outbound-sms-${self:provider.stage}.fifo
+        FifoQueue: true
+        VisibilityTimeout: 60
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+            - OutboundSMSDeadLetterFifoQueue
+            - Arn
+          maxReceiveCount: 3
+
+    OutboundSMSDeadLetterFifoQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        FifoQueue: true
+        QueueName: outbound-sms-dlq-${self:provider.stage}.fifo
+
+    # SYSTEM TEST
+    SystemTestQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: system-test-${self:provider.stage}
+        MessageRetentionPeriod: 60
+  
+    # DIALOG STATE AND EVENTS (DynamoDB)
+    DialogState:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: dialog-state-${self:provider.stage}
+        KeySchema:
+          - AttributeName: phone_number
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: phone_number
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+
+    DialogEventBatches:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: dialog-event-batches-${self:provider.stage}
+        KeySchema:
+          - AttributeName: phone_number
+            KeyType: HASH
+          - AttributeName: batch_id
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: phone_number
+            AttributeType: S
+          - AttributeName: batch_id
+            AttributeType: S
+          - AttributeName: created_time
+            AttributeType: S
+        LocalSecondaryIndexes:
+          - IndexName: by_created_time
+            KeySchema:
+              - AttributeName: phone_number
+                KeyType: HASH
+              - AttributeName: created_time
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+        BillingMode: PAY_PER_REQUEST
+
+    # GENERAL IDEMPOTENCY
+    IdempotencyChecks:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: idempotency-checks-${self:provider.stage}
+        KeySchema:
+          - AttributeName: idempotency_key
+            KeyType: HASH
+          - AttributeName: realm
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: idempotency_key
+            AttributeType: S
+          - AttributeName: realm
+            AttributeType: S
+        TimeToLiveSpecification:
+          AttributeName: expiration_ts
+          Enabled: true
+        BillingMode: PAY_PER_REQUEST
+
+    # DRILL SCHEDULING
+    DrillTriggerSchedule:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: drill-trigger-schedule-${self:provider.stage}
+        KeySchema:
+          - AttributeName: phone_number
+            KeyType: HASH
+          - AttributeName: idempotency_key
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: phone_number
+            AttributeType: S
+          - AttributeName: idempotency_key
+            AttributeType: S
+        StreamSpecification:
+          StreamViewType: OLD_IMAGE
+        TimeToLiveSpecification:
+          AttributeName: trigger_ts
+          Enabled: true
+        BillingMode: PAY_PER_REQUEST
+
+    # Command failures
+    CommandFailureQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: command-failures-${self:provider.stage}
