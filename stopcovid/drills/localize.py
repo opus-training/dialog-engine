@@ -7,7 +7,8 @@ SUPPORTED_LANGUAGES = {"en", "es", "fr", "pt", "zh"}
 
 
 def localize(message: str, lang: Optional[str], **kwargs) -> str:
-    lang = lang.lower() or "en"
+    lang = lang or "en"
+    lang = lang.lower()
     if lang not in SUPPORTED_LANGUAGES:
         lang = "en"
     template = Template(message)
