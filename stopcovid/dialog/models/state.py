@@ -61,6 +61,12 @@ class UserProfile:
     def __str__(self):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
+    def __setattr__(self, key, value):
+        if key == "language" and value is not None:
+            super().__setattr__(key, value.lower()[:2])
+        else:
+            super().__setattr__(key, value)
+
     def to_dict(self):
         return UserProfileSchema().dump(self)
 
