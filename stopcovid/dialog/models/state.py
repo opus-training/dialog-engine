@@ -22,24 +22,10 @@ class AccountInfoField(fields.Mapping):
         return value
 
 
-class LanguageField(fields.Str):
-    def _serialize(self, value, attr, obj, **kwargs):
-        # ensures that we always write the language as two lowercase letters
-        if value is not None:
-            value = value.lower()[:2]
-        return value
-
-    def _deserialize(self, value, attr, data, **kwargs):
-        # handles data that was previously serialized in an invalid format
-        if value is not None:
-            value = value.lower()[:2]
-        return value
-
-
 class UserProfileSchema(Schema):
     validated = fields.Boolean(required=True)
     opted_out = fields.Boolean(missing=False)
-    language = LanguageField(allow_none=True)
+    language = fields.Str(allow_none=True)
     name = fields.Str(allow_none=True)
     account_info = AccountInfoField(keys=fields.Str(), allow_none=True)
     is_demo = fields.Boolean()
@@ -74,6 +60,12 @@ class UserProfile:
 
     def __str__(self):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
+
+    def __setattr__(self, key, value):
+        if key == "language" and value is not None:
+            super().__setattr__(key, value.lower()[:2])
+        else:
+            super().__setattr__(key, value)
 
     def to_dict(self):
         return UserProfileSchema().dump(self)
