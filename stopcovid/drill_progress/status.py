@@ -32,11 +32,11 @@ def initiates_first_drill(batch: DialogEventBatch):
 
 
 def initiates_subsequent_drill(batch: DialogEventBatch, repo: DialogRepository):
+    dialog_state = repo.fetch_dialog_state(batch.phone_number)
     for event in batch.events:
         if isinstance(event, NextDrillRequested):
             return True
         elif isinstance(event, DrillCompleted):
-            dialog_state = repo.fetch_dialog_state(batch.phone_number)
             current_drill = dialog_state.current_drill
             if current_drill.auto_continue:
                 return True
