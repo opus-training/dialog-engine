@@ -106,8 +106,12 @@ class TestStatus(unittest.TestCase):
                 )
             ],
         )
-        self.assertTrue(initiates_subsequent_drill(batch1, self.repo))
-        self.assertFalse(initiates_subsequent_drill(batch2, self.repo))
+        self.assertTrue(
+            initiates_subsequent_drill(batch1, self.repo.fetch_dialog_state(batch1.phone_number))
+        )
+        self.assertFalse(
+            initiates_subsequent_drill(batch2, self.repo.fetch_dialog_state(batch2.phone_number))
+        )
 
     def test_autocontinue_next_drill(self):
         batch1 = DialogEventBatch(
@@ -144,6 +148,12 @@ class TestStatus(unittest.TestCase):
                 )
             ],
         )
-        self.assertTrue(initiates_subsequent_drill(batch1, self.repo))
-        self.assertFalse(initiates_subsequent_drill(batch2, self.repo))
-        self.assertFalse(initiates_subsequent_drill(batch3, self.repo))
+        self.assertTrue(
+            initiates_subsequent_drill(batch1, self.repo.fetch_dialog_state(batch1.phone_number))
+        )
+        self.assertFalse(
+            initiates_subsequent_drill(batch2, self.repo.fetch_dialog_state(batch2.phone_number))
+        )
+        self.assertFalse(
+            initiates_subsequent_drill(batch3, self.repo.fetch_dialog_state(batch3.phone_number))
+        )
