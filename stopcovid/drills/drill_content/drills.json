@@ -1,7 +1,8 @@
 {
-  "01-sample-drill": {
-    "name": "Sample Drill 1",
-    "slug": "01-sample-drill",
+  "00-intake": {
+    "name": "Intake",
+    "slug": "00-intake",
+    "auto_continue": true,
     "prompts": [
       {
         "slug": "1 -",
@@ -12,6 +13,20 @@
         ],
         "response_user_profile_key": "language"
       },
+      {
+        "slug": "2 -",
+        "messages": [
+          {
+            "text": "{{sms_disclaimer}}"
+          }
+        ]
+      }
+    ]
+  },
+  "01-sample-drill": {
+    "name": "Sample Drill 1",
+    "slug": "01-sample-drill",
+    "prompts": [
       {
         "slug": "2 -",
         "messages": [

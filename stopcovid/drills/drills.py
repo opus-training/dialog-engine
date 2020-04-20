@@ -57,6 +57,7 @@ class Prompt:
 class DrillSchema(Schema):
     name = fields.String(required=True)
     slug = fields.String(required=True)
+    auto_continue = fields.Boolean(required=False)
     prompts = fields.List(fields.Nested(PromptSchema), required=True)
 
     @post_load
@@ -69,6 +70,7 @@ class Drill:
     slug: str
     name: str
     prompts: List[Prompt]
+    auto_continue: Optional[bool] = False
 
     def first_prompt(self) -> Prompt:
         return self.prompts[0]

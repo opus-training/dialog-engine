@@ -1,6 +1,16 @@
 {
   "instructions": [
     {
+      "label": "sms_disclaimer",
+      "translation": "Message and data rates apply. Reply STOP to unsubscribe.",
+      "language": "en"
+    },
+    {
+      "label": "sms_disclaimer",
+      "translation": "Se aplican tarifas de mensajes y datos. Responda STOP para cancelar la suscripción.",
+      "language": "es"
+    },
+    {
       "label": "corrected_answer",
       "translation": "🤖 The correct answer is *{{correct_answer}}*.\n\nLets move to the next one.",
       "language": "en"

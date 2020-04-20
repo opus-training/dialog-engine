@@ -192,7 +192,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         send_messages_mock.assert_called_once()
         call = send_messages_mock.mock_calls[0]
         _, *kwargs = call
-        return kwargs[1]["Entries"]
+        return kwargs[1]["Entries"]  # type: ignore
 
     def test_no_messages(self, boto_mock):
         send_messages_mock = self._get_mocked_send_messages(boto_mock)
