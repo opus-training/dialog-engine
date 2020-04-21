@@ -116,7 +116,6 @@ class TestHandleCommand(unittest.TestCase):
         self.assertEqual(message.body, localize(CORRECT_ANSWER_COPY, "en", emojis=""))
 
     def test_abandoned_failed_prompt_event(self):
-
         dialog_events: List[DialogEvent] = [
             FailedPrompt(
                 self.phone,
