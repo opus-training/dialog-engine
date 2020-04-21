@@ -226,7 +226,7 @@ class ProcessSMSMessage(Command):
             events.append(
                 FailedPrompt(
                     prompt=prompt,
-                    response=self.content,
+                    response=self.content or None,
                     drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
                     abandoned=should_advance,
                     **base_args,

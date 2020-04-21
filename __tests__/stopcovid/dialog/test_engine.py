@@ -305,6 +305,20 @@ class TestProcessCommand(unittest.TestCase):
             self.dialog_state.drill_instance_id, drill_completed_event.drill_instance_id
         )
 
+    def test_fail_prompt_with_empty_response_stores_response_as_null(self, get_drill_mock):
+        self.dialog_state.user_profile.validated = True
+        self._set_current_prompt(3, should_advance=False)
+        self.dialog_state.current_prompt_state.failures = 0
+
+        command = ProcessSMSMessage(self.phone_number, "")
+        batch = self._process_command(command)
+        self._assert_event_types(
+            batch, DialogEventType.FAILED_PROMPT,
+        )
+
+        failed_event: FailedPrompt = batch.events[0]  # type: ignore
+        self.assertEqual(failed_event.response, None)
+
     def test_opt_out(self, get_drill_mock):
         self.dialog_state.user_profile.validated = True
         self._set_current_prompt(0, should_advance=True)
