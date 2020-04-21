@@ -228,7 +228,7 @@ class CompletedPrompt(DialogEvent):
 class FailedPromptSchema(DialogEventSchema):
     prompt = fields.Nested(drills.PromptSchema, required=True)
     abandoned = fields.Boolean(required=True)
-    response = fields.String(required=True)
+    response = fields.String(required=True, allow_none=True)
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
