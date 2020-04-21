@@ -244,10 +244,9 @@ class ProcessSMSMessage(Command):
                     )
                 )
                 if dialog_state.is_next_prompt_last():
-                    auto_continue = False
-                    current_drill = dialog_state.current_drill
-                    if isinstance(current_drill, Drill) and current_drill.auto_continue:
-                        auto_continue = True
+                    auto_continue = None
+                    if isinstance(dialog_state.current_drill, Drill):
+                        auto_continue = dialog_state.current_drill.auto_continue
 
                     # assume the last prompt doesn't wait for an answer
                     events.append(
