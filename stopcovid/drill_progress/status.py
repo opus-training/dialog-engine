@@ -1,6 +1,7 @@
 from typing import List
 
 from .initiation import DrillInitiator
+from ..drills.drills import Drill
 from .drill_progress import DrillProgressRepository
 from ..dialog.persistence import DynamoDBDialogRepository
 from ..dialog.models.events import (
@@ -39,5 +40,5 @@ def initiates_subsequent_drill(batch: DialogEventBatch, dialog_state: DialogStat
             return True
         elif isinstance(event, DrillCompleted):
             current_drill = dialog_state.current_drill
-            if current_drill.auto_continue:
+            if isinstance(current_drill, Drill) and current_drill.auto_continue:
                 return True
