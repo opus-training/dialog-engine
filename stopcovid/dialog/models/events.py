@@ -243,7 +243,7 @@ class FailedPrompt(DialogEvent):
         user_profile: UserProfile,
         prompt: drills.Prompt,
         drill_instance_id: uuid.UUID,
-        response: str,
+        response: Optional[str],
         abandoned: bool,
         **kwargs,
     ):
