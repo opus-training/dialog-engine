@@ -22,7 +22,7 @@ from stopcovid.dialog.models.events import (
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import RegistrationValidator, DefaultRegistrationValidator
 from stopcovid.dialog.models.state import DialogState
-from stopcovid.drills.drills import get_drill
+from stopcovid.drills.drills import get_drill, Drill
 
 DEFAULT_REGISTRATION_VALIDATOR = DefaultRegistrationValidator()
 
@@ -244,10 +244,16 @@ class ProcessSMSMessage(Command):
                     )
                 )
                 if dialog_state.is_next_prompt_last():
+                    auto_continue = False
+                    current_drill = dialog_state.current_drill
+                    if isinstance(current_drill, Drill) and current_drill.auto_continue:
+                        auto_continue = True
+
                     # assume the last prompt doesn't wait for an answer
                     events.append(
                         DrillCompleted(
                             drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
+                            auto_continue=auto_continue,
                             **base_args,
                         )
                     )

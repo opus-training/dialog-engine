@@ -303,6 +303,7 @@ class AdvancedToNextPrompt(DialogEvent):
 
 class DrillCompletedSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
+    auto_continue = fields.Boolean(missing=False)
 
     @post_load
     def make_drill_completed(self, data, **kwargs):
@@ -311,7 +312,12 @@ class DrillCompletedSchema(DialogEventSchema):
 
 class DrillCompleted(DialogEvent):
     def __init__(
-        self, phone_number: str, user_profile: UserProfile, drill_instance_id: uuid.UUID, **kwargs
+        self,
+        phone_number: str,
+        user_profile: UserProfile,
+        drill_instance_id: uuid.UUID,
+        auto_continue: Optional[bool] = False,
+        **kwargs,
     ):
         super().__init__(
             DrillCompletedSchema(),
@@ -321,6 +327,7 @@ class DrillCompleted(DialogEvent):
             **kwargs,
         )
         self.drill_instance_id = drill_instance_id
+        self.auto_continue = auto_continue
 
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_drill = None
