@@ -48,7 +48,7 @@ def get_localized_messages(
     language = dialog_event.user_profile.language
 
     additional_args = {
-        "company": dialog_event.user_profile.account_info.get("company", "your company"),
+        "company": dialog_event.user_profile.account_info.get("employer_name", "your company"),
         "name": "",
     }
     if dialog_event.user_profile.name is not None:
