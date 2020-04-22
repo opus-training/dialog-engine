@@ -11,8 +11,10 @@ def localize(message: str, lang: Optional[str], **kwargs) -> str:
     lang = lang.lower()
     if lang not in SUPPORTED_LANGUAGES:
         lang = "en"
+
     template = Template(message)
-    result = template.render(**localizations_for(lang))
+    result = template.render({**kwargs, **localizations_for(lang)})
+
     if kwargs:
         template = Template(result)
         result = template.render(**kwargs)

@@ -7,6 +7,7 @@ from unittest.mock import patch, MagicMock
 
 from stopcovid.drills.localize import localize
 from stopcovid.sms.enqueue_outbound_sms import (
+    get_localized_messages,
     get_outbound_sms_commands,
     USER_VALIDATION_FAILED_COPY,
     CORRECT_ANSWER_COPY,
@@ -32,7 +33,13 @@ class TestHandleCommand(unittest.TestCase):
     def setUp(self):
         self.phone = "+15554238324"
         self.validated_user_profile = UserProfileSchema().load(
-            {"validated": True, "language": "en", "name": "Mario", "is_demo": False}
+            {
+                "validated": True,
+                "language": "en",
+                "name": "Mario",
+                "is_demo": False,
+                "account_info": {"employer_name": "Tacombi"},
+            }
         )
         self.non_validated_user_profile = UserProfileSchema().load(
             {"validated": False, "language": "en", "name": "Luigi", "is_demo": False}
@@ -55,6 +62,22 @@ class TestHandleCommand(unittest.TestCase):
                 ),
             ],
         )
+
+    def test_get_localized_message(self):
+        dialog_event = CompletedPrompt(
+            self.phone,
+            user_profile=self.validated_user_profile,
+            prompt=self.drill.prompts[1],
+            response="a",
+            drill_instance_id=uuid.uuid4(),
+        )
+        messages = [
+            PromptMessage(text="Hello {{name}}"),
+            PromptMessage(text="You work for {{company}}"),
+        ]
+        output = get_localized_messages(dialog_event=dialog_event, messages=messages)
+        self.assertEqual(output[0].body, "Hello Mario")
+        self.assertEqual(output[1].body, "You work for Tacombi")
 
     def test_user_validation_failed_event(self):
         dialog_events: List[DialogEvent] = [
