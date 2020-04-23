@@ -28,7 +28,7 @@ def handler(event, context):
 
 def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]):
     kinesis = boto3.client("kinesis")
-    stage = os.environ.get("stage")
+    stage = os.environ.get("STAGE")
     stream_name = f"dialog-event-batches-{stage}"
     records = [
         {"PartitionKey": event_batch.phone_number, "Data": json.dumps(event_batch.to_dict())}
