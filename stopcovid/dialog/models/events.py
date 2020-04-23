@@ -336,7 +336,7 @@ class DrillCompleted(DialogEvent):
 
 
 class OptedOutSchema(DialogEventSchema):
-    drill_instance_id = fields.UUID()
+    drill_instance_id = fields.UUID(allow_none=True)
 
     @post_load
     def make_opted_out(self, data, **kwargs):
