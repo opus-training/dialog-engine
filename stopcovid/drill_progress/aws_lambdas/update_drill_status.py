@@ -25,7 +25,7 @@ def handler(event, context):
     return {"statusCode": 200}
 
 
-def _publish_event_batches_to_kinesis(self, event_batches: List[DialogEventBatch]):
+def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]):
     kinesis = boto3.client("kinesis")
     stage = os.environ.get("stage")
     stream_name = f"dialog-event-batches-{stage}"
