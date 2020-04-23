@@ -20,6 +20,7 @@ def handler(event, context):
     ]
 
     status.handle_dialog_event_batches(event_batches)
+    _publish_event_batches_to_kinesis(event_batches)
 
     return {"statusCode": 200}
 
