@@ -200,6 +200,13 @@ resources:
         Name: message-log-${self:provider.stage}
         ShardCount: 2
 
+    # DIALOG EVENT BATCHES STREAM
+    DialogEventBatchesStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: dialog-event-batches-${self:provider.stage}
+        ShardCount: 2
+
     WriteMessageEvent:
       Type: AWS::Lambda::EventSourceMapping
       Properties:
