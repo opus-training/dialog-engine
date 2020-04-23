@@ -1,8 +1,10 @@
 import unittest
+from decimal import Decimal
+import json
 
 import requests_mock
 
-from stopcovid.dialog.registration import DefaultRegistrationValidator
+from stopcovid.dialog.registration import DefaultRegistrationValidator, CodeValidationPayloadSchema
 
 
 class TestRegistration(unittest.TestCase):
@@ -74,3 +76,21 @@ class TestRegistration(unittest.TestCase):
             validator.validate_code("foo", url=self.url, key=self.key)
             validator.validate_code("foo", url=self.url, key=self.key)
             self.assertEqual(1, m.call_count)
+
+    def test_code_validation_payload_json_serializable(self):
+        payload = CodeValidationPayloadSchema().load(
+            {
+                "valid": True,
+                "is_demo": False,
+                "account_info": {"employer_id": Decimal(12), "unit_id": Decimal(1)},
+            }
+        )
+
+        as_dict = CodeValidationPayloadSchema().dump(payload)
+        self.assertEqual(
+            as_dict,
+            {"valid": True, "is_demo": False, "account_info": {"employer_id": 12, "unit_id": 1}},
+        )
+
+        # json serialization doesnt blow up
+        json.dumps(as_dict)

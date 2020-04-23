@@ -7,11 +7,13 @@ from typing import Any, Dict
 import requests
 from marshmallow import Schema, fields, post_load
 
+from .models.state import AccountInfoField
+
 
 class CodeValidationPayloadSchema(Schema):
     valid = fields.Boolean(required=True)
     is_demo = fields.Boolean()
-    account_info = fields.Mapping(keys=fields.Str(), allow_none=True)
+    account_info = AccountInfoField(keys=fields.Str(), allow_none=True)
 
     @post_load
     def make_code_validation_payload(self, data, **kwargs):
