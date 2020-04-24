@@ -8,9 +8,11 @@ We also welcome feedback and advice. We built this in a hurry and there's room f
 
 ## About StopCOVID
 
-StopCOVID is a volunteer effort that provides COVID-19 training for essential businesses. We are partnering with essential businesses of all sizes to stop the spread of COVID-19 by providing free, high-impact training for frontline workers delivered over text message. See [our website](https://www.stopcovid.co/) for more information.
+StopCOVID provides COVID-19 training for businesses. It is an emergency initiative built by humans who wanted to be part of the solution to protect essential workers while helping to stop the spread of Coronavirus. We are partnering with essential businesses up and down the supply chain. We provide them with high-impact training for their frontline workers that's delivered over text message. 
 
-Each trainee receives one interactive daily drill over SMS. Each drill has about five questions, and stopCOVID reports statistics on drill completion back to employers.
+Each trainee receives one interactive training daily drill over SMS. Each drill is interactive and delivers digestible training. Then, stopCOVID reports statistics on completion back to businesses.
+
+See [our website](https://www.stopcovid.co/) for more information.
 
 ![example drill in progress](drill.png)
 
