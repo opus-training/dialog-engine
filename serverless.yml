@@ -162,12 +162,6 @@ functions:
           startingPosition: LATEST
           maximumRetryAttempts: 5
 
-  triggerReminders:
-    handler: stopcovid/drill_progress/aws_lambdas/trigger_reminders.handler
-    timeout: 60
-    events:
-      - schedule: cron(0/5 14-23 * * ? *)
-
 resources:
   Resources:
     AWSLambdaVPCAccessExecutionRole:
