@@ -1,10 +1,8 @@
 import logging
 import unittest
-import uuid
 from unittest.mock import patch, MagicMock
 
 from stopcovid.dialog.command_stream.publish import CommandPublisher
-from stopcovid.drill_progress.drill_progress import DrillInstance
 
 
 class TestCommandPublisher(unittest.TestCase):
@@ -35,29 +33,4 @@ class TestCommandPublisher(unittest.TestCase):
         self.assertEqual(1, len(self.put_records_mock.call_args[1]["Records"]))
         self.assertEqual(
             "123456789", self.put_records_mock.call_args[1]["Records"][0]["PartitionKey"]
-        )
-
-    def publish_trigger_reminders(self):
-        drill_instances = [
-            DrillInstance(
-                drill_instance_id=uuid.uuid4(),
-                user_id=uuid.uuid4(),
-                phone_number="123456789",
-                drill_slug="slug",
-            ),
-            DrillInstance(
-                drill_instance_id=uuid.uuid4(),
-                user_id=uuid.uuid4(),
-                phone_number="987654321",
-                drill_slug="slug",
-            ),
-        ]
-        self.command_publisher.publish_trigger_reminder_commands(drill_instances)
-        self.put_records_mock.assert_called_once()
-        self.assertEqual(2, len(self.put_records_mock.call_args[1]["Records"]))
-        self.assertEqual(
-            "123456789", self.put_records_mock.call_args[1]["Records"][0]["PartitionKey"]
-        )
-        self.assertEqual(
-            "987654321", self.put_records_mock.call_args[1]["Records"][1]["PartitionKey"]
         )

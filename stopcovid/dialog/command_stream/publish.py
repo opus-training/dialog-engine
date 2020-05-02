@@ -5,8 +5,6 @@ from typing import Dict, Any, Optional, List, Tuple
 
 import boto3
 
-from stopcovid.drill_progress.drill_progress import DrillInstance
-
 
 class CommandPublisher:
     def __init__(self):
@@ -23,25 +21,6 @@ class CommandPublisher:
                         "payload": {"phone_number": phone_number, "drill_slug": drill_slug},
                     },
                 )
-            ]
-        )
-
-    def publish_trigger_reminder_commands(self, drills: List[DrillInstance]):
-        logging.info(f"publishing {len(drills)} TRIGGER_REMINDER commands")
-        self._publish_commands(
-            [
-                (
-                    drill.phone_number,
-                    {
-                        "type": "TRIGGER_REMINDER",
-                        "payload": {
-                            "phone_number": drill.phone_number,
-                            "drill_instance_id": str(drill.drill_instance_id),
-                            "prompt_slug": drill.current_prompt_slug,
-                        },
-                    },
-                )
-                for drill in drills
             ]
         )
 
