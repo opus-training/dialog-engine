@@ -5,7 +5,6 @@ import json
 
 from stopcovid.dialog.models.events import batch_from_dict, DialogEventBatch
 from stopcovid.utils import dynamodb as dynamodb_utils
-from stopcovid.drill_progress import status
 from stopcovid.utils.logging import configure_logging
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
 
@@ -20,7 +19,6 @@ def handler(event, context):
         if record["dynamodb"].get("NewImage")
     ]
 
-    status.handle_dialog_event_batches(event_batches)
     _publish_event_batches_to_kinesis(event_batches)
 
     return {"statusCode": 200}

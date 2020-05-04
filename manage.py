@@ -8,7 +8,6 @@ import boto3
 from sqlalchemy import create_engine
 
 from stopcovid.dialog.models.events import batch_from_dict, DialogEventBatch
-from stopcovid.drill_progress.drill_progress import DrillProgressRepository
 from stopcovid.utils import dynamodb as dynamodb_utils
 from stopcovid.utils.logging import configure_logging
 from stopcovid.sms.message_log.types import LogMessageCommandSchema
@@ -115,34 +114,6 @@ def db_engine_factory(stage: str):
     return engine_factory
 
 
-def get_drill_progress_repo(stage: str) -> DrillProgressRepository:
-    return DrillProgressRepository(db_engine_factory(stage))
-
-
-def rebuild_drill_progress(args):
-    drill_progress_repo = get_drill_progress_repo(args.stage)
-    user_id = drill_progress_repo.delete_user_info(args.phone_number)
-    for batch in _get_dialog_events(args.phone_number, args.stage):
-        print(f"{batch.batch_id}: {batch.seq}")
-        drill_progress_repo.update_user(batch, ensure_user_id=user_id)
-    print("Done")
-
-
-def show_drill_progress(args):
-    drill_progress_repo = get_drill_progress_repo(args.stage)
-    user = drill_progress_repo.get_user_for_phone_number(args.phone_number)
-    if not user:
-        print("User not found")
-    progress = drill_progress_repo.get_progress_for_user(args.phone_number)
-    print(f"{args.phone_number}:")
-    print(f"\tid={user.user_id}")
-    print(f"\tseq={user.seq}")
-    print(f"\tprofile={user.profile}")
-    print(f"\tlast_interacted_time={user.last_interacted_time.isoformat()}")
-    print(f"\tfirst_unstarted_drill_slug={progress.first_unstarted_drill_slug}")
-    print(f"\tfirst_incomplete_drill_slug={progress.first_incomplete_drill_slug}")
-
-
 def get_all_users(args):
     dynamodb = boto3.client("dynamodb")
     table_name = f"dialog-state-{args.stage}"
@@ -212,19 +183,6 @@ def main():
     sqs_parser.add_argument("queue", choices=["sms", "drill-initiation"])
     sqs_parser.add_argument("--dry_run", action="store_true")
     sqs_parser.set_defaults(func=handle_redrive_sqs)
-
-    rebuild_progress_parser = subparsers.add_parser(
-        "rebuild-drill-progress",
-        description="rebuild drill progress information for the user in aurora",
-    )
-    rebuild_progress_parser.add_argument("phone_number")
-    rebuild_progress_parser.set_defaults(func=rebuild_drill_progress)
-
-    show_progress_parser = subparsers.add_parser(
-        "show-drill-progress", description="print information on a user's drill progress"
-    )
-    show_progress_parser.add_argument("phone_number")
-    show_progress_parser.set_defaults(func=show_drill_progress)
 
     get_all_users_parser = subparsers.add_parser(
         "get-all-users", description="print out every user's phone number"
