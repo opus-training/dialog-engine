@@ -143,12 +143,6 @@ functions:
               - StreamArn
           startingPosition: LATEST
 
-  scheduleNextDrillsToTrigger:
-    handler: stopcovid/drill_progress/aws_lambdas/schedule_next_drills_to_trigger.handler
-    timeout: 60
-    events:
-      - schedule: cron(5 17 * * ? *)
-
   triggerScheduledDrill:
     handler: stopcovid/drill_progress/aws_lambdas/trigger_scheduled_drill.handler
     timeout: 60
