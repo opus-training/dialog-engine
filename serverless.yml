@@ -131,7 +131,7 @@ functions:
               - StreamArn
           startingPosition: LATEST
 
-  updateDrillStatus:
+  publishDialogEventBatches:
     handler: stopcovid/dialog/aws_lambdas/publish_dialog_event_batches.handler
     timeout: 60
     events:
