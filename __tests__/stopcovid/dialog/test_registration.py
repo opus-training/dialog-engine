@@ -14,7 +14,9 @@ class TestRegistration(unittest.TestCase):
 
     def test_invalid_code(self):
         with requests_mock.Mocker() as m:
-            m.post(self.url, json={"valid": False})
+            m.post(
+                self.url, json={"valid": "False", "is_demo": "False", "account_info": "None"},
+            )
             payload = DefaultRegistrationValidator().validate_code(
                 "foo", url=self.url, key=self.key
             )
@@ -23,7 +25,19 @@ class TestRegistration(unittest.TestCase):
 
     def test_demo_code(self):
         with requests_mock.Mocker() as m:
-            m.post(self.url, json={"valid": True, "is_demo": True})
+            m.post(
+                self.url,
+                json={
+                    "valid": "True",
+                    "is_demo": "True",
+                    "account_info": {
+                        "employer_id": 165,
+                        "employer_name": "Kai's Crab Shack",
+                        "unit_id": 429,
+                        "unit_name": "Kitchen",
+                    },
+                },
+            )
             payload = DefaultRegistrationValidator().validate_code(
                 "foo", url=self.url, key=self.key
             )
@@ -36,8 +50,8 @@ class TestRegistration(unittest.TestCase):
             m.post(
                 self.url,
                 json={
-                    "valid": True,
-                    "is_demo": False,
+                    "valid": "True",
+                    "is_demo": "False",
                     "account_info": {
                         "employer_id": 165,
                         "employer_name": "Kai's Crab Shack",
@@ -67,8 +81,8 @@ class TestRegistration(unittest.TestCase):
             m.post(
                 self.url,
                 json={
-                    "valid": True,
-                    "is_demo": False,
+                    "valid": "True",
+                    "is_demo": "False",
                     "account_info": {"employer_id": 165, "unit_id": 429},
                 },
             )
@@ -80,8 +94,8 @@ class TestRegistration(unittest.TestCase):
     def test_code_validation_payload_json_serializable(self):
         payload = CodeValidationPayloadSchema().load(
             {
-                "valid": True,
-                "is_demo": False,
+                "valid": "True",
+                "is_demo": "False",
                 "account_info": {"employer_id": Decimal(12), "unit_id": Decimal(1)},
             }
         )
