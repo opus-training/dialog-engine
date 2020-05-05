@@ -20,6 +20,7 @@ def handle_inbound_commands(commands: List[InboundCommand]):
                 StartDrill(
                     phone_number=command.payload["phone_number"],
                     drill_slug=command.payload["drill_slug"],
+                    drill_body=command.payload["drill_body"],
                 ),
                 command.sequence_number,
             )

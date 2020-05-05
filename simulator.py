@@ -136,8 +136,9 @@ class InMemoryRepository(DialogRepository):
         if drill_to_start:
             global SEQ
             SEQ += 1
+            drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, DRILLS[drill_to_start].slug), str(SEQ), repo=self
+                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()), str(SEQ), repo=self
             )
 
 

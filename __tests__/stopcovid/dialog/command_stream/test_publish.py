@@ -19,14 +19,6 @@ class TestCommandPublisher(unittest.TestCase):
         self.addCleanup(get_kinesis_client_patch.stop)
         self.command_publisher = CommandPublisher()
 
-    def test_publish_start_drill(self):
-        self.command_publisher.publish_start_drill_command("123456789", "slug")
-        self.put_records_mock.assert_called_once()
-        self.assertEqual(1, len(self.put_records_mock.call_args[1]["Records"]))
-        self.assertEqual(
-            "123456789", self.put_records_mock.call_args[1]["Records"][0]["PartitionKey"]
-        )
-
     def publish_process_sms(self):
         self.command_publisher.publish_process_sms_command("123456789", "lol", {"foo": "bar"})
         self.put_records_mock.assert_called_once()

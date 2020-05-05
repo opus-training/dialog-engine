@@ -22,7 +22,7 @@ from stopcovid.dialog.models.events import (
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import RegistrationValidator, DefaultRegistrationValidator
 from stopcovid.dialog.models.state import DialogState
-from stopcovid.drills.drills import get_drill, Drill
+from stopcovid.drills.drills import get_drill, Drill, DrillSchema
 
 DEFAULT_REGISTRATION_VALIDATOR = DefaultRegistrationValidator()
 
@@ -68,9 +68,15 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
 
 
 class StartDrill(Command):
-    def __init__(self, phone_number: str, drill_slug: str):
+    def __init__(self, phone_number: str, drill_slug: str, drill_body: Optional[dict] = None):
         super().__init__(phone_number)
         self.drill_slug = drill_slug
+        if drill_body:
+            logging.info(f"Using drill from StartDrill command: {drill_slug}")
+            self.drill = DrillSchema().load(drill_body)
+        else:
+            logging.info(f"Loading drill from content loader: {drill_slug}")
+            self.drill = get_drill(self.drill_slug)
 
     def __str__(self):
         return f"Start Drill: {self.drill_slug}"
@@ -78,7 +84,6 @@ class StartDrill(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        drill = get_drill(self.drill_slug)
         if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
             logging.warning(
                 f"Attempted to initiate a drill for {dialog_state.phone_number}, "
@@ -89,8 +94,8 @@ class StartDrill(Command):
             DrillStarted(
                 phone_number=self.phone_number,
                 user_profile=dialog_state.user_profile,
-                drill=drill,
-                first_prompt=drill.first_prompt(),
+                drill=self.drill,
+                first_prompt=self.drill.first_prompt(),
             )
         ]
 
