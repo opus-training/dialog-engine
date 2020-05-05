@@ -137,7 +137,9 @@ class InMemoryRepository(DialogRepository):
             global SEQ
             SEQ += 1
             drill = DRILLS[drill_to_start]
-            process_command(StartDrill(PHONE_NUMBER, drill.slug, drill), str(SEQ), repo=self)
+            process_command(
+                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()), str(SEQ), repo=self
+            )
 
 
 class FakeRegistrationValidator(RegistrationValidator):

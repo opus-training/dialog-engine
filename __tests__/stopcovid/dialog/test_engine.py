@@ -201,13 +201,13 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_start_drill_with_full_drill_body(self, get_drill_mock):
         self.dialog_state.user_profile.validated = True
-        command = StartDrill(self.phone_number, self.drill.slug, self.drill)
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
 
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.DRILL_STARTED)
         event: DrillStarted = batch.events[0]  # type: ignore
-        self.assertEqual(self.drill, event.drill)
-        self.assertEqual(self.drill.first_prompt(), event.first_prompt)
+        self.assertEqual(self.drill.to_dict(), event.drill.to_dict())
+        self.assertEqual(self.drill.first_prompt().slug, event.first_prompt.slug)
         self.assertIsNotNone(event.drill_instance_id)
 
     def test_complete_and_advance(self, get_drill_mock):
