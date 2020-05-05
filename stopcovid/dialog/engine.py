@@ -72,8 +72,10 @@ class StartDrill(Command):
         super().__init__(phone_number)
         self.drill_slug = drill_slug
         if drill_body:
+            logging.info(f"Using drill from StartDrill command: {drill_slug}")
             self.drill = DrillSchema().load(drill_body)
         else:
+            logging.info(f"Loading drill from content loader: {drill_slug}")
             self.drill = get_drill(self.drill_slug)
 
     def __str__(self):
