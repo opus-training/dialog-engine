@@ -10,20 +10,6 @@ class CommandPublisher:
     def __init__(self):
         self.stage = os.environ.get("STAGE")
 
-    def publish_start_drill_command(self, phone_number: str, drill_slug: str):
-        logging.info(f"({phone_number}) publishing START_DRILL command")
-        self._publish_commands(
-            [
-                (
-                    phone_number,
-                    {
-                        "type": "START_DRILL",
-                        "payload": {"phone_number": phone_number, "drill_slug": drill_slug},
-                    },
-                )
-            ]
-        )
-
     def publish_process_sms_command(self, phone_number: str, content: str, twilio_webhook: dict):
         logging.info(f"({phone_number}) publishing INBOUND_SMS command")
         self._publish_commands(

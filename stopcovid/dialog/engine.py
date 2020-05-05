@@ -68,9 +68,10 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
 
 
 class StartDrill(Command):
-    def __init__(self, phone_number: str, drill_slug: str):
+    def __init__(self, phone_number: str, drill_slug: str, drill: Optional[Drill] = None):
         super().__init__(phone_number)
         self.drill_slug = drill_slug
+        self.drill = drill
 
     def __str__(self):
         return f"Start Drill: {self.drill_slug}"
@@ -78,7 +79,9 @@ class StartDrill(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        drill = get_drill(self.drill_slug)
+        drill = self.drill
+        if not drill:
+            drill = get_drill(self.drill_slug)
         if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
             logging.warning(
                 f"Attempted to initiate a drill for {dialog_state.phone_number}, "

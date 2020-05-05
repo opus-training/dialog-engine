@@ -100,10 +100,6 @@ def get_drill(drill_key: str) -> Drill:
     return get_content_loader().get_drills()[drill_key]
 
 
-def get_first_drill_slug() -> str:
-    return get_all_drill_slugs()[0]
-
-
 def get_all_drill_slugs() -> List[str]:
     from .content_loader import get_content_loader
 
