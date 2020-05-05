@@ -131,8 +131,8 @@ functions:
               - StreamArn
           startingPosition: LATEST
 
-  updateDrillStatus:
-    handler: stopcovid/drill_progress/aws_lambdas/update_drill_status.handler
+  publishDialogEventBatches:
+    handler: stopcovid/dialog/aws_lambdas/publish_dialog_event_batches.handler
     timeout: 60
     events:
       - stream:
@@ -142,19 +142,6 @@ functions:
               - DialogEventBatches
               - StreamArn
           startingPosition: LATEST
-
-  triggerScheduledDrill:
-    handler: stopcovid/drill_progress/aws_lambdas/trigger_scheduled_drill.handler
-    timeout: 60
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt:
-              - DrillTriggerSchedule
-              - StreamArn
-          startingPosition: LATEST
-          maximumRetryAttempts: 5
 
 resources:
   Resources:
