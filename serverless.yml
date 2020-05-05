@@ -44,23 +44,12 @@ provider:
     DB_SECRET_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbSecretArn}
     DRILL_CONTENT_S3_BUCKET: ${ssm:/stopcovid/${self:provider.stage}/drillContentS3Bucket}
 
-        
+
 plugins:
   - serverless-python-requirements
   - serverless-log-forwarding
 
 functions:
-  registration:
-    handler: stopcovid/registration.handle_registration
-    events:
-      - http:
-          path: registration
-          method: post
-          cors: true
-    environment:
-      AUTH_USERNAME: ${ssm:/stopcovid/${self:provider.stage}/authUsername}
-      AUTH_PASSWORD: ${ssm:/stopcovid/${self:provider.stage}/authPassword~true}
-
   twilioWebhook:
     handler: stopcovid/sms/aws_lambdas/twilio_webhook.handler
     timeout: 20
@@ -242,7 +231,7 @@ resources:
       Properties:
         QueueName: system-test-${self:provider.stage}
         MessageRetentionPeriod: 60
-  
+
     # DIALOG STATE AND EVENTS (DynamoDB)
     DialogState:
       Type: AWS::DynamoDB::Table
