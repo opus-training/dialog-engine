@@ -263,6 +263,6 @@ class ProcessSMSMessage(Command):
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
-            if self.content_lower == "more":
+            if self.content_lower in ["more", "mas", "más"]:
                 return [NextDrillRequested(**base_args)]
             return []
