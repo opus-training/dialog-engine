@@ -4,7 +4,6 @@ from unittest.mock import patch, MagicMock
 from stopcovid.drills.content_loader import S3Loader
 
 
-@patch("stopcovid.drills.content_loader.S3Loader._populate_drills")
 @patch("stopcovid.drills.content_loader.S3Loader._populate_translations")
 class TestS3LoaderThreading(unittest.TestCase):
     def setUp(self) -> None:
@@ -23,22 +22,17 @@ class TestS3LoaderThreading(unittest.TestCase):
 
         self.addCleanup(boto3_patch.stop)
 
-    def test_not_stale_content(self, populate_translations_patch, populate_drills_patch):
+    def test_not_stale_content(self, populate_translations_patch):
         loader = S3Loader("bucket-foo")
         self.assertEqual(1, populate_translations_patch.call_count)
-        self.assertEqual(1, populate_drills_patch.call_count)
-        loader.get_all_drill_slugs()
+        loader.get_translations()
         self.assertEqual(1, populate_translations_patch.call_count)
-        self.assertEqual(1, populate_drills_patch.call_count)
 
-    def test_stale_content(self, populate_translations_patch, populate_drills_patch):
+    def test_stale_content(self, populate_translations_patch):
         loader = S3Loader("bucket-foo")
         self.assertEqual(1, populate_translations_patch.call_count)
-        self.assertEqual(1, populate_drills_patch.call_count)
         self.version = "2"
-        loader.get_all_drill_slugs()
+        loader.get_translations()
         self.assertEqual(2, populate_translations_patch.call_count)
-        self.assertEqual(2, populate_drills_patch.call_count)
-        loader.get_all_drill_slugs()
+        loader.get_translations()
         self.assertEqual(2, populate_translations_patch.call_count)
-        self.assertEqual(2, populate_drills_patch.call_count)

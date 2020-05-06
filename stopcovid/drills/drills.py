@@ -92,15 +92,3 @@ class Drill:
 
     def to_dict(self):
         return DrillSchema().dump(self)
-
-
-def get_drill(drill_key: str) -> Drill:
-    from .content_loader import get_content_loader
-
-    return get_content_loader().get_drills()[drill_key]
-
-
-def get_all_drill_slugs() -> List[str]:
-    from .content_loader import get_content_loader
-
-    return get_content_loader().get_all_drill_slugs()

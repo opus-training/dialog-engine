@@ -19,13 +19,13 @@ from stopcovid.dialog.models.events import (
 from stopcovid.dialog.engine import process_command, StartDrill, ProcessSMSMessage
 from stopcovid.dialog.registration import RegistrationValidator, CodeValidationPayload
 from stopcovid.dialog.models.state import DialogStateSchema, DialogState, UserProfile
-from stopcovid.drills.drills import get_drill, get_all_drill_slugs
+from stopcovid.drills.content_loader import SourceRepoDrillLoader
 from stopcovid.drills.localize import localize
 
 SEQ = 1
 TRY_AGAIN = "{{incorrect_answer}}"
 PHONE_NUMBER = "123456789"
-DRILLS = {slug: get_drill(slug) for slug in get_all_drill_slugs()}
+DRILLS = SourceRepoDrillLoader().get_drills()
 
 
 STARTED_DRILLS = {}

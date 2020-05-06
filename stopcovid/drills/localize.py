@@ -22,6 +22,6 @@ def localize(message: str, lang: Optional[str], **kwargs) -> str:
 
 
 def localizations_for(lang: str) -> Dict[str, str]:
-    from .content_loader import get_content_loader
+    from .content_loader import get_translation_loader
 
-    return get_content_loader().get_translations()[lang]
+    return get_translation_loader().get_translations()[lang]
