@@ -356,6 +356,16 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
 
+    def test_ask_for_mas(self):
+        self.dialog_state.user_profile.validated = True
+        command = ProcessSMSMessage(self.phone_number, "mas")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
+
+        command = ProcessSMSMessage(self.phone_number, "más")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
+
     def test_trigger_reminder(self):
         self.dialog_state.user_profile.validated = True
         self._set_current_prompt(2, should_advance=True)
