@@ -257,6 +257,7 @@ class ProcessSMSMessage(Command):
                     )
                 )
                 if dialog_state.is_next_prompt_last():
+                    # assume the last prompt doesn't wait for an answer
                     events.append(self._get_drill_completed_event(dialog_state, base_args))
 
             elif len(dialog_state.current_drill.prompts) == 1:
