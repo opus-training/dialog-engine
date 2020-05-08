@@ -1,7 +1,8 @@
 {
-  "00-intake": {
-    "name": "Intake",
-    "slug": "00-intake",
+
+  "00-language": {
+    "name": "Language",
+    "slug": "00-language",
     "auto_continue": true,
     "prompts": [
       {
@@ -12,7 +13,14 @@
           }
         ],
         "response_user_profile_key": "language"
-      },
+      }
+    ]
+  },
+  "00-intake": {
+    "name": "Intake",
+    "slug": "00-intake",
+    "auto_continue": true,
+    "prompts": [
       {
         "slug": "2 -",
         "messages": [

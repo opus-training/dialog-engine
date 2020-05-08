@@ -202,6 +202,19 @@ class ProcessSMSMessage(Command):
             if not dialog_state.user_profile.validated:
                 return [UserValidationFailed(**base_args)]
 
+    def _get_drill_completed_event(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> DrillCompleted:
+        auto_continue = None
+        if isinstance(dialog_state.current_drill, Drill):
+            auto_continue = dialog_state.current_drill.auto_continue
+
+        return DrillCompleted(
+            drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
+            auto_continue=auto_continue,
+            **base_args,
+        )
+
     def _check_response(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
@@ -244,18 +257,11 @@ class ProcessSMSMessage(Command):
                     )
                 )
                 if dialog_state.is_next_prompt_last():
-                    auto_continue = None
-                    if isinstance(dialog_state.current_drill, Drill):
-                        auto_continue = dialog_state.current_drill.auto_continue
+                    events.append(self._get_drill_completed_event(dialog_state, base_args))
 
-                    # assume the last prompt doesn't wait for an answer
-                    events.append(
-                        DrillCompleted(
-                            drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
-                            auto_continue=auto_continue,
-                            **base_args,
-                        )
-                    )
+            elif len(dialog_state.current_drill.prompts) == 1:
+                events.append(self._get_drill_completed_event(dialog_state, base_args))
+
         return events
 
     def _advance_to_next_drill(

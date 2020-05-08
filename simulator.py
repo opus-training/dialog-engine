@@ -70,6 +70,14 @@ class InMemoryRepository(DialogRepository):
                 user_profile=UserProfile(False, language=self.lang),
             )
 
+    def get_next_unstarted_drill(self):
+        unstarted_drills = [
+            code for code in DRILLS.keys() if DRILLS[code].slug not in STARTED_DRILLS.values()
+        ]
+        if unstarted_drills:
+            return unstarted_drills[0]
+        return None
+
     def persist_dialog_state(  # noqa: C901
         self, event_batch: DialogEventBatch, dialog_state: DialogState
     ):
@@ -109,14 +117,8 @@ class InMemoryRepository(DialogRepository):
                 if event.drill_instance_id:
                     del STARTED_DRILLS[event.drill_instance_id]
             elif isinstance(event, NextDrillRequested):
-                unstarted_drills = [
-                    code
-                    for code in DRILLS.keys()
-                    if DRILLS[code].slug not in STARTED_DRILLS.values()
-                ]
-                if unstarted_drills:
-                    drill_to_start = unstarted_drills[0]
-                else:
+                drill_to_start = self.get_next_unstarted_drill()
+                if not drill_to_start:
                     print("(You're all out of drills.)")
             elif isinstance(event, UserValidationFailed):
                 print(f"(try {', '.join(DRILLS.keys())})")
@@ -132,7 +134,12 @@ class InMemoryRepository(DialogRepository):
                     ],
                 )
             elif isinstance(event, DrillCompleted):
-                print("(The drill is complete. Type 'more' for another drill or crtl-D to exit.)")
+                if event.auto_continue:
+                    drill_to_start = self.get_next_unstarted_drill()
+                else:
+                    print(
+                        "(The drill is complete. Type 'more' for another drill or crtl-D to exit.)"
+                    )
         if drill_to_start:
             global SEQ
             SEQ += 1
