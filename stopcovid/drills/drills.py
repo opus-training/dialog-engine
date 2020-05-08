@@ -31,6 +31,7 @@ class PromptSchema(Schema):
     messages = fields.List(fields.Nested(PromptMessageSchema), required=True)
     response_user_profile_key = fields.String(allow_none=True)
     correct_response = fields.String(allow_none=True)
+    max_failures = fields.Int(allow_none=True)
 
     @post_load
     def make_prompt(self, data, **kwargs):
