@@ -1,7 +1,8 @@
 {
-  "00-intake": {
-    "name": "Intake",
-    "slug": "00-intake",
+
+  "00-language": {
+    "name": "Language",
+    "slug": "00-language",
     "auto_continue": true,
     "prompts": [
       {
@@ -12,7 +13,14 @@
           }
         ],
         "response_user_profile_key": "language"
-      },
+      }
+    ]
+  },
+  "01-intake": {
+    "name": "Intake",
+    "slug": "01-intake",
+    "auto_continue": true,
+    "prompts": [
       {
         "slug": "2 -",
         "messages": [
@@ -23,9 +31,9 @@
       }
     ]
   },
-  "01-sample-drill": {
+  "02-sample-drill": {
     "name": "Sample Drill 1",
-    "slug": "01-sample-drill",
+    "slug": "02-sample-drill",
     "prompts": [
       {
         "slug": "2 -",
@@ -111,9 +119,9 @@
       }
     ]
   },
-  "02-sample-drill": {
+  "03-sample-drill": {
     "name": "Sample Drill 2",
-    "slug": "02-sample-drill",
+    "slug": "03-sample-drill",
     "prompts": [
       {
         "slug": "1 -",
@@ -188,9 +196,9 @@
       }
     ]
   },
-  "03-sample-drill": {
+  "04-sample-drill": {
     "name": "Sample Drill 3",
-    "slug": "03-sample-drill",
+    "slug": "04-sample-drill",
     "prompts": [
       {
         "slug": "1 -",

@@ -3,6 +3,7 @@ import logging
 import unittest
 import uuid
 from unittest.mock import MagicMock, patch, Mock
+from typing import Optional
 
 from stopcovid.dialog.engine import process_command, ProcessSMSMessage, StartDrill, TriggerReminder
 from stopcovid.dialog.models.events import (
@@ -77,16 +78,20 @@ class TestProcessCommand(unittest.TestCase):
         for i in range(len(batch.events)):
             self.assertEqual(args[i], batch.events[i].event_type)
 
-    def _set_current_prompt(self, prompt_index: int, should_advance: bool):
-        self.dialog_state.current_drill = self.drill
-        underlying_prompt = self.drill.prompts[prompt_index]
+    def _set_current_prompt(
+        self, prompt_index: int, should_advance: bool, drill: Optional[Drill] = None
+    ):
+        if not drill:
+            drill = self.drill
+        self.dialog_state.current_drill = drill
+        underlying_prompt = drill.prompts[prompt_index]
         prompt = Mock(wraps=underlying_prompt)
         prompt.slug = underlying_prompt.slug
         prompt.messages = underlying_prompt.messages
         prompt.response_user_profile_key = underlying_prompt.response_user_profile_key
         prompt.max_failures = underlying_prompt.max_failures
         prompt.should_advance_with_answer.return_value = should_advance
-        self.drill.prompts[prompt_index] = prompt
+        drill.prompts[prompt_index] = prompt
         self.dialog_state.current_prompt_state = PromptState(slug=prompt.slug, start_time=self.now)
 
     def test_skip_processed_sequence_numbers(self):
@@ -273,6 +278,28 @@ class TestProcessCommand(unittest.TestCase):
         drill_completed_event: DrillCompleted = batch.events[2]  # type: ignore
         self.assertEqual(
             self.dialog_state.drill_instance_id, drill_completed_event.drill_instance_id
+        )
+
+    def test_drill_with_one_prompt(self):
+        choose_language_drill = Drill(
+            name="test-drill",
+            slug="test-drill",
+            prompts=[
+                Prompt(
+                    slug="ignore-response-1",
+                    messages=[PromptMessage(text="{{msg1}}")],
+                    response_user_profile_key="language",
+                ),
+            ],
+        )
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.current_drill = choose_language_drill
+        self._set_current_prompt(0, should_advance=True, drill=choose_language_drill)
+        command = ProcessSMSMessage(self.phone_number, "en")
+        batch = self._process_command(command)
+
+        self._assert_event_types(
+            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.DRILL_COMPLETED,
         )
 
     def test_conclude_with_too_many_wrong_answers(self):
