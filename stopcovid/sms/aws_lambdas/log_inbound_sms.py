@@ -44,7 +44,6 @@ def handler(event, context):
             if not idempotency_checker.already_processed(
                 command.sequence_number, IDEMPOTENCY_REALM
             ):
-                logging.info(f"Logging an INBOUND_SMS message in the message log")
                 twilio_webhook = command.payload["twilio_webhook"]
                 kinesis.put_record(
                     Data=json.dumps({"type": "INBOUND_SMS", "payload": twilio_webhook}),
