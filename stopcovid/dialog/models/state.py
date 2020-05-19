@@ -36,6 +36,7 @@ class UserProfileSchema(Schema):
     self_rating_5 = fields.Str(allow_none=True)
     self_rating_6 = fields.Str(allow_none=True)
     self_rating_7 = fields.Str(allow_none=True)
+    self_rating_8 = fields.Str(allow_none=True)
 
     @post_load
     def make_user_profile(self, data, **kwargs):
@@ -57,6 +58,7 @@ class UserProfile:
     self_rating_5: Optional[str] = None
     self_rating_6: Optional[str] = None
     self_rating_7: Optional[str] = None
+    self_rating_8: Optional[str] = None
 
     def __str__(self):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
