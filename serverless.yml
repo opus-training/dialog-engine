@@ -78,7 +78,15 @@ functions:
               - CommandStream
               - Arn
           startingPosition: LATEST
-          maximumRetryAttempts: 10000
+          maximumRetryAttempts: 5
+          bisectBatchOnFunctionError: true
+          destinations:
+            onFailure:
+              arn:
+                Fn::GetAtt:
+                  - MessageLogFailureQueue
+                  - Arn
+              type: sqs
 
   handleCommand:
     handler: stopcovid/dialog/aws_lambdas/handle_command.handler
@@ -321,3 +329,9 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: command-failures-${self:provider.stage}
+
+     # Message Log failures
+    MessageLogFailureQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: message-log-failures-${self:provider.stage}
