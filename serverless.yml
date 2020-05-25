@@ -174,20 +174,6 @@ resources:
         Name: dialog-event-batches-${self:provider.stage}
         ShardCount: 2
 
-    WriteMessageEvent:
-      Type: AWS::Lambda::EventSourceMapping
-      Properties:
-        EventSourceArn:
-          Fn::GetAtt:
-            - MessageLogStream
-            - Arn
-        FunctionName:
-          Fn::GetAtt:
-            - LogMessageLambdaFunction
-            - Arn
-        StartingPosition: LATEST
-        MaximumRetryAttempts: 10000
-
     # DB CLUSTER
     AuroraCluster:
       Type: AWS::RDS::DBCluster
