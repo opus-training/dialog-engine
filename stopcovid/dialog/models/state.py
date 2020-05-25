@@ -37,6 +37,9 @@ class UserProfileSchema(Schema):
     self_rating_6 = fields.Str(allow_none=True)
     self_rating_7 = fields.Str(allow_none=True)
     self_rating_8 = fields.Str(allow_none=True)
+    job = fields.Str(allow_none=True)
+    schedule_days = fields.Str(allow_none=True)
+    schedule_time = fields.Str(allow_none=True)
 
     @post_load
     def make_user_profile(self, data, **kwargs):
@@ -59,6 +62,9 @@ class UserProfile:
     self_rating_6: Optional[str] = None
     self_rating_7: Optional[str] = None
     self_rating_8: Optional[str] = None
+    job: Optional[str] = None
+    schedule_days: Optional[str] = None
+    schedule_time: Optional[str] = None
 
     def __str__(self):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
