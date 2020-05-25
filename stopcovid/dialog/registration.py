@@ -36,7 +36,7 @@ class RegistrationValidator(ABC):
 class DefaultRegistrationValidator(RegistrationValidator):
     @functools.lru_cache(maxsize=1024)
     def validate_code(self, code, **kwargs) -> CodeValidationPayload:
-        url = kwargs.get("url", os.getenv("REGISTRATION_VALIDATION_URL"))
+        url = kwargs.get("url", os.environ["REGISTRATION_VALIDATION_URL"])
         key = kwargs.get("key", os.getenv("REGISTRATION_VALIDATION_KEY"))
         response = requests.post(
             url=url,
