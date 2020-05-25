@@ -1,6 +1,7 @@
 import unittest
 from decimal import Decimal
 import json
+import os
 
 import requests_mock
 
@@ -11,6 +12,8 @@ class TestRegistration(unittest.TestCase):
     def setUp(self) -> None:
         self.url = "https://foo"
         self.key = "access-key"
+
+        os.environ["REGISTRATION_VALIDATION_URL"] = "www.foo.com"
 
     def test_invalid_code(self):
         with requests_mock.Mocker() as m:

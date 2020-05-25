@@ -112,11 +112,6 @@ functions:
       REGISTRATION_VALIDATION_URL: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationUrl}
       REGISTRATION_VALIDATION_KEY: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationKey~true}
 
-
-  logMessage:
-    handler: stopcovid/sms/aws_lambdas/persist_logs.handle
-    timeout: 60  # Give aurora cluster time to cold start
-
   distributeDialogEvents:
     handler: stopcovid/sms/aws_lambdas/enqueue_sms_batch.handler
     events:
