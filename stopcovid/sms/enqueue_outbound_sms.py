@@ -19,7 +19,7 @@ from stopcovid.dialog.models.events import (
     DrillCompleted,
     OptedOut,
     NextDrillRequested,
-    ScheduleDrillRequested,
+    SchedulingDrillRequested,
     DialogEvent,
     ReminderTriggered,
 )
@@ -101,7 +101,7 @@ def get_messages_for_event(event: DialogEvent):  # noqa: C901
         isinstance(event, DrillCompleted)
         or isinstance(event, OptedOut)
         or isinstance(event, NextDrillRequested)
-        or isinstance(event, ScheduleDrillRequested)
+        or isinstance(event, SchedulingDrillRequested)
     ):
         pass
 

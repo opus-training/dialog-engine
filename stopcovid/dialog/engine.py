@@ -16,7 +16,7 @@ from stopcovid.dialog.models.events import (
     DrillCompleted,
     OptedOut,
     NextDrillRequested,
-    ScheduleDrillRequested,
+    SchedulingDrillRequested,
     DialogEvent,
     DialogEventBatch,
 )
@@ -281,4 +281,4 @@ class ProcessSMSMessage(Command):
         prompt = dialog_state.get_prompt()
         if prompt is None:
             if self.content_lower in ["schedule", "calendario"]:
-                return [ScheduleDrillRequested(**base_args)]
+                return [SchedulingDrillRequested(**base_args)]
