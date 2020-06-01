@@ -14,6 +14,7 @@ from stopcovid.dialog.models.events import (
     DrillCompleted,
     OptedOut,
     NextDrillRequested,
+    ScheduleDrillRequested,
     DialogEventBatch,
 )
 from stopcovid.dialog.engine import process_command, StartDrill, ProcessSMSMessage
@@ -140,6 +141,8 @@ class InMemoryRepository(DialogRepository):
                     print(
                         "(The drill is complete. Type 'more' for another drill or crtl-D to exit.)"
                     )
+            elif isinstance(event, ScheduleDrillRequested):
+                print("Scheduling drill requested")
         if drill_to_start:
             global SEQ
             SEQ += 1

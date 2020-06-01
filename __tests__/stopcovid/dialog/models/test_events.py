@@ -12,6 +12,7 @@ from stopcovid.dialog.models.events import (
     DrillCompleted,
     OptedOut,
     NextDrillRequested,
+    ScheduleDrillRequested,
     DialogEvent,
     event_from_dict,
     ReminderTriggered,
@@ -421,6 +422,12 @@ class TestSerialization(unittest.TestCase):
 
     def test_next_drill_requested(self):
         original = NextDrillRequested("123456789", user_profile=UserProfile(True))
+        serialized = original.to_dict()
+        deserialized = event_from_dict(serialized)
+        self._make_base_assertions(original, deserialized)
+
+    def test_schedule_Drill_requested(self):
+        original = ScheduleDrillRequested("123456789", user_profile=UserProfile(True))
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
