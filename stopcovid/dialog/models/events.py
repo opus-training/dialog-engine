@@ -55,6 +55,7 @@ class DialogEventType(enum.Enum):
     DRILL_COMPLETED = "DRILL_COMPLETED"
     NEXT_DRILL_REQUESTED = "NEXT_DRILL_REQUESTED"
     OPTED_OUT = "OPTED_OUT"
+    SCHEDULING_DRILL_REQUESTED = "SCHEDULING_DRILL_REQUESTED"
 
 
 class DialogEvent(ABC):
@@ -383,6 +384,26 @@ class NextDrillRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
+class SchedulingDrillRequestedSchema(DialogEventSchema):
+    @post_load
+    def make_next_drill_requested(self, data, **kwargs):
+        return SchedulingDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class SchedulingDrillRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            SchedulingDrillRequestedSchema(),
+            DialogEventType.SCHEDULING_DRILL_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.user_profile.opted_out = False
+
+
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.ADVANCED_TO_NEXT_PROMPT: AdvancedToNextPromptSchema,
     DialogEventType.DRILL_COMPLETED: DrillCompletedSchema,
@@ -394,6 +415,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.REMINDER_TRIGGERED: ReminderTriggeredSchema,
     DialogEventType.OPTED_OUT: OptedOutSchema,
     DialogEventType.NEXT_DRILL_REQUESTED: NextDrillRequestedSchema,
+    DialogEventType.SCHEDULING_DRILL_REQUESTED: SchedulingDrillRequestedSchema,
 }
 
 

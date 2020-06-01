@@ -383,6 +383,14 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
 
+    def test_ask_for_scheduling_drill(self):
+        messages = ["schedule", "calendario"]
+        for message in messages:
+            self.dialog_state.user_profile.validated = True
+            command = ProcessSMSMessage(self.phone_number, message)
+            batch = self._process_command(command)
+            self._assert_event_types(batch, DialogEventType.SCHEDULING_DRILL_REQUESTED)
+
     def test_ask_for_mas(self):
         self.dialog_state.user_profile.validated = True
         command = ProcessSMSMessage(self.phone_number, "mas")
