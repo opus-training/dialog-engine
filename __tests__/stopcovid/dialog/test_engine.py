@@ -20,6 +20,7 @@ from stopcovid.dialog.models.events import (
     AdvancedToNextPrompt,
     FailedPrompt,
     DrillCompleted,
+    AdHocMessageSent,
 )
 from stopcovid.dialog.models.state import DialogState, PromptState
 
@@ -489,6 +490,6 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.AD_HOC_MESSAGE_SENT)
 
-        event = batch.events[0]
+        event: AdHocMessageSent = batch.events[0]
         self.assertEqual(event.sms.body, message)
         self.assertEqual(event.sms.media_url, media_url)
