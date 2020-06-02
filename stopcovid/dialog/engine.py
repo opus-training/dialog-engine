@@ -280,5 +280,5 @@ class ProcessSMSMessage(Command):
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
-            if self.content_lower in ["schedule", "calendario"]:
+            if self.content_lower in ["schedule", "calendario", "horario"]:
                 return [SchedulingDrillRequested(**base_args)]
