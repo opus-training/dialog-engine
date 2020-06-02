@@ -5,7 +5,13 @@ import uuid
 from unittest.mock import MagicMock, patch, Mock
 from typing import Optional
 
-from stopcovid.dialog.engine import process_command, ProcessSMSMessage, StartDrill, TriggerReminder
+from stopcovid.dialog.engine import (
+    process_command,
+    ProcessSMSMessage,
+    StartDrill,
+    TriggerReminder,
+    SendAdHocMessage,
+)
 from stopcovid.dialog.models.events import (
     DialogEventBatch,
     DialogEventType,
@@ -472,3 +478,17 @@ class TestProcessCommand(unittest.TestCase):
         self.assertEqual(0, len(batch.events))
 
         self.assertFalse(self.dialog_state.current_prompt_state.reminder_triggered)
+
+    def test_send_ad_hoc_message(self):
+        self.dialog_state.user_profile.validated = True
+        message = "An ad hoc message to a user"
+        media_url = "https://gph.is/1w6mM6h"
+        command = SendAdHocMessage(
+            phone_number=self.phone_number, message=message, media_url=media_url
+        )
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.AD_HOC_MESSAGE_SENT)
+
+        event = batch.events[0]
+        self.assertEqual(event.sms.body, message)  # type:ignore
+        self.assertEqual(event.sms.media_url, media_url)  # type:ignore

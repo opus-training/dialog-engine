@@ -17,6 +17,7 @@ from stopcovid.dialog.models.events import (
     OptedOut,
     NextDrillRequested,
     SchedulingDrillRequested,
+    AdHocMessageSent,
     DialogEvent,
     DialogEventBatch,
 )
@@ -24,6 +25,7 @@ from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogReposit
 from stopcovid.dialog.registration import RegistrationValidator, DefaultRegistrationValidator
 from stopcovid.dialog.models.state import DialogState
 from stopcovid.drills.drills import Drill, DrillSchema
+from stopcovid.sms.types import SMS
 
 DEFAULT_REGISTRATION_VALIDATOR = DefaultRegistrationValidator()
 
@@ -282,3 +284,14 @@ class ProcessSMSMessage(Command):
         if prompt is None:
             if self.content_lower in ["schedule", "calendario", "horario"]:
                 return [SchedulingDrillRequested(**base_args)]
+
+
+class SendAdHocMessage(Command):
+    def __init__(self, phone_number: str, message: str, media_url: Optional[str] = None):
+        super().__init__(phone_number)
+        self.sms = SMS(body=message, media_url=media_url)
+
+    def execute(
+        self, dialog_state: DialogState
+    ) -> List[stopcovid.dialog.models.events.DialogEvent]:
+        return [AdHocMessageSent(self.phone_number, dialog_state.user_profile, self.sms)]
