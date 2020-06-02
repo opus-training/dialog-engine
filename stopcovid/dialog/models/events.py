@@ -11,6 +11,7 @@ from stopcovid.dialog.registration import CodeValidationPayloadSchema, CodeValid
 from stopcovid.dialog.models.state import DialogState, UserProfileSchema, UserProfile, PromptState
 from stopcovid.dialog.models import SCHEMA_VERSION
 from stopcovid.drills import drills
+from stopcovid.sms.types import SMSSchema, SMS
 
 
 class EventTypeField(fields.Field):
@@ -56,6 +57,7 @@ class DialogEventType(enum.Enum):
     NEXT_DRILL_REQUESTED = "NEXT_DRILL_REQUESTED"
     OPTED_OUT = "OPTED_OUT"
     SCHEDULING_DRILL_REQUESTED = "SCHEDULING_DRILL_REQUESTED"
+    AD_HOC_MESSAGE_SENT = "AD_HOC_MESSAGE_SENT"
 
 
 class DialogEvent(ABC):
@@ -133,6 +135,29 @@ class ReminderTriggered(DialogEvent):
 
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_prompt_state.reminder_triggered = True
+
+
+class AdHocMessageSentSchema(DialogEventSchema):
+    sms = fields.Nested(SMSSchema, required=True)
+
+    @post_load
+    def make_ad_hoc_message_sent(self, data, **kwargs):
+        return AdHocMessageSent(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class AdHocMessageSent(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, sms: SMS, **kwargs):
+        super().__init__(
+            AdHocMessageSentSchema(),
+            DialogEventType.AD_HOC_MESSAGE_SENT,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+        self.sms = sms
+
+    def apply_to(self, dialog_state: DialogState):
+        pass
 
 
 class UserValidatedSchema(DialogEventSchema):
@@ -416,6 +441,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.OPTED_OUT: OptedOutSchema,
     DialogEventType.NEXT_DRILL_REQUESTED: NextDrillRequestedSchema,
     DialogEventType.SCHEDULING_DRILL_REQUESTED: SchedulingDrillRequestedSchema,
+    DialogEventType.AD_HOC_MESSAGE_SENT: AdHocMessageSentSchema,
 }
 
 
