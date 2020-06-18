@@ -16,9 +16,11 @@ from stopcovid.dialog.models.events import (
     DialogEvent,
     event_from_dict,
     ReminderTriggered,
+    AdHocMessageSent,
 )
 from stopcovid.dialog.models.state import UserProfile, DialogState, PromptState
 from stopcovid.dialog.registration import CodeValidationPayload
+from stopcovid.sms.types import SMS
 
 from stopcovid.drills.drills import Prompt, PromptMessage, Drill
 
@@ -428,6 +430,14 @@ class TestSerialization(unittest.TestCase):
 
     def test_scheduling_drill_requested(self):
         original = SchedulingDrillRequested("123456789", user_profile=UserProfile(True))
+        serialized = original.to_dict()
+        deserialized = event_from_dict(serialized)
+        self._make_base_assertions(original, deserialized)
+
+    def test_send_adhoc_message(self):
+        original = AdHocMessageSent(
+            "123456789", user_profile=UserProfile(True), sms=SMS(body="foobar")
+        )
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)

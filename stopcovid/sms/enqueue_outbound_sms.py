@@ -22,6 +22,7 @@ from stopcovid.dialog.models.events import (
     SchedulingDrillRequested,
     DialogEvent,
     ReminderTriggered,
+    AdHocMessageSent,
 )
 from stopcovid.drills.drills import PromptMessage
 from stopcovid.drills.localize import localize
@@ -97,6 +98,14 @@ def get_messages_for_event(event: DialogEvent):  # noqa: C901
     elif isinstance(event, DrillStarted):
         return get_localized_messages(event, event.first_prompt.messages)
 
+    elif isinstance(event, ReminderTriggered):
+        return get_localized_messages(event, [PromptMessage(text=REMINDER)])
+
+    elif isinstance(event, AdHocMessageSent):
+        return get_localized_messages(
+            event, [PromptMessage(text=event.sms.body, media_url=event.sms.media_url)]
+        )
+
     elif (
         isinstance(event, DrillCompleted)
         or isinstance(event, OptedOut)
@@ -104,9 +113,6 @@ def get_messages_for_event(event: DialogEvent):  # noqa: C901
         or isinstance(event, SchedulingDrillRequested)
     ):
         pass
-
-    elif isinstance(event, ReminderTriggered):
-        return get_localized_messages(event, [PromptMessage(text=REMINDER)])
 
     else:
         logging.info(f"Unknown event type: {event.event_type}")

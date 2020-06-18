@@ -24,9 +24,11 @@ from stopcovid.dialog.models.events import (
     AdvancedToNextPrompt,
     DrillCompleted,
     DialogEvent,
+    AdHocMessageSent,
 )
 from stopcovid.drills.drills import Drill, Prompt, PromptMessage
 from stopcovid.dialog.registration import CodeValidationPayload
+from stopcovid.sms.types import SMS
 
 
 class TestHandleCommand(unittest.TestCase):
@@ -194,6 +196,16 @@ class TestHandleCommand(unittest.TestCase):
         self.assertEqual(outbound_messages[1].phone_number, self.phone)
         self.assertEqual(outbound_messages[1].event_id, dialog_events[0].event_id)
         self.assertEqual(outbound_messages[1].body, expected_messages[1])
+
+    def test_ad_hoc_message_sent(self):
+        body = "we have lift off"
+        dialog_events: List[DialogEvent] = [
+            AdHocMessageSent(self.phone, self.validated_user_profile, sms=SMS(body=body))
+        ]
+        outbound_messages = get_outbound_sms_commands(dialog_events)
+        self.assertEqual(len(outbound_messages), 1)
+        self.assertEqual(outbound_messages[0].body, body)
+        self.assertEqual(outbound_messages[0].media_url, None)
 
 
 @patch("stopcovid.sms.enqueue_outbound_sms.boto3")
