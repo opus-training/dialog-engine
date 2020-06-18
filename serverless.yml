@@ -122,6 +122,13 @@ functions:
               - DialogEventBatches
               - StreamArn
           startingPosition: LATEST
+          destinations:
+            onFailure:
+              arn:
+                Fn::GetAtt:
+                  - DistributeDialogEventFailureQueue
+                  - Arn
+              type: sqs
 
   publishDialogEventBatches:
     handler: stopcovid/dialog/aws_lambdas/publish_dialog_event_batches.handler
@@ -316,3 +323,9 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: message-log-failures-${self:provider.stage}
+
+    # Distribute Dialog Event failures
+    DistributeDialogEventFailureQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: distribute-dialog-events-failures-${self:provider.stage}
