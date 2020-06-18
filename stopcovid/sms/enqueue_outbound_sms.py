@@ -149,6 +149,7 @@ def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]):
 
     entries = []
     for phone, messages in phone_number_to_messages.items():
+        logging.info(f"({phone}) queuing {len(messages)} messages")
         deduplication_id = _get_message_deduplication_id(messages)
         entries.append(
             {
