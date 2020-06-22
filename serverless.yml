@@ -166,7 +166,7 @@ resources:
       Type: AWS::Kinesis::Stream
       Properties:
         Name: command-stream-${self:provider.stage}
-        ShardCount: 2
+        ShardCount: 4
 
     # MESSAGE LOG STREAM
     MessageLogStream:
@@ -180,7 +180,7 @@ resources:
       Type: AWS::Kinesis::Stream
       Properties:
         Name: dialog-event-batches-${self:provider.stage}
-        ShardCount: 2
+        ShardCount: 4
 
 
     # OUTBOUND SMS
