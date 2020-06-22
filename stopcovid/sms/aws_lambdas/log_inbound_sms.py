@@ -2,9 +2,11 @@ import json
 import os
 
 import boto3
+import rollbar
 
 from stopcovid.utils.idempotency import IdempotencyChecker
 from stopcovid.utils.kinesis import get_payload_from_kinesis_record
+from stopcovid.utils.rollbar import configure_rollbar
 
 from stopcovid.dialog.command_stream.types import (
     InboundCommandSchema,
@@ -15,6 +17,7 @@ from stopcovid.utils.logging import configure_logging
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
 
 configure_logging()
+configure_rollbar()
 
 IDEMPOTENCY_REALM = "inbound-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 60
@@ -31,6 +34,7 @@ def _make_inbound_command(record) -> InboundCommand:
     )
 
 
+@rollbar.lambda_function
 def handler(event, context):
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")

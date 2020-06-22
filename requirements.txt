@@ -18,9 +18,10 @@ marshmallow==3.5.1        # via -r requirements.in
 pyjwt==1.7.1              # via twilio
 python-dateutil==2.8.1    # via botocore
 pytz==2019.3              # via twilio
-requests==2.23.0          # via -r requirements.in, twilio
+requests==2.23.0          # via -r requirements.in, rollbar, twilio
+rollbar==0.15.0           # via -r requirements.in
 s3transfer==0.3.3         # via boto3
-six==1.14.0               # via python-dateutil, twilio
+six==1.14.0               # via python-dateutil, rollbar, twilio
 sqlalchemy-aurora-data-api==0.2.0  # via -r requirements.in
 sqlalchemy==1.3.15        # via -r requirements.in, sqlalchemy-aurora-data-api
 twilio==6.38.0            # via -r requirements.in
