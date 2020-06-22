@@ -12,4 +12,5 @@ def configure_rollbar():
     if _is_running_unit_tests():
         return
 
-    rollbar.init(os.environ.get("ROLLBAR_TOKEN"), environment=os.environ.get("STAGE"))
+    stage = os.environ.get("STAGE")
+    rollbar.init(os.environ.get("ROLLBAR_TOKEN"), environment=f"dialog-engine-{stage}")
