@@ -5,6 +5,7 @@ from typing import Any, Dict
 from urllib.parse import unquote_plus
 
 import boto3
+import rollbar
 from twilio.request_validator import RequestValidator
 from twilio.twiml.messaging_response import MessagingResponse
 
@@ -12,14 +13,17 @@ from stopcovid.dialog.command_stream.publish import CommandPublisher
 from stopcovid.utils.idempotency import IdempotencyChecker
 
 from stopcovid.utils.logging import configure_logging
+from stopcovid.utils.rollbar import configure_rollbar
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
 
 configure_logging()
+configure_rollbar()
 
 IDEMPOTENCY_REALM = "twilio-webhook"
 IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 
+@rollbar.lambda_function
 def handler(event, context):
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")

@@ -1,11 +1,14 @@
-from stopcovid.utils.kinesis import get_payload_from_kinesis_record
+import rollbar
 
+from stopcovid.utils.kinesis import get_payload_from_kinesis_record
 from stopcovid.dialog.command_stream.types import InboundCommandSchema
 from stopcovid.dialog.command_stream.command_stream import handle_inbound_commands
 from stopcovid.utils.logging import configure_logging
+from stopcovid.utils.rollbar import configure_rollbar
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
 
 configure_logging()
+configure_rollbar()
 
 
 def _make_inbound_command(record):
@@ -19,6 +22,7 @@ def _make_inbound_command(record):
     )
 
 
+@rollbar.lambda_function
 def handler(event, context):
     verify_deploy_stage()
     inbound_commands = [_make_inbound_command(record) for record in event["Records"]]

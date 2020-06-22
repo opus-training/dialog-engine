@@ -43,6 +43,7 @@ provider:
     DB_CLUSTER_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbClusterArn}
     DB_SECRET_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbSecretArn}
     DRILL_CONTENT_S3_BUCKET: ${ssm:/stopcovid/${self:provider.stage}/drillContentS3Bucket}
+    ROLLBAR_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/rollbarToken}
 
 
 plugins:

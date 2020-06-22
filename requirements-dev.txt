@@ -1,3 +1,5 @@
 requests-mock
 psycopg2-binary
 pip-tools
+black
+flake8
