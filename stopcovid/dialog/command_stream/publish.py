@@ -1,8 +1,8 @@
 import json
 import logging
 import os
-from typing import Dict, Any, Optional, List, Tuple
-
+from typing import Dict, Any, List, Tuple
+import rollbar
 import boto3
 
 
@@ -32,23 +32,12 @@ class CommandPublisher:
     def _get_kinesis_client():
         return boto3.client("kinesis")
 
-    @staticmethod
-    def _get_last_seq(phone_number) -> Optional[str]:
-        return None
-
-    @staticmethod
-    def _try_record_seq(phone_number, seq):
-        pass
-
     def _publish_commands(self, commands: List[Tuple[str, Dict[str, Any]]]):
         kinesis = self._get_kinesis_client()
-        records = []
-        for phone_number, data in commands:
-            last_seq = self._get_last_seq(phone_number)
-            record = {"Data": json.dumps(data), "PartitionKey": phone_number}
-            if last_seq:
-                record["SequenceNumberForOrdering"] = last_seq
-            records.append(record)
+        records = [
+            {"Data": json.dumps(data), "PartitionKey": phone_number}
+            for phone_number, data in commands
+        ]
         response = kinesis.put_records(StreamName=f"command-stream-{self.stage}", Records=records)
-        for i, result in enumerate(response["Records"]):
-            self._try_record_seq(records[i]["PartitionKey"], result["SequenceNumber"])
+        if response.get("FailedRecordCount"):
+            rollbar.report_exc_info(extra_data=response)
