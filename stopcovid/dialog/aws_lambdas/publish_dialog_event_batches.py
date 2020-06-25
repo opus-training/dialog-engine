@@ -37,4 +37,6 @@ def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]):
         {"PartitionKey": event_batch.phone_number, "Data": json.dumps(event_batch.to_dict())}
         for event_batch in event_batches
     ]
-    kinesis.put_records(StreamName=stream_name, Records=records)
+    response = kinesis.put_records(StreamName=stream_name, Records=records)
+    if response.get("FailedRecordCount"):
+        rollbar.report_exc_info(extra_data=response)

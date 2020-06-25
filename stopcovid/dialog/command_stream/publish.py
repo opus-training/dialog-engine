@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from typing import Dict, Any, List, Tuple
-
+import rollbar
 import boto3
 
 
@@ -38,4 +38,6 @@ class CommandPublisher:
             {"Data": json.dumps(data), "PartitionKey": phone_number}
             for phone_number, data in commands
         ]
-        kinesis.put_records(StreamName=f"command-stream-{self.stage}", Records=records)
+        response = kinesis.put_records(StreamName=f"command-stream-{self.stage}", Records=records)
+        if response.get("FailedRecordCount"):
+            rollbar.report_exc_info(extra_data=response)
