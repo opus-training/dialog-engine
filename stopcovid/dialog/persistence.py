@@ -15,7 +15,9 @@ class DialogRepository(ABC):
         pass
 
     @abstractmethod
-    def persist_dialog_state(self, event_batch: DialogEventBatch, dialog_state: DialogState):
+    def persist_dialog_state(
+        self, event_batch: DialogEventBatch, dialog_state: DialogState
+    ):
         pass
 
 
@@ -35,7 +37,9 @@ class DynamoDBDialogRepository(DialogRepository):
 
     def state_table_name(self):
         return (
-            f"dialog-state-{self.table_name_suffix}" if self.table_name_suffix else "dialog-state"
+            f"dialog-state-{self.table_name_suffix}"
+            if self.table_name_suffix
+            else "dialog-state"
         )
 
     def fetch_dialog_state(self, phone_number: str) -> DialogState:
@@ -49,7 +53,9 @@ class DynamoDBDialogRepository(DialogRepository):
         dialog_dict = dynamodb_utils.deserialize(response["Item"])
         return DialogStateSchema().load(dialog_dict)
 
-    def fetch_dialog_event_batch(self, phone_number: str, batch_id: uuid.UUID) -> DialogEventBatch:
+    def fetch_dialog_event_batch(
+        self, phone_number: str, batch_id: uuid.UUID
+    ) -> DialogEventBatch:
         response = self.dynamodb.get_item(
             TableName=self.event_batch_table_name(),
             Key={"phone_number": {"S": phone_number}, "batch_id": {"S": str(batch_id)}},
@@ -59,7 +65,9 @@ class DynamoDBDialogRepository(DialogRepository):
 
         return batch_from_dict(dialog_dict)
 
-    def persist_dialog_state(self, event_batch: DialogEventBatch, dialog_state: DialogState):
+    def persist_dialog_state(
+        self, event_batch: DialogEventBatch, dialog_state: DialogState
+    ):
         if event_batch.events:
             write_items = [
                 {
@@ -109,7 +117,9 @@ class DynamoDBDialogRepository(DialogRepository):
             self.dynamodb.create_table(
                 TableName=self.state_table_name(),
                 KeySchema=[{"AttributeName": "phone_number", "KeyType": "HASH"}],
-                AttributeDefinitions=[{"AttributeName": "phone_number", "AttributeType": "S"}],
+                AttributeDefinitions=[
+                    {"AttributeName": "phone_number", "AttributeType": "S"}
+                ],
                 BillingMode="PAY_PER_REQUEST",
             )
         except Exception:

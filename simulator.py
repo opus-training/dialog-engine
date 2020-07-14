@@ -52,7 +52,9 @@ def fake_sms(
     for message in messages:
         if with_initial_pause or not first:
             sleep(1)
-        print(f"  -> {phone_number}: {localize(message, user_profile.language, **additional_args)}")
+        print(
+            f"  -> {phone_number}: {localize(message, user_profile.language, **additional_args)}"
+        )
         first = False
 
 
@@ -74,7 +76,9 @@ class InMemoryRepository(DialogRepository):
 
     def get_next_unstarted_drill(self):
         unstarted_drills = [
-            code for code in DRILLS.keys() if DRILLS[code].slug not in STARTED_DRILLS.values()
+            code
+            for code in DRILLS.keys()
+            if DRILLS[code].slug not in STARTED_DRILLS.values()
         ]
         if unstarted_drills:
             return unstarted_drills[0]
@@ -91,7 +95,11 @@ class InMemoryRepository(DialogRepository):
                 fake_sms(
                     event.phone_number,
                     dialog_state.user_profile,
-                    [message.text for message in event.prompt.messages if message.text is not None],
+                    [
+                        message.text
+                        for message in event.prompt.messages
+                        if message.text is not None
+                    ],
                     with_initial_pause=True,
                 )
             elif isinstance(event, FailedPrompt):
@@ -110,7 +118,9 @@ class InMemoryRepository(DialogRepository):
             elif isinstance(event, CompletedPrompt):
                 if event.prompt.correct_response is not None:
                     fake_sms(
-                        event.phone_number, dialog_state.user_profile, ["{{match_correct_answer}}"]
+                        event.phone_number,
+                        dialog_state.user_profile,
+                        ["{{match_correct_answer}}"],
                     )
             elif isinstance(event, UserValidated):
                 drill_to_start = dialog_state.user_profile.account_info["code"]
@@ -125,7 +135,9 @@ class InMemoryRepository(DialogRepository):
             elif isinstance(event, UserValidationFailed):
                 print(f"(try {', '.join(DRILLS.keys())})")
             elif isinstance(event, DrillStarted):
-                STARTED_DRILLS[event.drill_instance_id] = dialog_state.current_drill.slug
+                STARTED_DRILLS[
+                    event.drill_instance_id
+                ] = dialog_state.current_drill.slug
                 fake_sms(
                     event.phone_number,
                     dialog_state.user_profile,
@@ -149,7 +161,9 @@ class InMemoryRepository(DialogRepository):
             SEQ += 1
             drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()), str(SEQ), repo=self
+                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()),
+                str(SEQ),
+                repo=self,
             )
 
 
@@ -173,7 +187,9 @@ def main():
             message = input("> ")
             SEQ += 1
             process_command(
-                ProcessSMSMessage(PHONE_NUMBER, message, registration_validator=validator),
+                ProcessSMSMessage(
+                    PHONE_NUMBER, message, registration_validator=validator
+                ),
                 str(SEQ),
                 repo=repo,
             )

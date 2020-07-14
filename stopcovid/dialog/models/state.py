@@ -121,7 +121,9 @@ class DialogState:
     phone_number: str
     seq: str
     schema_version: int = SCHEMA_VERSION
-    user_profile: UserProfile = field(default_factory=lambda: UserProfile(validated=False))
+    user_profile: UserProfile = field(
+        default_factory=lambda: UserProfile(validated=False)
+    )
     current_drill: Optional[drills.Drill] = None
     drill_instance_id: Optional[uuid.UUID] = None
     current_prompt_state: Optional[PromptState] = None

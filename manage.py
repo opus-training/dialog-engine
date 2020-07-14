@@ -143,7 +143,9 @@ def replay_message_stream(args):
             response = kinesis.get_records(ShardIterator=next_shard_iterator)
             next_shard_iterator = response["NextShardIterator"]
             milliseconds_from_tip = response["MillisBehindLatest"]
-            raw_commands = [json.loads(record["Data"]) for record in response["Records"]]
+            raw_commands = [
+                json.loads(record["Data"]) for record in response["Records"]
+            ]
             commands = [
                 LogMessageCommandSchema().load(
                     {"command_type": command["type"], "payload": command["payload"]}
@@ -166,7 +168,9 @@ def show_command(args):
         ShardIteratorType="AT_SEQUENCE_NUMBER",
         StartingSequenceNumber=args.seq,
     )
-    response = kinesis.get_records(ShardIterator=shard_iterator["ShardIterator"], Limit=1)
+    response = kinesis.get_records(
+        ShardIterator=shard_iterator["ShardIterator"], Limit=1
+    )
     for record in response["Records"]:
         print(json.loads(record["Data"]))
 
@@ -190,7 +194,8 @@ def main():
     get_all_users_parser.set_defaults(func=get_all_users)
 
     replay_message_stream_parser = subparsers.add_parser(
-        "replay-message-stream", description="Replay all messages in the message-log stream"
+        "replay-message-stream",
+        description="Replay all messages in the message-log stream",
     )
     replay_message_stream_parser.set_defaults(func=replay_message_stream)
 

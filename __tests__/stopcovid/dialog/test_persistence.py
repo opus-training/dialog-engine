@@ -1,7 +1,11 @@
 import unittest
 import uuid
 
-from stopcovid.dialog.models.events import CompletedPrompt, AdvancedToNextPrompt, DialogEventBatch
+from stopcovid.dialog.models.events import (
+    CompletedPrompt,
+    AdvancedToNextPrompt,
+    DialogEventBatch,
+)
 from stopcovid.dialog.persistence import DynamoDBDialogRepository
 from stopcovid.dialog.models.state import DialogState, UserProfile
 from stopcovid.drills.drills import Prompt, PromptMessage
@@ -30,7 +34,8 @@ class TestPersistence(unittest.TestCase):
             phone_number=self.phone_number,
             user_profile=UserProfile(True),
             prompt=Prompt(
-                slug="one", messages=[PromptMessage(text="one"), PromptMessage(text="two")]
+                slug="one",
+                messages=[PromptMessage(text="one"), PromptMessage(text="two")],
             ),
             response="hi",
             drill_instance_id=uuid.uuid4(),
@@ -39,7 +44,8 @@ class TestPersistence(unittest.TestCase):
             phone_number=self.phone_number,
             user_profile=UserProfile(True),
             prompt=Prompt(
-                slug="two", messages=[PromptMessage(text="three"), PromptMessage(text="four")]
+                slug="two",
+                messages=[PromptMessage(text="three"), PromptMessage(text="four")],
             ),
             drill_instance_id=event1.drill_instance_id,
         )
@@ -49,15 +55,23 @@ class TestPersistence(unittest.TestCase):
             user_profile=UserProfile(validated=True, language="de"),
             drill_instance_id=event1.drill_instance_id,
         )
-        batch = DialogEventBatch(phone_number=self.phone_number, events=[event1, event2], seq="216")
+        batch = DialogEventBatch(
+            phone_number=self.phone_number, events=[event1, event2], seq="216"
+        )
 
         self.repo.persist_dialog_state(batch, dialog_state)
         dialog_state2 = self.repo.fetch_dialog_state(self.phone_number)
         self.assertEqual(dialog_state.phone_number, dialog_state2.phone_number)
-        self.assertEqual(dialog_state.user_profile.validated, dialog_state2.user_profile.validated)
-        self.assertEqual(dialog_state.user_profile.language, dialog_state2.user_profile.language)
+        self.assertEqual(
+            dialog_state.user_profile.validated, dialog_state2.user_profile.validated
+        )
+        self.assertEqual(
+            dialog_state.user_profile.language, dialog_state2.user_profile.language
+        )
 
-        batch_retrieved = self.repo.fetch_dialog_event_batch(self.phone_number, batch.batch_id)
+        batch_retrieved = self.repo.fetch_dialog_event_batch(
+            self.phone_number, batch.batch_id
+        )
 
         event1_retrieved = batch_retrieved.events[0]
         self.assertEqual(event1.response, event1_retrieved.response)  # type: ignore

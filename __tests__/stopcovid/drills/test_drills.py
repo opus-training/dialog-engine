@@ -15,7 +15,9 @@ from stopcovid.drills.content_loader import SourceRepoDrillLoader
 
 class TestLocalDrillFileIntegrity(unittest.TestCase):
     def test_drill_file_integrity(self):
-        filename = os.path.join(__location__, "../../../stopcovid/drills/drill_content/drills.json")
+        filename = os.path.join(
+            __location__, "../../../stopcovid/drills/drill_content/drills.json"
+        )
         all_slugs = set()
         with open(filename) as r:
             contents = r.read()
@@ -39,7 +41,9 @@ class TestLocalDrillFileIntegrity(unittest.TestCase):
 
 class TestPrompt(unittest.TestCase):
     def test_should_advance_ignore(self):
-        prompt = drills.Prompt(slug="test-prompt", messages=[drills.PromptMessage("{{msg1}}")])
+        prompt = drills.Prompt(
+            slug="test-prompt", messages=[drills.PromptMessage("{{msg1}}")]
+        )
         self.assertTrue(prompt.should_advance_with_answer("any answer", "en"))
 
     def test_should_advance_store(self):
@@ -59,6 +63,8 @@ class TestPrompt(unittest.TestCase):
         with patch("stopcovid.drills.drills.localize") as localize_mock:
             localize_mock.return_value = "my response"
             self.assertFalse(
-                prompt.should_advance_with_answer("something completely different", "en")
+                prompt.should_advance_with_answer(
+                    "something completely different", "en"
+                )
             )
             self.assertTrue(prompt.should_advance_with_answer("my response", "en"))

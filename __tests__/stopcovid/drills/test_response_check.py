@@ -27,7 +27,8 @@ class TestResponseCheck(unittest.TestCase):
             self.assertEqual(
                 expected,
                 is_correct_response(user_supplied, correct),
-                f"User-supplied: {user_supplied}, Correct: {correct}," f" Expected: {expected}",
+                f"User-supplied: {user_supplied}, Correct: {correct},"
+                f" Expected: {expected}",
             )
 
     def test_empty(self):

@@ -29,7 +29,9 @@ class TranslationLoader(ABC):
         self.translations_dict = defaultdict(dict)
         raw_translations = json.loads(translations_content)
         for entry in raw_translations["instructions"]:
-            self.translations_dict[entry["language"]][entry["label"]] = entry["translation"]
+            self.translations_dict[entry["language"]][entry["label"]] = entry[
+                "translation"
+            ]
 
     def get_translations(self) -> Dict[str, Dict[str, str]]:
         if self._is_content_stale():
@@ -57,7 +59,9 @@ class S3Loader(TranslationLoader):
         logging.info(f"Loading drill content from the {self.s3_bucket} S3 bucket")
         translations_object = self.s3.Object(self.s3_bucket, "translations.json")
         self.translations_version = translations_object.version_id
-        self._populate_translations(translations_object.get()["Body"].read().decode("utf-8"))
+        self._populate_translations(
+            translations_object.get()["Body"].read().decode("utf-8")
+        )
 
     def _is_content_stale(self) -> bool:
         try:

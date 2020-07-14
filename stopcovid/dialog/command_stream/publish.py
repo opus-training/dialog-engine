@@ -10,7 +10,9 @@ class CommandPublisher:
     def __init__(self):
         self.stage = os.environ.get("STAGE")
 
-    def publish_process_sms_command(self, phone_number: str, content: str, twilio_webhook: dict):
+    def publish_process_sms_command(
+        self, phone_number: str, content: str, twilio_webhook: dict
+    ):
         logging.info(f"({phone_number}) publishing INBOUND_SMS command")
         self._publish_commands(
             [
@@ -38,6 +40,8 @@ class CommandPublisher:
             {"Data": json.dumps(data), "PartitionKey": phone_number}
             for phone_number, data in commands
         ]
-        response = kinesis.put_records(StreamName=f"command-stream-{self.stage}", Records=records)
+        response = kinesis.put_records(
+            StreamName=f"command-stream-{self.stage}", Records=records
+        )
         if response.get("FailedRecordCount"):
             rollbar.report_exc_info(extra_data=response)

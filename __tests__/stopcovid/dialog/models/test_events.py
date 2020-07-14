@@ -74,7 +74,9 @@ class TestUserValidationEvents(unittest.TestCase):
             user_profile=profile,
             current_drill=DRILL,
             drill_instance_id=uuid.uuid4(),
-            current_prompt_state=PromptState(slug=DRILL.prompts[0].slug, start_time=NOW),
+            current_prompt_state=PromptState(
+                slug=DRILL.prompts[0].slug, start_time=NOW
+            ),
         )
         event = UserValidated(
             phone_number="123456789",
@@ -108,7 +110,9 @@ class TestDrillStarted(unittest.TestCase):
             drill=DRILL,
             first_prompt=DRILL.prompts[0],
         )
-        dialog_state = DialogState(phone_number="123456789", seq="0", user_profile=profile)
+        dialog_state = DialogState(
+            phone_number="123456789", seq="0", user_profile=profile
+        )
         event.apply_to(dialog_state)
         self.assertEqual(DRILL, dialog_state.current_drill)
         self.assertEqual(
@@ -156,7 +160,9 @@ class TestCompletedPrompt(unittest.TestCase):
             current_prompt_state=PromptState(DRILL.prompts[0].slug, NOW),
         )
         event.apply_to(dialog_state)
-        self.assertEqual(UserProfile(validated=True, self_rating_1="7"), dialog_state.user_profile)
+        self.assertEqual(
+            UserProfile(validated=True, self_rating_1="7"), dialog_state.user_profile
+        )
         self.assertIsNone(dialog_state.current_prompt_state)
 
 
@@ -239,7 +245,9 @@ class TestAdvancedToNextPrompt(unittest.TestCase):
 class TestDrillCompleted(unittest.TestCase):
     def test_drill_completed(self):
         profile = UserProfile(validated=False)
-        event = DrillCompleted("123456789", user_profile=profile, drill_instance_id=uuid.uuid4())
+        event = DrillCompleted(
+            "123456789", user_profile=profile, drill_instance_id=uuid.uuid4()
+        )
         dialog_state = DialogState(
             "123456789",
             seq="0",
@@ -257,7 +265,9 @@ class TestDrillCompleted(unittest.TestCase):
 class TestOptedOut(unittest.TestCase):
     def test_opted_out_during_drill(self):
         profile = UserProfile(validated=True)
-        event = OptedOut("123456789", user_profile=profile, drill_instance_id=uuid.uuid4())
+        event = OptedOut(
+            "123456789", user_profile=profile, drill_instance_id=uuid.uuid4()
+        )
         dialog_state = DialogState(
             "123456789",
             seq="0",
@@ -384,7 +394,9 @@ class TestSerialization(unittest.TestCase):
 
     def test_drill_completed(self):
         original = DrillCompleted(
-            phone_number="12345678", user_profile=UserProfile(True), drill_instance_id=uuid.uuid4()
+            phone_number="12345678",
+            user_profile=UserProfile(True),
+            drill_instance_id=uuid.uuid4(),
         )
         serialized = original.to_dict()
         deserialized: DrillCompleted = event_from_dict(serialized)  # type: ignore
