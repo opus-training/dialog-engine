@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
 from time import sleep
-from typing import List
+from typing import List, Dict
+from uuid import UUID
 
 from stopcovid.dialog.persistence import DialogRepository
 from stopcovid.dialog.models.events import (
@@ -29,7 +30,7 @@ PHONE_NUMBER = "123456789"
 DRILLS = SourceRepoDrillLoader().get_drills()
 
 
-STARTED_DRILLS = {}
+STARTED_DRILLS: Dict[UUID, str] = {}
 
 
 def fake_sms(
@@ -102,7 +103,7 @@ class InMemoryRepository(DialogRepository):
                         dialog_state.user_profile,
                         ["{{corrected_answer}}"],
                         correct_answer=localize(
-                            event.prompt.correct_response,  # type: ignore
+                            event.prompt.correct_response,
                             dialog_state.user_profile.language,
                         ),
                     )

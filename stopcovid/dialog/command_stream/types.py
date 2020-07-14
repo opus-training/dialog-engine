@@ -11,7 +11,7 @@ class InboundCommandType:
 
 @dataclass
 class InboundCommand:
-    command_type: InboundCommandType
+    command_type: str
     sequence_number: str
     payload: dict
 
