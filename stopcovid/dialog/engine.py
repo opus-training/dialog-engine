@@ -56,8 +56,7 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
         return
 
     logging.info(
-        f"({command.phone_number}) Processing command {command}. "
-        f"Current state: {dialog_state}."
+        f"({command.phone_number}) Processing command {command}. " f"Current state: {dialog_state}."
     )
 
     events = command.execute(dialog_state)
@@ -70,8 +69,7 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
         deepcopy(event).apply_to(dialog_state)
     dialog_state.seq = seq
     repo.persist_dialog_state(
-        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq),
-        dialog_state,
+        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq), dialog_state,
     )
 
 
@@ -87,10 +85,7 @@ class StartDrill(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        if (
-            dialog_state.user_profile.opted_out
-            or not dialog_state.user_profile.validated
-        ):
+        if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
             logging.warning(
                 f"Attempted to initiate a drill for {dialog_state.phone_number}, "
                 f"who hasn't validated or has opted out."
@@ -107,9 +102,7 @@ class StartDrill(Command):
 
 
 class TriggerReminder(Command):
-    def __init__(
-        self, phone_number: str, drill_instance_id: uuid.UUID, prompt_slug: str
-    ):
+    def __init__(self, phone_number: str, drill_instance_id: uuid.UUID, prompt_slug: str):
         super().__init__(phone_number)
         self.prompt_slug = prompt_slug
         self.drill_instance_id = drill_instance_id
@@ -123,10 +116,7 @@ class TriggerReminder(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        if (
-            dialog_state.user_profile.opted_out
-            or not dialog_state.user_profile.validated
-        ):
+        if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
             logging.warning(
                 f"Attempted to trigger a reminder for {dialog_state.phone_number}, "
                 f"who hasn't validated or has opted out."
@@ -209,9 +199,7 @@ class ProcessSMSMessage(Command):
             "stopall",
             "unsubscribe",
         ]:
-            return [
-                OptedOut(drill_instance_id=dialog_state.drill_instance_id, **base_args)
-            ]
+            return [OptedOut(drill_instance_id=dialog_state.drill_instance_id, **base_args)]
         return None
 
     def _handle_opt_back_in(
@@ -228,15 +216,9 @@ class ProcessSMSMessage(Command):
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
 
         if dialog_state.user_profile.is_demo or not dialog_state.user_profile.validated:
-            validation_payload = self.registration_validator.validate_code(
-                self.content_lower
-            )
+            validation_payload = self.registration_validator.validate_code(self.content_lower)
             if validation_payload.valid:
-                return [
-                    UserValidated(
-                        code_validation_payload=validation_payload, **base_args
-                    )
-                ]
+                return [UserValidated(code_validation_payload=validation_payload, **base_args)]
             if not dialog_state.user_profile.validated:
                 return [UserValidationFailed(**base_args)]
         return None
@@ -274,9 +256,7 @@ class ProcessSMSMessage(Command):
             )
             should_advance = True
         else:
-            should_advance = (
-                dialog_state.current_prompt_state.failures >= prompt.max_failures
-            )
+            should_advance = dialog_state.current_prompt_state.failures >= prompt.max_failures
             events.append(
                 FailedPrompt(
                     prompt=prompt,
@@ -299,9 +279,7 @@ class ProcessSMSMessage(Command):
                 )
                 if dialog_state.is_next_prompt_last():
                     # assume the last prompt doesn't wait for an answer
-                    events.append(
-                        self._get_drill_completed_event(dialog_state, base_args)
-                    )
+                    events.append(self._get_drill_completed_event(dialog_state, base_args))
 
             elif len(dialog_state.current_drill.prompts) == 1:
                 events.append(self._get_drill_completed_event(dialog_state, base_args))
@@ -328,15 +306,11 @@ class ProcessSMSMessage(Command):
 
 
 class SendAdHocMessage(Command):
-    def __init__(
-        self, phone_number: str, message: str, media_url: Optional[str] = None
-    ):
+    def __init__(self, phone_number: str, message: str, media_url: Optional[str] = None):
         super().__init__(phone_number)
         self.sms = SMS(body=message, media_url=media_url)
 
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        return [
-            AdHocMessageSent(self.phone_number, dialog_state.user_profile, self.sms)
-        ]
+        return [AdHocMessageSent(self.phone_number, dialog_state.user_profile, self.sms)]

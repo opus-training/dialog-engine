@@ -75,8 +75,7 @@ class TestProcessCommand(unittest.TestCase):
         process_command(command, str(self.next_seq), repo=self.repo)
         self.next_seq += 1
         self.assertEqual(
-            persist_dialog_call_count + 1,
-            len(self.repo.persist_dialog_state.call_args_list),
+            persist_dialog_call_count + 1, len(self.repo.persist_dialog_state.call_args_list),
         )
         return self.repo.persist_dialog_state.call_args[0][0]
 
@@ -99,9 +98,7 @@ class TestProcessCommand(unittest.TestCase):
         prompt.max_failures = underlying_prompt.max_failures
         prompt.should_advance_with_answer.return_value = should_advance
         drill.prompts[prompt_index] = prompt
-        self.dialog_state.current_prompt_state = PromptState(
-            slug=prompt.slug, start_time=self.now
-        )
+        self.dialog_state.current_prompt_state = PromptState(slug=prompt.slug, start_time=self.now)
 
     def test_skip_processed_sequence_numbers(self):
         command = Mock(wraps=ProcessSMSMessage(self.phone_number, "hey"))
@@ -110,26 +107,18 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_advance_sequence_numbers(self):
         validator = MagicMock()
-        validation_payload = CodeValidationPayload(
-            valid=True, account_info={"company": "WeWork"}
-        )
+        validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
         validator.validate_code = MagicMock(return_value=validation_payload)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
         batch = self._process_command(command)
         self.assertEqual(1, len(batch.events))
         self.assertEqual("1", self.dialog_state.seq)
 
     def test_first_message_validates_user(self):
         validator = MagicMock()
-        validation_payload = CodeValidationPayload(
-            valid=True, account_info={"company": "WeWork"}
-        )
+        validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
         validator.validate_code = MagicMock(return_value=validation_payload)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
         self.assertFalse(self.dialog_state.user_profile.validated)
 
         batch = self._process_command(command)
@@ -143,9 +132,7 @@ class TestProcessCommand(unittest.TestCase):
         validation_payload = CodeValidationPayload(valid=True, is_demo=True)
         validator.validate_code = MagicMock(return_value=validation_payload)
         self.assertFalse(self.dialog_state.user_profile.validated)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
 
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
@@ -153,13 +140,9 @@ class TestProcessCommand(unittest.TestCase):
         command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
         self._process_command(command)
 
-        validation_payload = CodeValidationPayload(
-            valid=True, account_info={"company": "WeWork"}
-        )
+        validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
         validator.validate_code = MagicMock(return_value=validation_payload)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
 
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
@@ -169,9 +152,7 @@ class TestProcessCommand(unittest.TestCase):
         validation_payload = CodeValidationPayload(valid=True, is_demo=True)
         validator.validate_code = MagicMock(return_value=validation_payload)
         self.assertFalse(self.dialog_state.user_profile.validated)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
 
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
@@ -182,24 +163,18 @@ class TestProcessCommand(unittest.TestCase):
         # the user's next message isn't a validation code - so we just keep going
         validation_payload = CodeValidationPayload(valid=False)
         validator.validate_code = MagicMock(return_value=validation_payload)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
 
         batch = self._process_command(command)
         self._assert_event_types(
-            batch,
-            DialogEventType.COMPLETED_PROMPT,
-            DialogEventType.ADVANCED_TO_NEXT_PROMPT,
+            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT,
         )
 
     def test_first_message_does_not_validate_user(self):
         validator = MagicMock()
         validation_payload = CodeValidationPayload(valid=False)
         validator.validate_code = MagicMock(return_value=validation_payload)
-        command = ProcessSMSMessage(
-            self.phone_number, "hey", registration_validator=validator
-        )
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
         self.assertFalse(self.dialog_state.user_profile.validated)
 
         batch = self._process_command(command)
@@ -240,22 +215,16 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "go")
         batch = self._process_command(command)
         self._assert_event_types(
-            batch,
-            DialogEventType.COMPLETED_PROMPT,
-            DialogEventType.ADVANCED_TO_NEXT_PROMPT,
+            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT,
         )
         completed_event: CompletedPrompt = batch.events[0]  # type: ignore
         self.assertEqual(completed_event.prompt, self.drill.prompts[0])
         self.assertEqual(completed_event.response, "go")
-        self.assertEqual(
-            completed_event.drill_instance_id, self.dialog_state.drill_instance_id
-        )
+        self.assertEqual(completed_event.drill_instance_id, self.dialog_state.drill_instance_id)
 
         advanced_event: AdvancedToNextPrompt = batch.events[1]  # type: ignore
         self.assertEqual(self.drill.prompts[1], advanced_event.prompt)
-        self.assertEqual(
-            self.dialog_state.drill_instance_id, advanced_event.drill_instance_id
-        )
+        self.assertEqual(self.dialog_state.drill_instance_id, advanced_event.drill_instance_id)
 
     def test_repeat_with_wrong_answer(self):
         self.dialog_state.user_profile.validated = True
@@ -268,9 +237,7 @@ class TestProcessCommand(unittest.TestCase):
         self.assertEqual(failed_event.prompt, self.drill.prompts[2])
         self.assertFalse(failed_event.abandoned)
         self.assertEqual(failed_event.response, "completely wrong answer")
-        self.assertEqual(
-            failed_event.drill_instance_id, self.dialog_state.drill_instance_id
-        )
+        self.assertEqual(failed_event.drill_instance_id, self.dialog_state.drill_instance_id)
 
     def test_advance_with_too_many_wrong_answers(self):
         self.dialog_state.user_profile.validated = True
@@ -280,24 +247,18 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "completely wrong answer")
         batch = self._process_command(command)
         self._assert_event_types(
-            batch,
-            DialogEventType.FAILED_PROMPT,
-            DialogEventType.ADVANCED_TO_NEXT_PROMPT,
+            batch, DialogEventType.FAILED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT,
         )
 
         failed_event: FailedPrompt = batch.events[0]  # type: ignore
         self.assertEqual(failed_event.prompt, self.drill.prompts[2])
         self.assertTrue(failed_event.abandoned)
         self.assertEqual(failed_event.response, "completely wrong answer")
-        self.assertEqual(
-            failed_event.drill_instance_id, self.dialog_state.drill_instance_id
-        )
+        self.assertEqual(failed_event.drill_instance_id, self.dialog_state.drill_instance_id)
 
         advanced_event: AdvancedToNextPrompt = batch.events[1]  # type: ignore
         self.assertEqual(self.drill.prompts[3], advanced_event.prompt)
-        self.assertEqual(
-            self.dialog_state.drill_instance_id, advanced_event.drill_instance_id
-        )
+        self.assertEqual(self.dialog_state.drill_instance_id, advanced_event.drill_instance_id)
 
     def test_conclude_with_right_answer(self):
         self.dialog_state.user_profile.validated = True
@@ -313,16 +274,12 @@ class TestProcessCommand(unittest.TestCase):
         completed_event: CompletedPrompt = batch.events[0]  # type: ignore
         self.assertEqual(completed_event.prompt, self.drill.prompts[3])
         self.assertEqual(completed_event.response, "foo")
-        self.assertEqual(
-            completed_event.drill_instance_id, self.dialog_state.drill_instance_id
-        )
+        self.assertEqual(completed_event.drill_instance_id, self.dialog_state.drill_instance_id)
 
         advanced_event: AdvancedToNextPrompt = batch.events[1]  # type: ignore
         self.assertEqual(self.drill.prompts[4], advanced_event.prompt)
 
-        self.assertEqual(
-            self.dialog_state.drill_instance_id, advanced_event.drill_instance_id
-        )
+        self.assertEqual(self.dialog_state.drill_instance_id, advanced_event.drill_instance_id)
 
         drill_completed_event: DrillCompleted = batch.events[2]  # type: ignore
         self.assertEqual(
@@ -369,15 +326,11 @@ class TestProcessCommand(unittest.TestCase):
         self.assertEqual(failed_event.prompt, self.drill.prompts[3])
         self.assertTrue(failed_event.abandoned)
         self.assertEqual(failed_event.response, "completely wrong answer")
-        self.assertEqual(
-            failed_event.drill_instance_id, self.dialog_state.drill_instance_id
-        )
+        self.assertEqual(failed_event.drill_instance_id, self.dialog_state.drill_instance_id)
 
         advanced_event: AdvancedToNextPrompt = batch.events[1]  # type: ignore
         self.assertEqual(self.drill.prompts[4], advanced_event.prompt)
-        self.assertEqual(
-            self.dialog_state.drill_instance_id, advanced_event.drill_instance_id
-        )
+        self.assertEqual(self.dialog_state.drill_instance_id, advanced_event.drill_instance_id)
 
         drill_completed_event: DrillCompleted = batch.events[2]  # type: ignore
         self.assertEqual(
@@ -520,9 +473,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_trigger_late_reminder_later_drill(self):
         self.dialog_state.user_profile.validated = True
         self._set_current_prompt(2, should_advance=True)
-        command = TriggerReminder(
-            self.phone_number, uuid.uuid4(), self.drill.prompts[2].slug
-        )
+        command = TriggerReminder(self.phone_number, uuid.uuid4(), self.drill.prompts[2].slug)
         batch = self._process_command(command)
         self.assertEqual(0, len(batch.events))
 

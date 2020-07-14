@@ -13,8 +13,7 @@ class TestSendSMS(unittest.TestCase):
         idempotency_checker = MagicMock()
         idempotency_checker.already_processed = MagicMock(return_value=False)
         idempotency_checker_patch = patch(
-            "stopcovid.sms.send_sms.IdempotencyChecker",
-            return_value=idempotency_checker,
+            "stopcovid.sms.send_sms.IdempotencyChecker", return_value=idempotency_checker,
         )
         idempotency_checker_patch.start()
         self.addCleanup(idempotency_checker_patch.stop)
@@ -27,11 +26,7 @@ class TestSendSMS(unittest.TestCase):
         batches = [
             SMSBatch(
                 phone_number=phone,
-                messages=[
-                    SMS(body="hello"),
-                    SMS(body="how are you"),
-                    SMS(body="goodbye"),
-                ],
+                messages=[SMS(body="hello"), SMS(body="how are you"), SMS(body="goodbye"),],
                 idempotency_key="foo",
             )
         ]
@@ -49,11 +44,7 @@ class TestSendSMS(unittest.TestCase):
         batches = [
             SMSBatch(
                 phone_number=phone_1,
-                messages=[
-                    SMS(body="hello"),
-                    SMS(body="how are you"),
-                    SMS(body="goodbye"),
-                ],
+                messages=[SMS(body="hello"), SMS(body="how are you"), SMS(body="goodbye"),],
                 idempotency_key="foo",
             ),
             SMSBatch(
@@ -78,11 +69,7 @@ class TestSendSMS(unittest.TestCase):
         batches = [
             SMSBatch(
                 phone_number="+15551234321",
-                messages=[
-                    SMS(body="hello"),
-                    SMS(body="how are you"),
-                    SMS(body="goodbye"),
-                ],
+                messages=[SMS(body="hello"), SMS(body="how are you"), SMS(body="goodbye"),],
                 idempotency_key="foo",
             )
         ]
@@ -92,9 +79,7 @@ class TestSendSMS(unittest.TestCase):
     def test_do_not_sleep_on_single_message(self, sleep_mock, twilio_mock, *args):
         batches = [
             SMSBatch(
-                phone_number="+15551234321",
-                messages=[SMS(body="hello")],
-                idempotency_key="foo",
+                phone_number="+15551234321", messages=[SMS(body="hello")], idempotency_key="foo",
             )
         ]
         send_sms_batches(batches)

@@ -21,8 +21,7 @@ class TestRegistration(unittest.TestCase):
     def test_invalid_code(self):
         with requests_mock.Mocker() as m:
             m.post(
-                self.url,
-                json={"valid": "False", "is_demo": "False", "account_info": "None"},
+                self.url, json={"valid": "False", "is_demo": "False", "account_info": "None"},
             )
             payload = DefaultRegistrationValidator().validate_code(
                 "foo", url=self.url, key=self.key
@@ -110,11 +109,7 @@ class TestRegistration(unittest.TestCase):
         as_dict = CodeValidationPayloadSchema().dump(payload)
         self.assertEqual(
             as_dict,
-            {
-                "valid": True,
-                "is_demo": False,
-                "account_info": {"employer_id": 12, "unit_id": 1},
-            },
+            {"valid": True, "is_demo": False, "account_info": {"employer_id": 12, "unit_id": 1},},
         )
 
         # json serialization doesnt blow up

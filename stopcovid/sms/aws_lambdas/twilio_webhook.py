@@ -37,14 +37,10 @@ def handler(event, context):
 
     idempotency_key = event["headers"]["I-Twilio-Idempotency-Token"]
     if idempotency_checker.already_processed(idempotency_key, IDEMPOTENCY_REALM):
-        logging.info(
-            f"Already processed webhook with idempotency key {idempotency_key}. Skipping."
-        )
+        logging.info(f"Already processed webhook with idempotency key {idempotency_key}. Skipping.")
         return {"statusCode": 200}
     if "MessageStatus" in form:
-        logging.info(
-            f"Outbound message to {form['To']}: Recording STATUS_UPDATE in message log"
-        )
+        logging.info(f"Outbound message to {form['To']}: Recording STATUS_UPDATE in message log")
         kinesis.put_record(
             Data=json.dumps({"type": "STATUS_UPDATE", "payload": form}),
             PartitionKey=form["To"],

@@ -83,9 +83,7 @@ class DialogEvent(ABC):
         # relying on created time to determine ordering. We should be fine and it's simpler than
         # sequence numbers. Events are processed in order by phone number and are relatively
         # infrequent. And the lambda environment has some clock guarantees.
-        self.created_time = kwargs.get(
-            "created_time", datetime.datetime.now(datetime.timezone.utc)
-        )
+        self.created_time = kwargs.get("created_time", datetime.datetime.now(datetime.timezone.utc))
         self.event_id = kwargs.get("event_id", uuid.uuid4())
         self.event_type = event_type
         self.user_profile = user_profile
@@ -156,9 +154,7 @@ class AdHocMessageSentSchema(DialogEventSchema):
 
 
 class AdHocMessageSent(DialogEvent):
-    def __init__(
-        self, phone_number: str, user_profile: UserProfile, sms: SMS, **kwargs
-    ):
+    def __init__(self, phone_number: str, user_profile: UserProfile, sms: SMS, **kwargs):
         super().__init__(
             AdHocMessageSentSchema(),
             DialogEventType.AD_HOC_MESSAGE_SENT,
@@ -203,17 +199,13 @@ class UserValidated(DialogEvent):
         dialog_state.current_drill = None
         dialog_state.user_profile.validated = True
         dialog_state.user_profile.is_demo = self.code_validation_payload.is_demo
-        dialog_state.user_profile.account_info = (
-            self.code_validation_payload.account_info
-        )
+        dialog_state.user_profile.account_info = self.code_validation_payload.account_info
 
 
 class UserValidationFailedSchema(DialogEventSchema):
     @post_load
     def make_user_creation_failed(self, data, **kwargs):
-        return UserValidationFailed(
-            **{k: v for k, v in data.items() if k != "event_type"}
-        )
+        return UserValidationFailed(**{k: v for k, v in data.items() if k != "event_type"})
 
 
 class UserValidationFailed(DialogEvent):
@@ -265,9 +257,7 @@ class CompletedPrompt(DialogEvent):
         dialog_state.current_prompt_state = None
         if self.prompt.response_user_profile_key:
             setattr(
-                dialog_state.user_profile,
-                self.prompt.response_user_profile_key,
-                self.response,
+                dialog_state.user_profile, self.prompt.response_user_profile_key, self.response,
             )
 
 
@@ -319,9 +309,7 @@ class AdvancedToNextPromptSchema(DialogEventSchema):
 
     @post_load
     def make_advanced_to_next_prompt(self, data, **kwargs):
-        return AdvancedToNextPrompt(
-            **{k: v for k, v in data.items() if k != "event_type"}
-        )
+        return AdvancedToNextPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
 class AdvancedToNextPrompt(DialogEvent):
@@ -400,11 +388,7 @@ class OptedOut(DialogEvent):
         **kwargs,
     ):
         super().__init__(
-            OptedOutSchema(),
-            DialogEventType.OPTED_OUT,
-            phone_number,
-            user_profile,
-            **kwargs,
+            OptedOutSchema(), DialogEventType.OPTED_OUT, phone_number, user_profile, **kwargs,
         )
         self.drill_instance_id = drill_instance_id
 
@@ -418,9 +402,7 @@ class OptedOut(DialogEvent):
 class NextDrillRequestedSchema(DialogEventSchema):
     @post_load
     def make_next_drill_requested(self, data, **kwargs):
-        return NextDrillRequested(
-            **{k: v for k, v in data.items() if k != "event_type"}
-        )
+        return NextDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
 class NextDrillRequested(DialogEvent):
@@ -440,9 +422,7 @@ class NextDrillRequested(DialogEvent):
 class SchedulingDrillRequestedSchema(DialogEventSchema):
     @post_load
     def make_next_drill_requested(self, data, **kwargs):
-        return SchedulingDrillRequested(
-            **{k: v for k, v in data.items() if k != "event_type"}
-        )
+        return SchedulingDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
 class SchedulingDrillRequested(DialogEvent):

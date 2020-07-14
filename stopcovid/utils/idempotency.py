@@ -15,9 +15,7 @@ class IdempotencyChecker:
         self.dynamodb = boto3.client("dynamodb", **kwargs)
         self.stage = os.environ.get("STAGE")
 
-    def record_as_processed(
-        self, idempotency_key: str, realm: str, expiration_minutes: int
-    ):
+    def record_as_processed(self, idempotency_key: str, realm: str, expiration_minutes: int):
         self.dynamodb.put_item(
             TableName=self._table_name(),
             Item=dynamodb_utils.serialize(
@@ -25,9 +23,7 @@ class IdempotencyChecker:
                     "idempotency_key": idempotency_key,
                     "realm": realm,
                     "expiration_ts": int(
-                        (
-                            self._now() + datetime.timedelta(minutes=expiration_minutes)
-                        ).timestamp()
+                        (self._now() + datetime.timedelta(minutes=expiration_minutes)).timestamp()
                     ),
                 }
             ),

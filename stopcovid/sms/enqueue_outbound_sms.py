@@ -50,9 +50,7 @@ def get_localized_messages(
     language = dialog_event.user_profile.language
 
     additional_args = {
-        "company": dialog_event.user_profile.account_info.get(
-            "employer_name", "your company"
-        ),
+        "company": dialog_event.user_profile.account_info.get("employer_name", "your company"),
         "name": "",
     }
     if dialog_event.user_profile.name is not None:
@@ -83,25 +81,19 @@ def get_messages_for_event(event: DialogEvent):  # noqa: C901
             return get_localized_messages(
                 event,
                 [PromptMessage(text="{{corrected_answer}}")],
-                correct_answer=localize(
-                    event.prompt.correct_response, event.user_profile.language
-                ),
+                correct_answer=localize(event.prompt.correct_response, event.user_profile.language),
             )
 
     elif isinstance(event, CompletedPrompt):
         if event.prompt.correct_response is not None:
-            return get_localized_messages(
-                event, [PromptMessage(text=CORRECT_ANSWER_COPY)]
-            )
+            return get_localized_messages(event, [PromptMessage(text=CORRECT_ANSWER_COPY)])
 
     elif isinstance(event, UserValidated):
         # User validated events will cause the scheduler to kick off a drill
         pass
 
     elif isinstance(event, UserValidationFailed):
-        return get_localized_messages(
-            event, [PromptMessage(text=USER_VALIDATION_FAILED_COPY)]
-        )
+        return get_localized_messages(event, [PromptMessage(text=USER_VALIDATION_FAILED_COPY)])
 
     elif isinstance(event, DrillStarted):
         return get_localized_messages(event, event.first_prompt.messages)
@@ -181,9 +173,7 @@ def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]):
 
 
 def _get_message_deduplication_id(messages):
-    unique_message_ids = sorted(
-        list(set([str(message.event_id) for message in messages]))
-    )
+    unique_message_ids = sorted(list(set([str(message.event_id) for message in messages])))
     combined = "-".join(unique_message_ids)
     m = hashlib.shake_256()
     m.update(combined.encode("utf-8"))

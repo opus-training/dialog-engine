@@ -51,15 +51,10 @@ class TestHandleCommand(unittest.TestCase):
             name="Test Drill",
             slug="test-drill",
             prompts=[
-                Prompt(
-                    slug="ignore-response-1", messages=[PromptMessage(text="Hello")]
-                ),
+                Prompt(slug="ignore-response-1", messages=[PromptMessage(text="Hello")]),
                 Prompt(
                     slug="graded-response-1",
-                    messages=[
-                        PromptMessage(text="Intro!"),
-                        PromptMessage(text="Question 1"),
-                    ],
+                    messages=[PromptMessage(text="Intro!"), PromptMessage(text="Question 1"),],
                     correct_response="a",
                 ),
                 Prompt(
@@ -100,18 +95,14 @@ class TestHandleCommand(unittest.TestCase):
     def test_user_validated_event(self):
         code_validation_payload = CodeValidationPayload(valid=True, is_demo=False)
         dialog_events: List[DialogEvent] = [
-            UserValidated(
-                self.phone, self.validated_user_profile, code_validation_payload
-            )
+            UserValidated(self.phone, self.validated_user_profile, code_validation_payload)
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 0)
 
     def test_drill_completed_event(self):
         dialog_events: List[DialogEvent] = [
-            DrillCompleted(
-                self.phone, self.validated_user_profile, drill_instance_id=uuid.uuid4()
-            )
+            DrillCompleted(self.phone, self.validated_user_profile, drill_instance_id=uuid.uuid4())
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 0)
@@ -165,9 +156,7 @@ class TestHandleCommand(unittest.TestCase):
         message = outbound_messages[0]
         self.assertEqual(message.phone_number, self.phone)
         self.assertEqual(message.event_id, dialog_events[0].event_id)
-        self.assertEqual(
-            message.body, "🤖 The correct answer is *a*.\n\nLets move to the next one."
-        )
+        self.assertEqual(message.body, "🤖 The correct answer is *a*.\n\nLets move to the next one.")
 
     def test_non_abandoned_failed_prompt_event(self):
         dialog_events: List[DialogEvent] = [
@@ -185,9 +174,7 @@ class TestHandleCommand(unittest.TestCase):
         message = outbound_messages[0]
         self.assertEqual(message.phone_number, self.phone)
         self.assertEqual(message.event_id, dialog_events[0].event_id)
-        self.assertEqual(
-            message.body, "🤖 Sorry, not correct. 🤔\n\n*Try again one more time!*"
-        )
+        self.assertEqual(message.body, "🤖 Sorry, not correct. 🤔\n\n*Try again one more time!*")
 
     def test_advance_to_next_prompt_event(self):
         dialog_events: List[DialogEvent] = [
@@ -213,9 +200,7 @@ class TestHandleCommand(unittest.TestCase):
     def test_ad_hoc_message_sent(self):
         body = "we have lift off"
         dialog_events: List[DialogEvent] = [
-            AdHocMessageSent(
-                self.phone, self.validated_user_profile, sms=SMS(body=body)
-            )
+            AdHocMessageSent(self.phone, self.validated_user_profile, sms=SMS(body=body))
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 1)
@@ -284,15 +269,9 @@ class TestPublishOutboundSMS(unittest.TestCase):
         event_1_id = uuid.uuid4()
         event_2_id = uuid.uuid4()
         messages = [
-            OutboundSMS(
-                event_id=event_1_id, phone_number=phone_number, body="message 1"
-            ),
-            OutboundSMS(
-                event_id=event_1_id, phone_number=phone_number, body="message 2"
-            ),
-            OutboundSMS(
-                event_id=event_2_id, phone_number=phone_number, body="message 3"
-            ),
+            OutboundSMS(event_id=event_1_id, phone_number=phone_number, body="message 1"),
+            OutboundSMS(event_id=event_1_id, phone_number=phone_number, body="message 2"),
+            OutboundSMS(event_id=event_2_id, phone_number=phone_number, body="message 3"),
         ]
 
         publish_outbound_sms_messages(messages)
@@ -313,9 +292,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         ),
         self.assertEqual(entry["MessageGroupId"], phone_number)
 
-    def test_sends_messages_to_multiple_phone_numbers_for_one_event_each(
-        self, boto_mock
-    ):
+    def test_sends_messages_to_multiple_phone_numbers_for_one_event_each(self, boto_mock):
         send_messages_mock = self._get_mocked_send_messages(boto_mock)
         phone_number_1 = "+15551234321"
         phone_number_2 = "+15559998888"
@@ -323,15 +300,9 @@ class TestPublishOutboundSMS(unittest.TestCase):
         event_2_id = uuid.uuid4()
 
         messages = [
-            OutboundSMS(
-                event_id=event_1_id, phone_number=phone_number_1, body="message 1"
-            ),
-            OutboundSMS(
-                event_id=event_1_id, phone_number=phone_number_1, body="message 2"
-            ),
-            OutboundSMS(
-                event_id=event_2_id, phone_number=phone_number_2, body="message 3"
-            ),
+            OutboundSMS(event_id=event_1_id, phone_number=phone_number_1, body="message 1"),
+            OutboundSMS(event_id=event_1_id, phone_number=phone_number_1, body="message 2"),
+            OutboundSMS(event_id=event_2_id, phone_number=phone_number_2, body="message 3"),
         ]
 
         publish_outbound_sms_messages(messages)
@@ -346,10 +317,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["phone_number"], phone_number_1)
         self.assertEqual(
             sqs_message["messages"],
-            [
-                {"body": "message 1", "media_url": None},
-                {"body": "message 2", "media_url": None},
-            ],
+            [{"body": "message 1", "media_url": None}, {"body": "message 2", "media_url": None},],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_1)
 
@@ -358,14 +326,10 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertTrue(1 <= len(entry["MessageDeduplicationId"]) <= 128)
         sqs_message = json.loads(entry["MessageBody"])
         self.assertEqual(sqs_message["phone_number"], phone_number_2)
-        self.assertEqual(
-            sqs_message["messages"], [{"body": "message 3", "media_url": None}]
-        )
+        self.assertEqual(sqs_message["messages"], [{"body": "message 3", "media_url": None}])
         self.assertEqual(entry["MessageGroupId"], phone_number_2)
 
-    def test_sends_messages_to_multiple_phone_numbers_for_multiple_events_each(
-        self, boto_mock
-    ):
+    def test_sends_messages_to_multiple_phone_numbers_for_multiple_events_each(self, boto_mock):
         send_messages_mock = self._get_mocked_send_messages(boto_mock)
         phone_number_1 = "+15551234321"
         phone_number_2 = "+15559998888"
@@ -377,39 +341,25 @@ class TestPublishOutboundSMS(unittest.TestCase):
 
         messages = [
             OutboundSMS(
-                event_id=phone_number_1_event_ids[0],
-                phone_number=phone_number_1,
-                body="message 1",
+                event_id=phone_number_1_event_ids[0], phone_number=phone_number_1, body="message 1",
             ),
             OutboundSMS(
-                event_id=phone_number_1_event_ids[1],
-                phone_number=phone_number_1,
-                body="message 2",
+                event_id=phone_number_1_event_ids[1], phone_number=phone_number_1, body="message 2",
             ),
             OutboundSMS(
-                event_id=phone_number_2_event_ids[0],
-                phone_number=phone_number_2,
-                body="message 3",
+                event_id=phone_number_2_event_ids[0], phone_number=phone_number_2, body="message 3",
             ),
             OutboundSMS(
-                event_id=phone_number_2_event_ids[1],
-                phone_number=phone_number_2,
-                body="message 4",
+                event_id=phone_number_2_event_ids[1], phone_number=phone_number_2, body="message 4",
             ),
             OutboundSMS(
-                event_id=phone_number_3_event_ids[0],
-                phone_number=phone_number_3,
-                body="message 5",
+                event_id=phone_number_3_event_ids[0], phone_number=phone_number_3, body="message 5",
             ),
             OutboundSMS(
-                event_id=phone_number_3_event_ids[1],
-                phone_number=phone_number_3,
-                body="message 6",
+                event_id=phone_number_3_event_ids[1], phone_number=phone_number_3, body="message 6",
             ),
             OutboundSMS(
-                event_id=phone_number_3_event_ids[2],
-                phone_number=phone_number_3,
-                body="message 7",
+                event_id=phone_number_3_event_ids[2], phone_number=phone_number_3, body="message 7",
             ),
         ]
 
@@ -425,10 +375,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["phone_number"], phone_number_1)
         self.assertEqual(
             sqs_message["messages"],
-            [
-                {"body": "message 1", "media_url": None},
-                {"body": "message 2", "media_url": None},
-            ],
+            [{"body": "message 1", "media_url": None}, {"body": "message 2", "media_url": None},],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_1)
 
@@ -439,10 +386,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["phone_number"], phone_number_2)
         self.assertEqual(
             sqs_message["messages"],
-            [
-                {"body": "message 3", "media_url": None},
-                {"body": "message 4", "media_url": None},
-            ],
+            [{"body": "message 3", "media_url": None}, {"body": "message 4", "media_url": None},],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_2)
 

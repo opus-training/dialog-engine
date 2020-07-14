@@ -17,9 +17,7 @@ class TestS3LoaderThreading(unittest.TestCase):
         s3_mock = MagicMock()
         s3_mock.Object.side_effect = mock_object
 
-        boto3_patch = patch(
-            "stopcovid.drills.content_loader.boto3.resource", return_value=s3_mock
-        )
+        boto3_patch = patch("stopcovid.drills.content_loader.boto3.resource", return_value=s3_mock)
         boto3_patch.start()
 
         self.addCleanup(boto3_patch.stop)
