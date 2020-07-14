@@ -8,6 +8,8 @@ custom:
   logForwarding:
       destinationARN: ${ssm:/stopcovid/${self:provider.stage}/logForwardingDestinationArn}
   pythonRequirements:
+    usePoetry: false
+    usePipenv: false
     slim: true
     slimPatterns:
       - __tests__/**
