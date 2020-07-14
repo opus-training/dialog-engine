@@ -22,7 +22,10 @@ from stopcovid.dialog.models.events import (
     DialogEventBatch,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
-from stopcovid.dialog.registration import RegistrationValidator, DefaultRegistrationValidator
+from stopcovid.dialog.registration import (
+    RegistrationValidator,
+    DefaultRegistrationValidator,
+)
 from stopcovid.dialog.models.state import DialogState
 from stopcovid.drills.drills import Drill, DrillSchema
 from stopcovid.sms.types import SMS
@@ -66,7 +69,7 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
         deepcopy(event).apply_to(dialog_state)
     dialog_state.seq = seq
     repo.persist_dialog_state(
-        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq), dialog_state
+        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq), dialog_state,
     )
 
 
@@ -155,7 +158,10 @@ class ProcessSMSMessage(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        base_args = {"phone_number": self.phone_number, "user_profile": dialog_state.user_profile}
+        base_args = {
+            "phone_number": self.phone_number,
+            "user_profile": dialog_state.user_profile,
+        }
 
         # a chain of responsibility. Each handler can handle the current command and return an
         # event list. A handler can also NOT handle an event and return None, thereby leaving it
@@ -180,12 +186,21 @@ class ProcessSMSMessage(Command):
         if self.content_lower == "help":
             # Twilio will respond with help text
             return []
+        return None
 
     def _handle_opt_out(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
-        if self.content_lower in ["cancel", "end", "quit", "stop", "stopall", "unsubscribe"]:
+        if self.content_lower in [
+            "cancel",
+            "end",
+            "quit",
+            "stop",
+            "stopall",
+            "unsubscribe",
+        ]:
             return [OptedOut(drill_instance_id=dialog_state.drill_instance_id, **base_args)]
+        return None
 
     def _handle_opt_back_in(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
@@ -194,6 +209,7 @@ class ProcessSMSMessage(Command):
             if self.content_lower == "start":
                 return [NextDrillRequested(**base_args)]
             return []
+        return None
 
     def _validate_registration(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
@@ -205,6 +221,7 @@ class ProcessSMSMessage(Command):
                 return [UserValidated(code_validation_payload=validation_payload, **base_args)]
             if not dialog_state.user_profile.validated:
                 return [UserValidationFailed(**base_args)]
+        return None
 
     def _get_drill_completed_event(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
@@ -214,7 +231,7 @@ class ProcessSMSMessage(Command):
             auto_continue = dialog_state.current_drill.auto_continue
 
         return DrillCompleted(
-            drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
+            drill_instance_id=dialog_state.drill_instance_id,
             auto_continue=auto_continue,
             **base_args,
         )
@@ -224,15 +241,15 @@ class ProcessSMSMessage(Command):
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
-            return
-        events = []
+            return None
+        events: List[DialogEvent] = []
         if prompt.should_advance_with_answer(
             self.content_lower, dialog_state.user_profile.language
         ):
             events.append(
                 CompletedPrompt(
                     prompt=prompt,
-                    drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
+                    drill_instance_id=dialog_state.drill_instance_id,
                     response=self.content,
                     **base_args,
                 )
@@ -244,7 +261,7 @@ class ProcessSMSMessage(Command):
                 FailedPrompt(
                     prompt=prompt,
                     response=self.content or None,
-                    drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
+                    drill_instance_id=dialog_state.drill_instance_id,
                     abandoned=should_advance,
                     **base_args,
                 )
@@ -256,7 +273,7 @@ class ProcessSMSMessage(Command):
                 events.append(
                     AdvancedToNextPrompt(
                         prompt=next_prompt,
-                        drill_instance_id=dialog_state.drill_instance_id,  # type: ignore
+                        drill_instance_id=dialog_state.drill_instance_id,
                         **base_args,
                     )
                 )
@@ -276,6 +293,7 @@ class ProcessSMSMessage(Command):
         if prompt is None:
             if self.content_lower in ["more", "mas", "más"]:
                 return [NextDrillRequested(**base_args)]
+        return None
 
     def _update_schedule_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
@@ -284,6 +302,7 @@ class ProcessSMSMessage(Command):
         if prompt is None:
             if self.content_lower in ["schedule", "calendario", "horario"]:
                 return [SchedulingDrillRequested(**base_args)]
+        return None
 
 
 class SendAdHocMessage(Command):

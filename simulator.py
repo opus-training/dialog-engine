@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import sys
 from time import sleep
-from typing import List
+from typing import List, Dict
+from uuid import UUID
 
 from stopcovid.dialog.persistence import DialogRepository
 from stopcovid.dialog.models.events import (
@@ -29,7 +30,7 @@ PHONE_NUMBER = "123456789"
 DRILLS = SourceRepoDrillLoader().get_drills()
 
 
-STARTED_DRILLS = {}
+STARTED_DRILLS: Dict[UUID, str] = {}
 
 
 def fake_sms(
@@ -102,14 +103,13 @@ class InMemoryRepository(DialogRepository):
                         dialog_state.user_profile,
                         ["{{corrected_answer}}"],
                         correct_answer=localize(
-                            event.prompt.correct_response,  # type: ignore
-                            dialog_state.user_profile.language,
+                            event.prompt.correct_response, dialog_state.user_profile.language,
                         ),
                     )
             elif isinstance(event, CompletedPrompt):
                 if event.prompt.correct_response is not None:
                     fake_sms(
-                        event.phone_number, dialog_state.user_profile, ["{{match_correct_answer}}"]
+                        event.phone_number, dialog_state.user_profile, ["{{match_correct_answer}}"],
                     )
             elif isinstance(event, UserValidated):
                 drill_to_start = dialog_state.user_profile.account_info["code"]
@@ -148,7 +148,7 @@ class InMemoryRepository(DialogRepository):
             SEQ += 1
             drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()), str(SEQ), repo=self
+                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()), str(SEQ), repo=self,
             )
 
 

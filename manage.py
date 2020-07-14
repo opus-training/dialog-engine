@@ -190,7 +190,7 @@ def main():
     get_all_users_parser.set_defaults(func=get_all_users)
 
     replay_message_stream_parser = subparsers.add_parser(
-        "replay-message-stream", description="Replay all messages in the message-log stream"
+        "replay-message-stream", description="Replay all messages in the message-log stream",
     )
     replay_message_stream_parser.set_defaults(func=replay_message_stream)
 

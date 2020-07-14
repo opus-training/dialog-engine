@@ -1,7 +1,11 @@
 import unittest
 import uuid
 
-from stopcovid.dialog.models.events import CompletedPrompt, AdvancedToNextPrompt, DialogEventBatch
+from stopcovid.dialog.models.events import (
+    CompletedPrompt,
+    AdvancedToNextPrompt,
+    DialogEventBatch,
+)
 from stopcovid.dialog.persistence import DynamoDBDialogRepository
 from stopcovid.dialog.models.state import DialogState, UserProfile
 from stopcovid.drills.drills import Prompt, PromptMessage
@@ -30,7 +34,7 @@ class TestPersistence(unittest.TestCase):
             phone_number=self.phone_number,
             user_profile=UserProfile(True),
             prompt=Prompt(
-                slug="one", messages=[PromptMessage(text="one"), PromptMessage(text="two")]
+                slug="one", messages=[PromptMessage(text="one"), PromptMessage(text="two")],
             ),
             response="hi",
             drill_instance_id=uuid.uuid4(),
@@ -39,7 +43,7 @@ class TestPersistence(unittest.TestCase):
             phone_number=self.phone_number,
             user_profile=UserProfile(True),
             prompt=Prompt(
-                slug="two", messages=[PromptMessage(text="three"), PromptMessage(text="four")]
+                slug="two", messages=[PromptMessage(text="three"), PromptMessage(text="four")],
             ),
             drill_instance_id=event1.drill_instance_id,
         )

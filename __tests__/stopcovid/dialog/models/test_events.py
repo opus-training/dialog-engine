@@ -384,7 +384,7 @@ class TestSerialization(unittest.TestCase):
 
     def test_drill_completed(self):
         original = DrillCompleted(
-            phone_number="12345678", user_profile=UserProfile(True), drill_instance_id=uuid.uuid4()
+            phone_number="12345678", user_profile=UserProfile(True), drill_instance_id=uuid.uuid4(),
         )
         serialized = original.to_dict()
         deserialized: DrillCompleted = event_from_dict(serialized)  # type: ignore

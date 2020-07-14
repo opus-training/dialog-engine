@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Dict
+from typing import Dict, DefaultDict, Union, Optional
 from abc import ABC, abstractmethod
 from collections import defaultdict
 
@@ -14,7 +14,7 @@ __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file
 
 class TranslationLoader(ABC):
     def __init__(self):
-        self.translations_dict = defaultdict(dict)
+        self.translations_dict: DefaultDict[str, dict] = defaultdict(dict)
         self._populate_content()
 
     @abstractmethod
@@ -75,7 +75,7 @@ class S3Loader(TranslationLoader):
             return False
 
 
-TRANSLATION_LOADER = None
+TRANSLATION_LOADER: Optional[Union[S3Loader, SourceRepoLoader]] = None
 
 
 def get_translation_loader() -> TranslationLoader:

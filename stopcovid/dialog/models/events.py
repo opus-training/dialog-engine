@@ -7,8 +7,16 @@ from typing import Optional, Dict, Type, Any, List
 
 from marshmallow import fields, post_load, utils, Schema
 
-from stopcovid.dialog.registration import CodeValidationPayloadSchema, CodeValidationPayload
-from stopcovid.dialog.models.state import DialogState, UserProfileSchema, UserProfile, PromptState
+from stopcovid.dialog.registration import (
+    CodeValidationPayloadSchema,
+    CodeValidationPayload,
+)
+from stopcovid.dialog.models.state import (
+    DialogState,
+    UserProfileSchema,
+    UserProfile,
+    PromptState,
+)
 from stopcovid.dialog.models import SCHEMA_VERSION
 from stopcovid.drills import drills
 from stopcovid.sms.types import SMSSchema, SMS
@@ -248,7 +256,9 @@ class CompletedPrompt(DialogEvent):
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_prompt_state = None
         if self.prompt.response_user_profile_key:
-            setattr(dialog_state.user_profile, self.prompt.response_user_profile_key, self.response)
+            setattr(
+                dialog_state.user_profile, self.prompt.response_user_profile_key, self.response,
+            )
 
 
 class FailedPromptSchema(DialogEventSchema):
@@ -378,7 +388,7 @@ class OptedOut(DialogEvent):
         **kwargs,
     ):
         super().__init__(
-            OptedOutSchema(), DialogEventType.OPTED_OUT, phone_number, user_profile, **kwargs
+            OptedOutSchema(), DialogEventType.OPTED_OUT, phone_number, user_profile, **kwargs,
         )
         self.drill_instance_id = drill_instance_id
 

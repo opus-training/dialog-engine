@@ -5,7 +5,10 @@ import os
 
 import requests_mock
 
-from stopcovid.dialog.registration import DefaultRegistrationValidator, CodeValidationPayloadSchema
+from stopcovid.dialog.registration import (
+    DefaultRegistrationValidator,
+    CodeValidationPayloadSchema,
+)
 
 
 class TestRegistration(unittest.TestCase):
@@ -106,7 +109,7 @@ class TestRegistration(unittest.TestCase):
         as_dict = CodeValidationPayloadSchema().dump(payload)
         self.assertEqual(
             as_dict,
-            {"valid": True, "is_demo": False, "account_info": {"employer_id": 12, "unit_id": 1}},
+            {"valid": True, "is_demo": False, "account_info": {"employer_id": 12, "unit_id": 1},},
         )
 
         # json serialization doesnt blow up
