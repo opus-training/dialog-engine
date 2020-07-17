@@ -1,7 +1,7 @@
 import argparse
 import sys
 import uuid
-from typing import Iterator
+from typing import Dict, Iterator
 import json
 
 import boto3
@@ -10,8 +10,6 @@ from sqlalchemy import create_engine
 from stopcovid.dialog.models.events import batch_from_dict, DialogEventBatch
 from stopcovid.utils import dynamodb as dynamodb_utils
 from stopcovid.utils.logging import configure_logging
-from stopcovid.sms.message_log.types import LogMessageCommandSchema
-from stopcovid.sms.message_log.message_log import log_messages
 
 configure_logging()
 
@@ -83,7 +81,7 @@ def handle_redrive_sqs(args):
 def _get_dialog_events(phone_number: str, stage: str) -> Iterator[DialogEventBatch]:
     dynamodb = boto3.client("dynamodb")
     table_name = f"dialog-event-batches-{stage}"
-    args = {}
+    args: Dict[str, str] = {}
     while True:
         result = dynamodb.query(
             TableName=table_name,
@@ -127,36 +125,6 @@ def get_all_users(args):
         args["ExclusiveStartKey"] = result["LastEvaluatedKey"]
 
 
-def replay_message_stream(args):
-    kinesis = boto3.client("kinesis")
-    stream_name = f"message-log-{args.stage}"
-    shards = kinesis.list_shards(StreamName=stream_name)["Shards"]
-    engine_factory = db_engine_factory(args.stage)
-    for shard in shards:
-        shard_id = shard["ShardId"]
-        shard_iterator = kinesis.get_shard_iterator(
-            StreamName=stream_name, ShardId=shard_id, ShardIteratorType="TRIM_HORIZON"
-        )
-        next_shard_iterator = shard_iterator["ShardIterator"]
-        milliseconds_from_tip = 24 * 60 * 60 * 1000
-        while milliseconds_from_tip > 0:
-            response = kinesis.get_records(ShardIterator=next_shard_iterator)
-            next_shard_iterator = response["NextShardIterator"]
-            milliseconds_from_tip = response["MillisBehindLatest"]
-            raw_commands = [json.loads(record["Data"]) for record in response["Records"]]
-            commands = [
-                LogMessageCommandSchema().load(
-                    {"command_type": command["type"], "payload": command["payload"]}
-                )
-                for command in raw_commands
-            ]
-            print(
-                f"{milliseconds_from_tip} from tip of shard {shard_id}. Handling {len(commands)} commands"
-            )
-            if commands:
-                log_messages(commands, engine_factory=engine_factory)
-
-
 def show_command(args):
     kinesis = boto3.client("kinesis")
     stream_name = f"command-stream-{args.stage}"
@@ -188,11 +156,6 @@ def main():
         "get-all-users", description="print out every user's phone number"
     )
     get_all_users_parser.set_defaults(func=get_all_users)
-
-    replay_message_stream_parser = subparsers.add_parser(
-        "replay-message-stream", description="Replay all messages in the message-log stream",
-    )
-    replay_message_stream_parser.set_defaults(func=replay_message_stream)
 
     show_command_parser = subparsers.add_parser(
         "show-command",
