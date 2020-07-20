@@ -7,21 +7,21 @@ class TestLocalize(unittest.TestCase):
     def test_localization(self):
         self.assertEqual(
             "You're almost done! Answer the question above.  ",
-            localize.localize("{{drill_reminder}}", None),
+            localize.localize("{{incorrect_answer}}", None),
         )
         self.assertEqual(
             "You're almost done! Answer the question above.  ",
-            localize.localize("{{drill_reminder}}", "en"),
+            localize.localize("{{incorrect_answer}}", "en"),
         )
         self.assertEqual(
             "¡Ya casi terminas! Responde la pregunta anterior.",
-            localize.localize("{{drill_reminder}}", "es"),
+            localize.localize("{{incorrect_answer}}", "es"),
         )
         self.assertEqual(
             "¡Ya casi terminas! Responde la pregunta anterior.",
-            localize.localize("{{drill_reminder}}", "Es"),
+            localize.localize("{{incorrect_answer}}", "Es"),
         )
         self.assertEqual(
             "You're almost done! Answer the question above.  ",
-            localize.localize("{{drill_reminder}}", "xx"),
+            localize.localize("{{incorrect_answer}}", "xx"),
         )
