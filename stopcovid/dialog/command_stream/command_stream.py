@@ -1,10 +1,8 @@
 from typing import List
-import uuid
 
 from stopcovid.dialog.engine import (
     process_command,
     StartDrill,
-    TriggerReminder,
     ProcessSMSMessage,
     SendAdHocMessage,
 )
@@ -27,15 +25,6 @@ def handle_inbound_commands(commands: List[InboundCommand]):
                     phone_number=command.payload["phone_number"],
                     drill_slug=command.payload["drill_slug"],
                     drill_body=command.payload["drill_body"],
-                ),
-                command.sequence_number,
-            )
-        elif command.command_type == InboundCommandType.TRIGGER_REMINDER:
-            process_command(
-                TriggerReminder(
-                    phone_number=command.payload["phone_number"],
-                    drill_instance_id=uuid.UUID(command.payload["drill_instance_id"]),
-                    prompt_slug=command.payload["prompt_slug"],
                 ),
                 command.sequence_number,
             )
