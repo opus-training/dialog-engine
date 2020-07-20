@@ -6,22 +6,22 @@ from stopcovid.drills import localize
 class TestLocalize(unittest.TestCase):
     def test_localization(self):
         self.assertEqual(
-            "You're almost done! Answer the question above.  ",
+            "🤖 Sorry, not correct. 🤔\n\n*Try again one more time!*",
             localize.localize("{{incorrect_answer}}", None),
         )
         self.assertEqual(
-            "You're almost done! Answer the question above.  ",
+            "🤖 Sorry, not correct. 🤔\n\n*Try again one more time!*",
             localize.localize("{{incorrect_answer}}", "en"),
         )
         self.assertEqual(
-            "¡Ya casi terminas! Responde la pregunta anterior.",
+            "🤖 Lo siento, no es correcto.🤔\n\n*¡Intenta una vez más!*",
             localize.localize("{{incorrect_answer}}", "es"),
         )
         self.assertEqual(
-            "¡Ya casi terminas! Responde la pregunta anterior.",
+            "🤖 Lo siento, no es correcto.🤔\n\n*¡Intenta una vez más!*",
             localize.localize("{{incorrect_answer}}", "Es"),
         )
         self.assertEqual(
-            "You're almost done! Answer the question above.  ",
+            "🤖 Sorry, not correct. 🤔\n\n*Try again one more time!*",
             localize.localize("{{incorrect_answer}}", "xx"),
         )
