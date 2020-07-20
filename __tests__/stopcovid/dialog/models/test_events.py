@@ -15,7 +15,6 @@ from stopcovid.dialog.models.events import (
     SchedulingDrillRequested,
     DialogEvent,
     event_from_dict,
-    ReminderTriggered,
     AdHocMessageSent,
 )
 from stopcovid.dialog.models.state import UserProfile, DialogState, PromptState
@@ -390,12 +389,6 @@ class TestSerialization(unittest.TestCase):
         deserialized: DrillCompleted = event_from_dict(serialized)  # type: ignore
         self._make_base_assertions(original, deserialized)
         self.assertEqual(original.drill_instance_id, deserialized.drill_instance_id)
-
-    def test_reminder_triggered(self):
-        original = ReminderTriggered("123456789", user_profile=UserProfile(True))
-        serialized = original.to_dict()
-        deserialized = event_from_dict(serialized)
-        self._make_base_assertions(original, deserialized)
 
     def test_user_validated(self):
         original = UserValidated(

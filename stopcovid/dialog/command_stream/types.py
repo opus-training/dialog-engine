@@ -5,7 +5,6 @@ from marshmallow import Schema, fields, post_load
 class InboundCommandType:
     INBOUND_SMS = "INBOUND_SMS"
     START_DRILL = "START_DRILL"
-    TRIGGER_REMINDER = "TRIGGER_REMINDER"
     SEND_AD_HOC_MESSAGE = "SEND_AD_HOC_MESSAGE"
 
 

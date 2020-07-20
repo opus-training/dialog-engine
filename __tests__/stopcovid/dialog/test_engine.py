@@ -1,7 +1,6 @@
 import datetime
 import logging
 import unittest
-import uuid
 from unittest.mock import MagicMock, patch, Mock
 from typing import Optional
 
@@ -9,7 +8,6 @@ from stopcovid.dialog.engine import (
     process_command,
     ProcessSMSMessage,
     StartDrill,
-    TriggerReminder,
     SendAdHocMessage,
 )
 from stopcovid.dialog.models.events import (
@@ -406,78 +404,6 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "más")
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
-
-    def test_trigger_reminder(self):
-        self.dialog_state.user_profile.validated = True
-        self._set_current_prompt(2, should_advance=True)
-        command = TriggerReminder(
-            phone_number=self.phone_number,
-            drill_instance_id=self.dialog_state.drill_instance_id,  # type:ignore
-            prompt_slug=self.drill.prompts[2].slug,
-        )
-        batch = self._process_command(command)
-        self._assert_event_types(batch, DialogEventType.REMINDER_TRIGGERED)
-
-        self.assertTrue(self.dialog_state.current_prompt_state.reminder_triggered)
-
-    def test_trigger_reminder_not_validated(self):
-        self.dialog_state.user_profile.validated = False
-        self._set_current_prompt(2, should_advance=True)
-        command = TriggerReminder(
-            phone_number=self.phone_number,
-            drill_instance_id=self.dialog_state.drill_instance_id,  # type:ignore
-            prompt_slug=self.drill.prompts[2].slug,
-        )
-        batch = self._process_command(command)
-        self.assertEqual(0, len(batch.events))
-
-    def test_trigger_reminder_opted_out(self):
-        self.dialog_state.user_profile.validated = True
-        self.dialog_state.user_profile.opted_out = True
-        self._set_current_prompt(2, should_advance=True)
-        command = TriggerReminder(
-            phone_number=self.phone_number,
-            drill_instance_id=self.dialog_state.drill_instance_id,  # type:ignore
-            prompt_slug=self.drill.prompts[2].slug,
-        )
-        batch = self._process_command(command)
-        self.assertEqual(0, len(batch.events))
-
-    def test_trigger_reminder_idempotence(self):
-        self.dialog_state.user_profile.validated = True
-        self._set_current_prompt(2, should_advance=True)
-        self.dialog_state.current_prompt_state.reminder_triggered = True
-        command = TriggerReminder(
-            phone_number=self.phone_number,
-            drill_instance_id=self.dialog_state.drill_instance_id,  # type:ignore
-            prompt_slug=self.drill.prompts[2].slug,
-        )
-        batch = self._process_command(command)
-        self.assertEqual(0, len(batch.events))
-
-        self.assertTrue(self.dialog_state.current_prompt_state.reminder_triggered)
-
-    def test_trigger_late_reminder_later_prompt(self):
-        self.dialog_state.user_profile.validated = True
-        self._set_current_prompt(3, should_advance=True)
-        command = TriggerReminder(
-            phone_number=self.phone_number,
-            drill_instance_id=self.dialog_state.drill_instance_id,  # type:ignore
-            prompt_slug=self.drill.prompts[2].slug,
-        )
-        batch = self._process_command(command)
-        self.assertEqual(0, len(batch.events))
-
-        self.assertFalse(self.dialog_state.current_prompt_state.reminder_triggered)
-
-    def test_trigger_late_reminder_later_drill(self):
-        self.dialog_state.user_profile.validated = True
-        self._set_current_prompt(2, should_advance=True)
-        command = TriggerReminder(self.phone_number, uuid.uuid4(), self.drill.prompts[2].slug)
-        batch = self._process_command(command)
-        self.assertEqual(0, len(batch.events))
-
-        self.assertFalse(self.dialog_state.current_prompt_state.reminder_triggered)
 
     def test_send_ad_hoc_message(self):
         self.dialog_state.user_profile.validated = True

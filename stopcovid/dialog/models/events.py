@@ -55,7 +55,6 @@ class DrillStartedSchema(DialogEventSchema):
 
 class DialogEventType(enum.Enum):
     DRILL_STARTED = "DRILL_STARTED"
-    REMINDER_TRIGGERED = "REMINDER_TRIGGERED"
     USER_VALIDATED = "USER_VALIDATED"
     USER_VALIDATION_FAILED = "USER_VALIDATION_FAILED"
     COMPLETED_PROMPT = "COMPLETED_PROMPT"
@@ -123,26 +122,6 @@ class DrillStarted(DialogEvent):
         dialog_state.current_prompt_state = PromptState(
             self.first_prompt.slug, start_time=self.created_time
         )
-
-
-class ReminderTriggeredSchema(DialogEventSchema):
-    @post_load
-    def make_reminder_triggered(self, data, **kwargs):
-        return ReminderTriggered(**{k: v for k, v in data.items() if k != "event_type"})
-
-
-class ReminderTriggered(DialogEvent):
-    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
-        super().__init__(
-            ReminderTriggeredSchema(),
-            DialogEventType.REMINDER_TRIGGERED,
-            phone_number,
-            user_profile,
-            **kwargs,
-        )
-
-    def apply_to(self, dialog_state: DialogState):
-        dialog_state.current_prompt_state.reminder_triggered = True
 
 
 class AdHocMessageSentSchema(DialogEventSchema):
@@ -447,7 +426,6 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.USER_VALIDATED: UserValidatedSchema,
     DialogEventType.COMPLETED_PROMPT: CompletedPromptSchema,
     DialogEventType.FAILED_PROMPT: FailedPromptSchema,
-    DialogEventType.REMINDER_TRIGGERED: ReminderTriggeredSchema,
     DialogEventType.OPTED_OUT: OptedOutSchema,
     DialogEventType.NEXT_DRILL_REQUESTED: NextDrillRequestedSchema,
     DialogEventType.SCHEDULING_DRILL_REQUESTED: SchedulingDrillRequestedSchema,

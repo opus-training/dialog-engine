@@ -1,5 +1,4 @@
 import logging
-import uuid
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List, Optional, Dict, Any
@@ -7,7 +6,6 @@ from typing import List, Optional, Dict, Any
 import stopcovid.dialog.models.events
 from stopcovid.dialog.models.events import (
     DrillStarted,
-    ReminderTriggered,
     UserValidated,
     UserValidationFailed,
     CompletedPrompt,
@@ -99,43 +97,6 @@ class StartDrill(Command):
                 first_prompt=self.drill.first_prompt(),
             )
         ]
-
-
-class TriggerReminder(Command):
-    def __init__(self, phone_number: str, drill_instance_id: uuid.UUID, prompt_slug: str):
-        super().__init__(phone_number)
-        self.prompt_slug = prompt_slug
-        self.drill_instance_id = drill_instance_id
-
-    def __str__(self):
-        return (
-            f"Trigger Reminder: Prompt {self.prompt_slug}, "
-            f"Drill instance ID {self.drill_instance_id}"
-        )
-
-    def execute(
-        self, dialog_state: DialogState
-    ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
-            logging.warning(
-                f"Attempted to trigger a reminder for {dialog_state.phone_number}, "
-                f"who hasn't validated or has opted out."
-            )
-            return []
-
-        drill = dialog_state.current_drill
-        if drill is None or dialog_state.drill_instance_id != self.drill_instance_id:
-            return []
-
-        prompt = dialog_state.current_prompt_state
-        if prompt is None or prompt.slug != self.prompt_slug:
-            return []
-
-        if prompt.reminder_triggered:
-            # to ensure idempotence
-            return []
-
-        return [ReminderTriggered(self.phone_number, dialog_state.user_profile)]
 
 
 class ProcessSMSMessage(Command):
