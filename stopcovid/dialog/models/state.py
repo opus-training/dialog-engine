@@ -83,6 +83,7 @@ class PromptStateSchema(Schema):
     slug = fields.Str(required=True)
     start_time = fields.DateTime(required=True)
     failures = fields.Int(allow_none=True)
+    reminder_triggered = fields.Boolean(allow_none=True, required=False)
 
     @post_load
     def make_prompt_state(self, data, **kwargs):
@@ -94,6 +95,7 @@ class PromptState:
     slug: str
     start_time: datetime.datetime
     last_response_time: Optional[datetime.datetime] = None
+    reminder_triggered: bool = False
     failures: int = 0
 
 
