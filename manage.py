@@ -1,7 +1,7 @@
 import argparse
 import sys
 import uuid
-from typing import Iterator
+from typing import Dict, Iterator
 import json
 
 import boto3
@@ -10,8 +10,6 @@ from sqlalchemy import create_engine
 from stopcovid.dialog.models.events import batch_from_dict, DialogEventBatch
 from stopcovid.utils import dynamodb as dynamodb_utils
 from stopcovid.utils.logging import configure_logging
-from stopcovid.sms.message_log.types import LogMessageCommandSchema
-from stopcovid.sms.message_log.message_log import log_messages
 
 configure_logging()
 
@@ -80,10 +78,45 @@ def handle_redrive_sqs(args):
         total_redriven += len(messages)
 
 
+def handle_replay_sqs_failures(args):
+    sqs = boto3.resource("sqs")
+    kinesis = boto3.client("kinesis")
+
+    queue_name = f"{args.sqs_queue}-failures-{args.stage}"
+    stream_name = f"{args.kinesis_stream}-{args.stage}"
+    queue = sqs.get_queue_by_name(QueueName=queue_name)
+
+    while True:
+        print(f"Getting messages from {queue_name}...")
+        messages = queue.receive_messages(WaitTimeSeconds=1)
+        if not messages:
+            print(f"Reached end of {queue_name}")
+            return
+        for message in messages:
+            print(f"Message ID: {message.message_id}")
+            print(json.dumps(json.loads(message.body), indent=4, sort_keys=True))
+            if args.print_only:
+                continue
+            response = input(
+                f"Re-publish message {message.message_id} to {stream_name}? (yes/no)\n"
+            ).lower()
+            if response in ["y", "yes"]:
+                partition_key = input(f"What partition in {args.kinesis_stream}?\n").lower()
+                records = [{"Data": message.body, "PartitionKey": partition_key}]
+                print(
+                    f"Re-publishing message {message.message_id} to {stream_name} at partition {partition_key}"
+                )
+                response = kinesis.put_records(StreamName=stream_name, Records=records)
+                print(f"Deleting message {message.message_id}\n")
+                message.delete()
+            else:
+                print(f"Skipping message {message.message_id}\n")
+
+
 def _get_dialog_events(phone_number: str, stage: str) -> Iterator[DialogEventBatch]:
     dynamodb = boto3.client("dynamodb")
     table_name = f"dialog-event-batches-{stage}"
-    args = {}
+    args: Dict[str, str] = {}
     while True:
         result = dynamodb.query(
             TableName=table_name,
@@ -127,39 +160,9 @@ def get_all_users(args):
         args["ExclusiveStartKey"] = result["LastEvaluatedKey"]
 
 
-def replay_message_stream(args):
+def handle_show_stream_record(args):
     kinesis = boto3.client("kinesis")
-    stream_name = f"message-log-{args.stage}"
-    shards = kinesis.list_shards(StreamName=stream_name)["Shards"]
-    engine_factory = db_engine_factory(args.stage)
-    for shard in shards:
-        shard_id = shard["ShardId"]
-        shard_iterator = kinesis.get_shard_iterator(
-            StreamName=stream_name, ShardId=shard_id, ShardIteratorType="TRIM_HORIZON"
-        )
-        next_shard_iterator = shard_iterator["ShardIterator"]
-        milliseconds_from_tip = 24 * 60 * 60 * 1000
-        while milliseconds_from_tip > 0:
-            response = kinesis.get_records(ShardIterator=next_shard_iterator)
-            next_shard_iterator = response["NextShardIterator"]
-            milliseconds_from_tip = response["MillisBehindLatest"]
-            raw_commands = [json.loads(record["Data"]) for record in response["Records"]]
-            commands = [
-                LogMessageCommandSchema().load(
-                    {"command_type": command["type"], "payload": command["payload"]}
-                )
-                for command in raw_commands
-            ]
-            print(
-                f"{milliseconds_from_tip} from tip of shard {shard_id}. Handling {len(commands)} commands"
-            )
-            if commands:
-                log_messages(commands, engine_factory=engine_factory)
-
-
-def show_command(args):
-    kinesis = boto3.client("kinesis")
-    stream_name = f"command-stream-{args.stage}"
+    stream_name = f"{args.kinesis_stream}-{args.stage}"
     shard_iterator = kinesis.get_shard_iterator(
         StreamName=stream_name,
         ShardId=args.shard_id,
@@ -189,18 +192,23 @@ def main():
     )
     get_all_users_parser.set_defaults(func=get_all_users)
 
-    replay_message_stream_parser = subparsers.add_parser(
-        "replay-message-stream", description="Replay all messages in the message-log stream",
+    show_stream_record_parser = subparsers.add_parser(
+        "show-stream-record",
+        description="Show the record at a particular sequence in a kinesis stream",
     )
-    replay_message_stream_parser.set_defaults(func=replay_message_stream)
+    show_stream_record_parser.add_argument("--kinesis_stream")
+    show_stream_record_parser.add_argument("--shard_id")
+    show_stream_record_parser.add_argument("--seq")
+    show_stream_record_parser.set_defaults(func=handle_show_stream_record)
 
-    show_command_parser = subparsers.add_parser(
-        "show-command",
-        description="Show the command at a particular sequence in the command stream",
+    replay_sqs_failures_parser = subparsers.add_parser(
+        "replay-sqs-failures",
+        description="Interactively replay to a kinesis stream (or just view) messages from an SQS failure queue",
     )
-    show_command_parser.add_argument("--shard_id")
-    show_command_parser.add_argument("--seq")
-    show_command_parser.set_defaults(func=show_command)
+    replay_sqs_failures_parser.set_defaults(func=handle_replay_sqs_failures)
+    replay_sqs_failures_parser.add_argument("--sqs_queue")
+    replay_sqs_failures_parser.add_argument("--kinesis_stream")
+    replay_sqs_failures_parser.add_argument("--print_only", action="store_true")
 
     args = parser.parse_args(sys.argv if len(sys.argv) == 1 else None)
     args.func(args)
