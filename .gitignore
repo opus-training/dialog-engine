@@ -9,3 +9,4 @@ env
 pipfile
 pipfile.lock
 .mypy_cache
+.vscode
