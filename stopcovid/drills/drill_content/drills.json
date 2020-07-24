@@ -1,0 +1,202 @@
+{
+  "00-language": {
+    "name": "Language",
+    "slug": "00-language",
+    "auto_continue": true,
+    "prompts": [
+      {
+        "slug": "1 -",
+        "messages": [
+          {
+            "text": "Welcome! Choose your language:\nen - English\nes - Español"
+          }
+        ],
+        "response_user_profile_key": "language"
+      }
+    ]
+  },
+  "01-intake-en": {
+    "name": "Intake",
+    "slug": "01-intake-en",
+    "auto_continue": true,
+    "prompts": [
+      {
+        "slug": "2 -",
+        "messages": [
+          {
+            "text": "Message and data rates apply. Reply STOP to unsubscribe."
+          }
+        ]
+      }
+    ]
+  },
+  "01-intake-es": {
+    "name": "Intake",
+    "slug": "01-intake-es",
+    "auto_continue": true,
+    "prompts": [
+      {
+        "slug": "2 -",
+        "messages": [
+          {
+            "text": "Se aplican tarifas de mensajes y datos. Responda STOP para cancelar la suscripción."
+          }
+        ]
+      }
+    ]
+  },
+  "01-sample-drill-en": {
+    "name": "Sample Drill 1",
+    "slug": "03-sample-drill-en",
+    "prompts": [
+      {
+        "slug": "1 -",
+        "messages": [
+          {
+            "text": "Welcome to the COVID-19 training drill. Thank you for doing your part to slow the spread. Please answer the questions below using the correct letter."
+          },
+          {
+            "text": "You should only wash your hands with warm water.\n\na) true\nb) false"
+          }
+        ],
+        "correct_response": "b) false"
+      },
+      {
+        "slug": "2 -",
+        "messages": [
+          {
+            "text": "FACT: Hot water is great for getting oil off of your hands! When it comes to germs - hot and cold water are equally effective. Good handwashing is about the amount of soap you use and how long you scrub your hands. "
+          },
+          {
+            "text": "How much soap should you use when you wash your hands?\n\na) 1 pump\nb) 2-3 pumps\nc) none"
+          }
+        ],
+        "correct_response": "b) 2-3 pumps"
+      },
+      {
+        "slug": "3 -",
+        "messages": [
+          {
+            "text": "FACT: Pump enough soap to cover your hands. That means 2+ pumps! "
+          },
+          {
+            "text": "Choose the best option to fill in the space. \n\nWash the palms and tops of your hands. Don't forget to scrub between [---].\n\na) your fingers \nb) your toes\nc) your fingers and under your fingernails "
+          }
+        ],
+        "correct_response": "c) your fingers and under your fingernails"
+      },
+      {
+        "slug": "4 -",
+        "messages": [
+          {
+            "text": "FACT: Bacteria are most likely to be hiding underneath your nails. "
+          },
+          {
+            "text": "Choose the best option to fill in the space. \n\nVigorously scrub your hands with soap [---].\n\na) for 10 seconds\nb) for 20 seconds\nc) for 60 seconds\nd) if you want to\ne) while you eat"
+          }
+        ],
+        "correct_response": "b) for 20 seconds"
+      },
+      {
+        "slug": "5 -",
+        "messages": [
+          {
+            "text": "FACT: Germs can be transferred more easily to and from wet hands."
+          },
+          {
+            "text": "What is the safest way to dry your hands? \n\na) kitchen towel\nb) wipe on your apron\nc) shaking them \nd) wipe on your shirt\ne) paper towel or air dryer"
+          }
+        ],
+        "correct_response": "e) paper towel or air dryer"
+      },
+      {
+        "slug": "6 -",
+        "messages": [
+          {
+            "text": "FACT: It's possible for COVID-19 to be spread by people who don't show symptoms. Keep your distance with other people + practice good hygiene all the time."
+          },
+          {
+            "text": "Congrats! This training drill is complete."
+          }
+        ]
+      }
+    ]
+  },
+  "01-sample-drill-es": {
+    "name": "Sample Drill 2",
+    "slug": "03-sample-drill-es",
+    "prompts": [
+      {
+        "slug": "1 -",
+        "messages": [
+          {
+            "text": "Bienvenido al simulacro de entrenamiento COVID-19. Gracias por hacer su parte para frenar la propagación. Responda las preguntas a continuación con la letra correcta"
+          },
+          {
+            "text": "Sólo debería lavarse las manos con agua tibia.\n\na) verdadero\nb) falso"
+          }
+        ],
+        "correct_response": "b) falso"
+      },
+      {
+        "slug": "2 -",
+        "messages": [
+          {
+            "text": "HECHO: ¡El agua caliente es excelente para quitar el aceite de las manos! Cuando se trata de gérmenes, el agua caliente y fría son igualmente efectivas. Lavarse las manos bien se trata de la cantidad de jabón utilizado y la cantidad de tiempo que se restriega las manos.\n"
+          },
+          {
+            "text": "¿Cuánto jabón debería usar cuando se lava las manos?\n\na) 1 bombeo\nb) 2-3 bombeos\nc) nada\n"
+          }
+        ],
+        "correct_response": "b) 2-3 bombeos"
+      },
+      {
+        "slug": "3 -",
+        "messages": [
+          {
+            "text": "HECHO: Bombea suficiente jabón como para cubrirte las manos. ¡Eso significa 2 bombeos o más! \n"
+          },
+          {
+            "text": "Escoja la mejor opción para llenar el blanco. \n\nLávese las palmas y parte superior de sus manos. No olvide restregar entre [---].\n\na) los dedos\nb) los dedos de los pies\nc) los dedos y debajo de las uñas"
+          }
+        ],
+        "correct_response": "c) {{your_fingers_and_under_your_fingernails}}"
+      },
+      {
+        "slug": "4 -",
+        "messages": [
+          {
+            "text": "HECHO: Las bacterias son más probables de esconderse debajo de las uñas."
+          },
+          {
+            "text": "Escoja la mejor opción para llenar el blanco. \n\nRestréguese las manos fuertemente con jabón [---].\n\na) durante 10 segundos\nb) durante 20 segundos\nc) durante 60 segundos\nd) si quiere\ne) mientras come"
+          }
+        ],
+        "correct_response": "b) durante 20 segundos"
+      },
+      {
+        "slug": "5 -",
+        "messages": [
+          {
+            "text": "HECHO: Los gérmenes pueden transferirse más fácilmente entre manos mojadas."
+          },
+          {
+            "text": "¿Cuál es la forma más segura de secarse las manos? \n\na) toalla de cocina\nb) sacudéndolas\nc) dejarlas secar al aire\nd) en su camisa\ne) toalla de papel o secadores de mano"
+          }
+        ],
+        "correct_response": "e) toalla de papel o secadores de mano"
+      },
+      {
+        "slug": "6 -",
+        "messages": [
+          {
+            "text": "HECHO: Es posible que COVID-19 sea transmitido por personas que no muestran síntomas. Mantenga distancia de otras personas + practique buena higiene en todos momentos para estar seguro."
+          },
+          {
+            "text": "¡Felicidades! Este ejercicio de entrenamiento está completo."
+          }
+        ]
+      }
+    ]
+  }
+}
