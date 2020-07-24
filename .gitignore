@@ -8,3 +8,4 @@ env
 .idea
 pipfile
 pipfile.lock
+.mypy_cache

@@ -21,11 +21,9 @@ from stopcovid.dialog.models.events import (
 from stopcovid.dialog.engine import process_command, StartDrill, ProcessSMSMessage
 from stopcovid.dialog.registration import RegistrationValidator, CodeValidationPayload
 from stopcovid.dialog.models.state import DialogStateSchema, DialogState, UserProfile
-from stopcovid.drills.content_loader import SourceRepoDrillLoader
-from stopcovid.drills.localize import localize
+from stopcovid.drills.content_loader import SourceRepoDrillLoader, translate, SupportedTranslation
 
 SEQ = 1
-TRY_AGAIN = "{{incorrect_answer}}"
 PHONE_NUMBER = "123456789"
 DRILLS = SourceRepoDrillLoader().get_drills()
 
@@ -34,25 +32,13 @@ STARTED_DRILLS: Dict[UUID, str] = {}
 
 
 def fake_sms(
-    phone_number: str,
-    user_profile: UserProfile,
-    messages: List[str],
-    with_initial_pause=False,
-    **kwargs,
+    phone_number: str, user_profile: UserProfile, messages: List[str], with_initial_pause=False,
 ):
-    additional_args = {
-        "company": user_profile.account_info.get("company", "your company"),
-        "name": "",
-    }
-    if user_profile.name is not None:
-        additional_args["name"] = user_profile.name.split(" ")[0]
-    additional_args.update(kwargs)
-
     first = True
     for message in messages:
         if with_initial_pause or not first:
             sleep(1)
-        print(f"  -> {phone_number}: {localize(message, user_profile.language, **additional_args)}")
+        print(f"  -> {phone_number}: {message}")
         first = False
 
 
@@ -73,8 +59,12 @@ class InMemoryRepository(DialogRepository):
             )
 
     def get_next_unstarted_drill(self):
+        language = self.fetch_dialog_state(PHONE_NUMBER).user_profile.language
         unstarted_drills = [
-            code for code in DRILLS.keys() if DRILLS[code].slug not in STARTED_DRILLS.values()
+            code
+            for code in DRILLS.keys()
+            if DRILLS[code].slug not in STARTED_DRILLS.values()
+            and DRILLS[code].slug.endswith(language)
         ]
         if unstarted_drills:
             return unstarted_drills[0]
@@ -96,20 +86,39 @@ class InMemoryRepository(DialogRepository):
                 )
             elif isinstance(event, FailedPrompt):
                 if not event.abandoned:
-                    fake_sms(event.phone_number, dialog_state.user_profile, [TRY_AGAIN])
+                    fake_sms(
+                        event.phone_number,
+                        dialog_state.user_profile,
+                        [
+                            translate(
+                                dialog_state.user_profile.language,
+                                SupportedTranslation.INCORRECT_ANSWER,
+                            )
+                        ],
+                    )
                 else:
                     fake_sms(
                         event.phone_number,
                         dialog_state.user_profile,
-                        ["{{corrected_answer}}"],
-                        correct_answer=localize(
-                            event.prompt.correct_response, dialog_state.user_profile.language,
-                        ),
+                        [
+                            translate(
+                                dialog_state.user_profile.language,
+                                SupportedTranslation.CORRECTED_ANSWER,
+                                correct_answer=event.prompt.correct_response,
+                            )
+                        ],
                     )
             elif isinstance(event, CompletedPrompt):
                 if event.prompt.correct_response is not None:
                     fake_sms(
-                        event.phone_number, dialog_state.user_profile, ["{{match_correct_answer}}"],
+                        event.phone_number,
+                        dialog_state.user_profile,
+                        [
+                            translate(
+                                dialog_state.user_profile.language,
+                                SupportedTranslation.MATCH_CORRECT_ANSWER,
+                            )
+                        ],
                     )
             elif isinstance(event, UserValidated):
                 drill_to_start = dialog_state.user_profile.account_info["code"]
@@ -167,6 +176,13 @@ def main():
         lang = "en"
     repo = InMemoryRepository(lang)
     validator = FakeRegistrationValidator()
+
+    # kick off the language choice drill
+    process_command(
+        ProcessSMSMessage(PHONE_NUMBER, "00-language", registration_validator=validator),
+        "1",
+        repo=repo,
+    )
     try:
         while True:
             message = input("> ")

@@ -204,9 +204,7 @@ class ProcessSMSMessage(Command):
         if prompt is None:
             return None
         events: List[DialogEvent] = []
-        if prompt.should_advance_with_answer(
-            self.content_lower, dialog_state.user_profile.language
-        ):
+        if prompt.should_advance_with_answer(self.content_lower):
             events.append(
                 CompletedPrompt(
                     prompt=prompt,

@@ -1,38 +1,59 @@
 import unittest
-from unittest.mock import patch, MagicMock
 
-from stopcovid.drills.content_loader import S3Loader
+from stopcovid.drills.content_loader import translate, SupportedTranslation
 
 
-@patch("stopcovid.drills.content_loader.S3Loader._populate_translations")
-class TestS3LoaderThreading(unittest.TestCase):
-    def setUp(self) -> None:
-        self.version = "1"
+class TestTranslate(unittest.TestCase):
+    def test_english(self):
+        self.assertEqual(
+            translate("en", SupportedTranslation.INCORRECT_ANSWER),
+            "🤖 Sorry, not correct. Try again one more time.",
+        )
+        self.assertEqual(
+            translate(
+                "en", SupportedTranslation.CORRECTED_ANSWER, correct_answer="a) Philadelphia"
+            ),
+            "🤖 The correct answer is *a) Philadelphia*.\n\nLets move to the next one.",
+        )
+        self.assertEqual(translate("en", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 Correct!")
 
-        def mock_object(*args, **kwargs):
-            result = MagicMock()
-            result.version_id = self.version
-            return result
+    def test_non_supported_lang_falls_back_to_english(self):
+        self.assertEqual(
+            translate("zh", SupportedTranslation.INCORRECT_ANSWER),
+            "🤖 Sorry, not correct. Try again one more time.",
+        )
+        self.assertEqual(
+            translate(
+                "zh", SupportedTranslation.CORRECTED_ANSWER, correct_answer="a) Philadelphia"
+            ),
+            "🤖 The correct answer is *a) Philadelphia*.\n\nLets move to the next one.",
+        )
+        self.assertEqual(translate("zh", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 Correct!")
 
-        s3_mock = MagicMock()
-        s3_mock.Object.side_effect = mock_object
+    def test_spanish(self):
+        self.assertEqual(
+            translate("es", SupportedTranslation.INCORRECT_ANSWER),
+            "🤖 Lo siento, no es correcto. ¡Inténtalo de nuevo!",
+        )
+        self.assertEqual(
+            translate(
+                "es", SupportedTranslation.CORRECTED_ANSWER, correct_answer="a) Philadelphia"
+            ),
+            "🤖 La respuesta correcta es *a) Philadelphia*.\n\nAvancemos a la siguiente.",
+        )
+        self.assertEqual(translate("es", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 ¡Correcto!")
 
-        boto3_patch = patch("stopcovid.drills.content_loader.boto3.resource", return_value=s3_mock)
-        boto3_patch.start()
-
-        self.addCleanup(boto3_patch.stop)
-
-    def test_not_stale_content(self, populate_translations_patch):
-        loader = S3Loader("bucket-foo")
-        self.assertEqual(1, populate_translations_patch.call_count)
-        loader.get_translations()
-        self.assertEqual(1, populate_translations_patch.call_count)
-
-    def test_stale_content(self, populate_translations_patch):
-        loader = S3Loader("bucket-foo")
-        self.assertEqual(1, populate_translations_patch.call_count)
-        self.version = "2"
-        loader.get_translations()
-        self.assertEqual(2, populate_translations_patch.call_count)
-        loader.get_translations()
-        self.assertEqual(2, populate_translations_patch.call_count)
+    def test_french(self):
+        self.assertEqual(
+            translate("fr", SupportedTranslation.INCORRECT_ANSWER),
+            "🤖 Désolé, ce n'est pas correct. Essayez à nouveau!",
+        )
+        self.assertEqual(
+            translate(
+                "fr", SupportedTranslation.CORRECTED_ANSWER, correct_answer="a) Philadelphia"
+            ),
+            "🤖 La bonne réponse est *a) Philadelphia*.\n\nPassons à la suite.",
+        )
+        self.assertEqual(
+            translate("fr", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 C'est Correct!"
+        )
