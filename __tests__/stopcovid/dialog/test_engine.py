@@ -1,7 +1,7 @@
 import datetime
 import logging
 import unittest
-from unittest.mock import MagicMock, patch, Mock
+from unittest.mock import MagicMock, Mock
 from typing import Optional
 
 from stopcovid.dialog.engine import (
@@ -60,13 +60,6 @@ class TestProcessCommand(unittest.TestCase):
         self.repo.persist_dialog_state = MagicMock()
         self.next_seq = 1
         self.now = datetime.datetime.now(datetime.timezone.utc)
-        self.localization_patcher = patch(
-            "stopcovid.drills.drills.localize", return_value="translated"
-        )
-        self.localization_patcher.start()
-
-    def tearDown(self) -> None:
-        self.localization_patcher.stop()
 
     def _process_command(self, command) -> DialogEventBatch:
         persist_dialog_call_count = self.repo.persist_dialog_state.call_count

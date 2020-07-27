@@ -5,12 +5,10 @@ import uuid
 from typing import List
 from unittest.mock import patch, MagicMock
 
-from stopcovid.drills.localize import localize
 from stopcovid.sms.enqueue_outbound_sms import (
-    get_localized_messages,
+    get_messages,
     get_outbound_sms_commands,
     USER_VALIDATION_FAILED_COPY,
-    CORRECT_ANSWER_COPY,
     publish_outbound_sms_messages,
     OutboundSMS,
 )
@@ -55,7 +53,7 @@ class TestHandleCommand(unittest.TestCase):
                 Prompt(
                     slug="graded-response-1",
                     messages=[PromptMessage(text="Intro!"), PromptMessage(text="Question 1"),],
-                    correct_response="a",
+                    correct_response="a) Philadelphia",
                 ),
                 Prompt(
                     slug="graded-response-2",
@@ -65,7 +63,7 @@ class TestHandleCommand(unittest.TestCase):
             ],
         )
 
-    def test_get_localized_message(self):
+    def test_get_messages(self):
         dialog_event = CompletedPrompt(
             self.phone,
             user_profile=self.validated_user_profile,
@@ -74,10 +72,10 @@ class TestHandleCommand(unittest.TestCase):
             drill_instance_id=uuid.uuid4(),
         )
         messages = [
-            PromptMessage(text="Hello {{name}}"),
-            PromptMessage(text="You work for {{company}}"),
+            PromptMessage(text="Hello Mario"),
+            PromptMessage(text="You work for Tacombi"),
         ]
-        output = get_localized_messages(dialog_event=dialog_event, messages=messages)
+        output = get_messages(dialog_event=dialog_event, messages=messages)
         self.assertEqual(output[0].body, "Hello Mario")
         self.assertEqual(output[1].body, "You work for Tacombi")
 
@@ -138,7 +136,7 @@ class TestHandleCommand(unittest.TestCase):
         message = outbound_messages[0]
         self.assertEqual(message.phone_number, self.phone)
         self.assertEqual(message.event_id, dialog_events[0].event_id)
-        self.assertEqual(message.body, localize(CORRECT_ANSWER_COPY, "en", emojis=""))
+        self.assertEqual(message.body, "🤖 Correct!")
 
     def test_abandoned_failed_prompt_event(self):
         dialog_events: List[DialogEvent] = [
@@ -156,7 +154,9 @@ class TestHandleCommand(unittest.TestCase):
         message = outbound_messages[0]
         self.assertEqual(message.phone_number, self.phone)
         self.assertEqual(message.event_id, dialog_events[0].event_id)
-        self.assertEqual(message.body, "🤖 The correct answer is *a*.\n\nLets move to the next one.")
+        self.assertEqual(
+            message.body, "🤖 The correct answer is *a) Philadelphia*.\n\nLets move to the next one."
+        )
 
     def test_non_abandoned_failed_prompt_event(self):
         dialog_events: List[DialogEvent] = [
@@ -174,7 +174,7 @@ class TestHandleCommand(unittest.TestCase):
         message = outbound_messages[0]
         self.assertEqual(message.phone_number, self.phone)
         self.assertEqual(message.event_id, dialog_events[0].event_id)
-        self.assertEqual(message.body, "🤖 Sorry, not correct. 🤔\n\n*Try again one more time!*")
+        self.assertEqual(message.body, "🤖 Sorry, not correct. Try again one more time.")
 
     def test_advance_to_next_prompt_event(self):
         dialog_events: List[DialogEvent] = [

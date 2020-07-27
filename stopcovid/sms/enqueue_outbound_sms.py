@@ -24,14 +24,11 @@ from stopcovid.dialog.models.events import (
     AdHocMessageSent,
 )
 from stopcovid.drills.drills import PromptMessage
-from stopcovid.drills.localize import localize
+from stopcovid.drills.content_loader import translate, SupportedTranslation
 
-TRY_AGAIN = "{{incorrect_answer}}"
 USER_VALIDATION_FAILED_COPY = (
     "Invalid Code. Check with your administrator and make sure you have the right code."
 )
-
-CORRECT_ANSWER_COPY = "{{match_correct_answer}}"
 
 
 @dataclass
@@ -42,26 +39,13 @@ class OutboundSMS:
     media_url: Optional[str] = None
 
 
-def get_localized_messages(
-    dialog_event: DialogEvent, messages: List[PromptMessage], **kwargs
-) -> List[OutboundSMS]:
-    language = dialog_event.user_profile.language
-
-    additional_args = {
-        "company": dialog_event.user_profile.account_info.get("employer_name", "your company"),
-        "name": "",
-    }
-    if dialog_event.user_profile.name is not None:
-        additional_args["name"] = dialog_event.user_profile.name.split(" ")[0]
-    additional_args.update(kwargs)
+def get_messages(dialog_event: DialogEvent, messages: List[PromptMessage],) -> List[OutboundSMS]:
 
     return [
         OutboundSMS(
             event_id=dialog_event.event_id,
             phone_number=dialog_event.phone_number,
-            body=localize(message.text, language, **additional_args)
-            if message.text is not None
-            else None,
+            body=message.text or None,
             media_url=message.media_url,
         )
         for i, message in enumerate(messages)
@@ -69,35 +53,54 @@ def get_localized_messages(
 
 
 def get_messages_for_event(event: DialogEvent):  # noqa: C901
+    language = event.user_profile.language
+
     if isinstance(event, AdvancedToNextPrompt):
-        return get_localized_messages(event, event.prompt.messages)
+        return get_messages(event, event.prompt.messages)
 
     elif isinstance(event, FailedPrompt):
         if not event.abandoned:
-            return get_localized_messages(event, [PromptMessage(text=TRY_AGAIN)])
-        elif event.prompt.correct_response:
-            return get_localized_messages(
+            return get_messages(
                 event,
-                [PromptMessage(text="{{corrected_answer}}")],
-                correct_answer=localize(event.prompt.correct_response, event.user_profile.language),
+                [PromptMessage(text=translate(language, SupportedTranslation.INCORRECT_ANSWER))],
+            )
+        elif event.prompt.correct_response:
+            return get_messages(
+                event,
+                [
+                    PromptMessage(
+                        text=translate(
+                            language,
+                            SupportedTranslation.CORRECTED_ANSWER,
+                            correct_answer=event.prompt.correct_response,
+                        )
+                    )
+                ],
             )
 
     elif isinstance(event, CompletedPrompt):
         if event.prompt.correct_response is not None:
-            return get_localized_messages(event, [PromptMessage(text=CORRECT_ANSWER_COPY)])
+            return get_messages(
+                event,
+                [
+                    PromptMessage(
+                        text=translate(language, SupportedTranslation.MATCH_CORRECT_ANSWER)
+                    )
+                ],
+            )
 
     elif isinstance(event, UserValidated):
         # User validated events will cause the scheduler to kick off a drill
         pass
 
     elif isinstance(event, UserValidationFailed):
-        return get_localized_messages(event, [PromptMessage(text=USER_VALIDATION_FAILED_COPY)])
+        return get_messages(event, [PromptMessage(text=USER_VALIDATION_FAILED_COPY)])
 
     elif isinstance(event, DrillStarted):
-        return get_localized_messages(event, event.first_prompt.messages)
+        return get_messages(event, event.first_prompt.messages)
 
     elif isinstance(event, AdHocMessageSent):
-        return get_localized_messages(
+        return get_messages(
             event, [PromptMessage(text=event.sms.body, media_url=event.sms.media_url)]
         )
 

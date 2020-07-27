@@ -3,7 +3,6 @@ from typing import Optional, List
 
 from marshmallow import Schema, fields, post_load
 
-from .localize import localize
 from .response_check import is_correct_response
 
 
@@ -46,10 +45,10 @@ class Prompt:
     correct_response: Optional[str] = None
     max_failures: int = 1
 
-    def should_advance_with_answer(self, answer: str, lang: Optional[str]) -> bool:
+    def should_advance_with_answer(self, answer: str) -> bool:
         if self.correct_response is None:
             return True
-        return is_correct_response(answer, localize(self.correct_response, lang))
+        return is_correct_response(answer, self.correct_response)
 
     def stores_answer(self) -> bool:
         return self.response_user_profile_key is not None
