@@ -432,7 +432,7 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_prompt_state)
 
     def test_change_language_drill_requested(self):
-        for message in ["lang", "idioma"]:
+        for message in ["lang", "language", "idioma"]:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = 1
