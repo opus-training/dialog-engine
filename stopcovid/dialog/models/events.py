@@ -49,7 +49,7 @@ class DrillStartedSchema(DialogEventSchema):
     first_prompt = fields.Nested(drills.PromptSchema, required=True)
 
     @post_load
-    def make_drill_started(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return DrillStarted(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -131,7 +131,7 @@ class AdHocMessageSentSchema(DialogEventSchema):
     sms = fields.Nested(SMSSchema, required=True)
 
     @post_load
-    def make_ad_hoc_message_sent(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return AdHocMessageSent(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -154,7 +154,7 @@ class UserValidatedSchema(DialogEventSchema):
     code_validation_payload = fields.Nested(CodeValidationPayloadSchema, required=True)
 
     @post_load
-    def make_user_created(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return UserValidated(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -186,7 +186,7 @@ class UserValidated(DialogEvent):
 
 class UserValidationFailedSchema(DialogEventSchema):
     @post_load
-    def make_user_creation_failed(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return UserValidationFailed(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -210,7 +210,7 @@ class CompletedPromptSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
-    def make_completed_prompt(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return CompletedPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -250,7 +250,7 @@ class FailedPromptSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
-    def make_failed_prompt(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return FailedPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -290,7 +290,7 @@ class AdvancedToNextPromptSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
-    def make_advanced_to_next_prompt(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return AdvancedToNextPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -324,7 +324,7 @@ class DrillCompletedSchema(DialogEventSchema):
     auto_continue = fields.Boolean(missing=False)
 
     @post_load
-    def make_drill_completed(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return DrillCompleted(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -357,7 +357,7 @@ class OptedOutSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(allow_none=True)
 
     @post_load
-    def make_opted_out(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return OptedOut(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -383,7 +383,7 @@ class OptedOut(DialogEvent):
 
 class NextDrillRequestedSchema(DialogEventSchema):
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return NextDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -403,7 +403,7 @@ class NextDrillRequested(DialogEvent):
 
 class SchedulingDrillRequestedSchema(DialogEventSchema):
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return SchedulingDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -426,7 +426,7 @@ class SchedulingDrillRequested(DialogEvent):
 
 class NameChangeDrillRequestedSchema(DialogEventSchema):
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return NameChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -449,7 +449,7 @@ class NameChangeDrillRequested(DialogEvent):
 
 class LanguageChangeDrillRequestedSchema(DialogEventSchema):
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return LanguageChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -472,7 +472,7 @@ class LanguageChangeDrillRequested(DialogEvent):
 
 class MenuRequestedSchema(DialogEventSchema):
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return MenuRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
