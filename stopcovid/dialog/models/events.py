@@ -68,7 +68,7 @@ class DialogEventType(enum.Enum):
     LANGUAGE_CHANGE_DRILL_REQUESTED = "LANGUAGE_CHANGE_DRILL_REQUESTED"
     MENU_REQUESTED = "MENU_REQUESTED"
     AD_HOC_MESSAGE_SENT = "AD_HOC_MESSAGE_SENT"
-    UNKNOWN_MESSAGE_RECEIVED = "UNKNOWN_MESSAGE_RECEIVED"
+    UNHANDLED_MESSAGE_RECEIVED = "UNKNOWN_MESSAGE_RECEIVED"
 
 
 class DialogEvent(ABC):
@@ -494,19 +494,19 @@ class MenuRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
-class UnknownMessageReceivedSchema(DialogEventSchema):
+class UnhandledMessageReceivedSchema(DialogEventSchema):
     message = fields.String(required=True)
 
     @post_load
     def to_dataclass(self, data, **kwargs):
-        return UnknownMessageReceived(**{k: v for k, v in data.items() if k != "event_type"})
+        return UnhandledMessageReceived(**{k: v for k, v in data.items() if k != "event_type"})
 
 
-class UnknownMessageReceived(DialogEvent):
+class UnhandledMessageReceived(DialogEvent):
     def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
         super().__init__(
-            UnknownMessageReceivedSchema(),
-            DialogEventType.UNKNOWN_MESSAGE_RECEIVED,
+            UnhandledMessageReceivedSchema(),
+            DialogEventType.UNHANDLED_MESSAGE_RECEIVED,
             phone_number,
             user_profile,
             **kwargs,
@@ -532,7 +532,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.NAME_CHANGE_DRILL_REQUESTED: NameChangeDrillRequestedSchema,
     DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED: LanguageChangeDrillRequestedSchema,
     DialogEventType.MENU_REQUESTED: MenuRequestedSchema,
-    DialogEventType.UNKNOWN_MESSAGE_RECEIVED: UnknownMessageReceivedSchema,
+    DialogEventType.UNHANDLED_MESSAGE_RECEIVED: UnhandledMessageReceivedSchema,
 }
 
 

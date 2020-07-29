@@ -19,7 +19,7 @@ from stopcovid.dialog.models.events import (
     NameChangeDrillRequested,
     LanguageChangeDrillRequested,
     MenuRequested,
-    UnknownMessageReceived,
+    UnhandledMessageReceived,
 )
 from stopcovid.dialog.models.state import UserProfile, DialogState, PromptState
 from stopcovid.dialog.registration import CodeValidationPayload
@@ -457,8 +457,8 @@ class TestSerialization(unittest.TestCase):
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
 
-    def test_unknown_message_received(self):
-        original = UnknownMessageReceived(
+    def test_unhandled_message_received(self):
+        original = UnhandledMessageReceived(
             "123456789", user_profile=UserProfile(True), message="blabla"
         )
         serialized = original.to_dict()
