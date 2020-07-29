@@ -21,6 +21,7 @@ from stopcovid.dialog.models.events import (
     NameChangeDrillRequested,
     LanguageChangeDrillRequested,
     MenuRequested,
+    UnknownMessageReceived,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -141,6 +142,7 @@ class ProcessSMSMessage(Command):
             self._validate_registration,
             self._check_response,
             self._advance_to_next_drill,
+            self._unknown_message_received,
         ]:
             result = handler(dialog_state, base_args)
             if result is not None:
@@ -283,6 +285,9 @@ class ProcessSMSMessage(Command):
         if self.content_lower in ["menu", "menú"]:
             return [MenuRequested(**base_args)]
         return None
+
+    def _unknown_message_received(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+        return [UnknownMessageReceived(**base_args, message=self.content)]
 
 
 class SendAdHocMessage(Command):

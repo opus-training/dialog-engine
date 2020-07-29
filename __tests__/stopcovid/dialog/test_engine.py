@@ -456,3 +456,10 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
+
+    def test_unknown_message_received(self):
+        self.dialog_state.user_profile.validated = True
+        command = ProcessSMSMessage(self.phone_number, "BLABLABLA")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.UNKNOWN_MESSAGE_RECEIVED)
+        self.assertEqual(batch.events[0].message, "BLABLABLA")
