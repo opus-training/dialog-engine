@@ -409,7 +409,7 @@ class TestProcessCommand(unittest.TestCase):
         for message in messages:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.current_drill = "balbla"
-            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
             batch = self._process_command(command)
@@ -417,12 +417,15 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
+            self.assertEqual(
+                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+            )
 
     def test_change_name_drill_requested(self):
         for message in ["name", "nombre"]:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.current_drill = "balbla"
-            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
             batch = self._process_command(command)
@@ -430,12 +433,15 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
+            self.assertEqual(
+                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+            )
 
     def test_change_language_drill_requested(self):
         for message in ["lang", "language", "idioma"]:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.current_drill = "balbla"
-            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
             batch = self._process_command(command)
@@ -443,12 +449,15 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
+            self.assertEqual(
+                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+            )
 
     def test_menu_requested(self):
         for message in ["menu", "menú"]:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.current_drill = "balbla"
-            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
             batch = self._process_command(command)
@@ -456,6 +465,9 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
+            self.assertEqual(
+                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+            )
 
     def test_unhandled_message_received(self):
         self.dialog_state.user_profile.validated = True

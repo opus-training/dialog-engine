@@ -426,10 +426,18 @@ class TestSerialization(unittest.TestCase):
         self._make_base_assertions(original, deserialized)
 
     def test_scheduling_drill_requested(self):
-        original = SchedulingDrillRequested("123456789", user_profile=UserProfile(True))
+        original = SchedulingDrillRequested(
+            "123456789",
+            user_profile=UserProfile(True),
+            abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",
+        )
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
+        self.assertEqual(
+            deserialized.abandoned_drill_instance_id,
+            uuid.UUID("11111111-1111-1111-1111-111111111111"),
+        )
 
     def test_send_adhoc_message(self):
         original = AdHocMessageSent(
@@ -440,22 +448,46 @@ class TestSerialization(unittest.TestCase):
         self._make_base_assertions(original, deserialized)
 
     def test_name_change_drill_requested(self):
-        original = NameChangeDrillRequested("123456789", user_profile=UserProfile(True))
+        original = NameChangeDrillRequested(
+            "123456789",
+            user_profile=UserProfile(True),
+            abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",
+        )
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
+        self.assertEqual(
+            deserialized.abandoned_drill_instance_id,
+            uuid.UUID("11111111-1111-1111-1111-111111111111"),
+        )
 
     def test_language_change_drill_requested(self):
-        original = LanguageChangeDrillRequested("123456789", user_profile=UserProfile(True))
+        original = LanguageChangeDrillRequested(
+            "123456789",
+            user_profile=UserProfile(True),
+            abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",
+        )
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
+        self.assertEqual(
+            deserialized.abandoned_drill_instance_id,
+            uuid.UUID("11111111-1111-1111-1111-111111111111"),
+        )
 
     def test_menu_requested(self):
-        original = MenuRequested("123456789", user_profile=UserProfile(True))
+        original = MenuRequested(
+            "123456789",
+            user_profile=UserProfile(True),
+            abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",
+        )
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
+        self.assertEqual(
+            deserialized.abandoned_drill_instance_id,
+            uuid.UUID("11111111-1111-1111-1111-111111111111"),
+        )
 
     def test_unhandled_message_received(self):
         original = UnhandledMessageReceived(

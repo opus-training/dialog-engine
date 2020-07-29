@@ -403,6 +403,8 @@ class NextDrillRequested(DialogEvent):
 
 
 class SchedulingDrillRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
     @post_load
     def to_dataclass(self, data, **kwargs):
         return SchedulingDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
@@ -417,6 +419,7 @@ class SchedulingDrillRequested(DialogEvent):
             user_profile,
             **kwargs,
         )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
 
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_drill = None
@@ -426,6 +429,8 @@ class SchedulingDrillRequested(DialogEvent):
 
 
 class NameChangeDrillRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
     @post_load
     def to_dataclass(self, data, **kwargs):
         return NameChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
@@ -440,6 +445,7 @@ class NameChangeDrillRequested(DialogEvent):
             user_profile,
             **kwargs,
         )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
 
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_drill = None
@@ -449,6 +455,8 @@ class NameChangeDrillRequested(DialogEvent):
 
 
 class LanguageChangeDrillRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
     @post_load
     def to_dataclass(self, data, **kwargs):
         return LanguageChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
@@ -463,6 +471,7 @@ class LanguageChangeDrillRequested(DialogEvent):
             user_profile,
             **kwargs,
         )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
 
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_drill = None
@@ -472,6 +481,8 @@ class LanguageChangeDrillRequested(DialogEvent):
 
 
 class MenuRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
     @post_load
     def to_dataclass(self, data, **kwargs):
         return MenuRequested(**{k: v for k, v in data.items() if k != "event_type"})
@@ -486,6 +497,7 @@ class MenuRequested(DialogEvent):
             user_profile,
             **kwargs,
         )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
 
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_drill = None

@@ -266,24 +266,40 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         if self.content_lower in ["schedule", "calendario", "horario"]:
-            return [SchedulingDrillRequested(**base_args)]
+            return [
+                SchedulingDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
         return None
 
     def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
         if self.content_lower in ["name", "nombre"]:
-            return [NameChangeDrillRequested(**base_args)]
+            return [
+                NameChangeDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
         return None
 
     def _language_change_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ):
         if self.content_lower in ["lang", "language", "idioma"]:
-            return [LanguageChangeDrillRequested(**base_args)]
+            return [
+                LanguageChangeDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
         return None
 
     def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
         if self.content_lower in ["menu", "menú"]:
-            return [MenuRequested(**base_args)]
+            return [
+                MenuRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
         return None
 
     def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]):
