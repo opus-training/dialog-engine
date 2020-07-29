@@ -49,7 +49,7 @@ class DrillStartedSchema(DialogEventSchema):
     first_prompt = fields.Nested(drills.PromptSchema, required=True)
 
     @post_load
-    def make_drill_started(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return DrillStarted(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -64,7 +64,11 @@ class DialogEventType(enum.Enum):
     NEXT_DRILL_REQUESTED = "NEXT_DRILL_REQUESTED"
     OPTED_OUT = "OPTED_OUT"
     SCHEDULING_DRILL_REQUESTED = "SCHEDULING_DRILL_REQUESTED"
+    NAME_CHANGE_DRILL_REQUESTED = "NAME_CHANGE_DRILL_REQUESTED"
+    LANGUAGE_CHANGE_DRILL_REQUESTED = "LANGUAGE_CHANGE_DRILL_REQUESTED"
+    MENU_REQUESTED = "MENU_REQUESTED"
     AD_HOC_MESSAGE_SENT = "AD_HOC_MESSAGE_SENT"
+    UNHANDLED_MESSAGE_RECEIVED = "UNHANDLED_MESSAGE_RECEIVED"
 
 
 class DialogEvent(ABC):
@@ -128,7 +132,7 @@ class AdHocMessageSentSchema(DialogEventSchema):
     sms = fields.Nested(SMSSchema, required=True)
 
     @post_load
-    def make_ad_hoc_message_sent(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return AdHocMessageSent(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -151,7 +155,7 @@ class UserValidatedSchema(DialogEventSchema):
     code_validation_payload = fields.Nested(CodeValidationPayloadSchema, required=True)
 
     @post_load
-    def make_user_created(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return UserValidated(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -183,7 +187,7 @@ class UserValidated(DialogEvent):
 
 class UserValidationFailedSchema(DialogEventSchema):
     @post_load
-    def make_user_creation_failed(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return UserValidationFailed(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -207,7 +211,7 @@ class CompletedPromptSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
-    def make_completed_prompt(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return CompletedPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -247,7 +251,7 @@ class FailedPromptSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
-    def make_failed_prompt(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return FailedPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -287,7 +291,7 @@ class AdvancedToNextPromptSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(required=True)
 
     @post_load
-    def make_advanced_to_next_prompt(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return AdvancedToNextPrompt(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -321,7 +325,7 @@ class DrillCompletedSchema(DialogEventSchema):
     auto_continue = fields.Boolean(missing=False)
 
     @post_load
-    def make_drill_completed(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return DrillCompleted(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -354,7 +358,7 @@ class OptedOutSchema(DialogEventSchema):
     drill_instance_id = fields.UUID(allow_none=True)
 
     @post_load
-    def make_opted_out(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return OptedOut(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -380,7 +384,7 @@ class OptedOut(DialogEvent):
 
 class NextDrillRequestedSchema(DialogEventSchema):
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return NextDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -399,8 +403,10 @@ class NextDrillRequested(DialogEvent):
 
 
 class SchedulingDrillRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
     @post_load
-    def make_next_drill_requested(self, data, **kwargs):
+    def to_dataclass(self, data, **kwargs):
         return SchedulingDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
@@ -413,9 +419,114 @@ class SchedulingDrillRequested(DialogEvent):
             user_profile,
             **kwargs,
         )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
 
     def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
         dialog_state.user_profile.opted_out = False
+
+
+class NameChangeDrillRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
+    @post_load
+    def to_dataclass(self, data, **kwargs):
+        return NameChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class NameChangeDrillRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            NameChangeDrillRequestedSchema(),
+            DialogEventType.NAME_CHANGE_DRILL_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
+class LanguageChangeDrillRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
+    @post_load
+    def to_dataclass(self, data, **kwargs):
+        return LanguageChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class LanguageChangeDrillRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            LanguageChangeDrillRequestedSchema(),
+            DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
+class MenuRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
+    @post_load
+    def to_dataclass(self, data, **kwargs):
+        return MenuRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class MenuRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            MenuRequestedSchema(),
+            DialogEventType.MENU_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
+class UnhandledMessageReceivedSchema(DialogEventSchema):
+    message = fields.String(required=True)
+
+    @post_load
+    def to_dataclass(self, data, **kwargs):
+        return UnhandledMessageReceived(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class UnhandledMessageReceived(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            UnhandledMessageReceivedSchema(),
+            DialogEventType.UNHANDLED_MESSAGE_RECEIVED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+        self.message = kwargs.get("message", "None")
+
+    def apply_to(self, dialog_state: DialogState):
+        pass
 
 
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
@@ -430,6 +541,10 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.NEXT_DRILL_REQUESTED: NextDrillRequestedSchema,
     DialogEventType.SCHEDULING_DRILL_REQUESTED: SchedulingDrillRequestedSchema,
     DialogEventType.AD_HOC_MESSAGE_SENT: AdHocMessageSentSchema,
+    DialogEventType.NAME_CHANGE_DRILL_REQUESTED: NameChangeDrillRequestedSchema,
+    DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED: LanguageChangeDrillRequestedSchema,
+    DialogEventType.MENU_REQUESTED: MenuRequestedSchema,
+    DialogEventType.UNHANDLED_MESSAGE_RECEIVED: UnhandledMessageReceivedSchema,
 }
 
 

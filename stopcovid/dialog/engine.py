@@ -18,6 +18,10 @@ from stopcovid.dialog.models.events import (
     AdHocMessageSent,
     DialogEvent,
     DialogEventBatch,
+    NameChangeDrillRequested,
+    LanguageChangeDrillRequested,
+    MenuRequested,
+    UnhandledMessageReceived,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -129,12 +133,16 @@ class ProcessSMSMessage(Command):
         # for the next handler.
         for handler in [
             self._respond_to_help,
+            self._menu_requested,
+            self._name_change_drill_requested,
+            self._language_change_drill_requested,
+            self._update_schedule_requested,
             self._handle_opt_out,
             self._handle_opt_back_in,
             self._validate_registration,
             self._check_response,
             self._advance_to_next_drill,
-            self._update_schedule_requested,
+            self._unhandled_message,
         ]:
             result = handler(dialog_state, base_args)
             if result is not None:
@@ -257,11 +265,45 @@ class ProcessSMSMessage(Command):
     def _update_schedule_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
-        prompt = dialog_state.get_prompt()
-        if prompt is None:
-            if self.content_lower in ["schedule", "calendario", "horario"]:
-                return [SchedulingDrillRequested(**base_args)]
+        if self.content_lower in ["schedule", "calendario", "horario"]:
+            return [
+                SchedulingDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
         return None
+
+    def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+        if self.content_lower in ["name", "nombre"]:
+            return [
+                NameChangeDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
+        return None
+
+    def _language_change_drill_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ):
+        if self.content_lower in ["lang", "language", "idioma"]:
+            return [
+                LanguageChangeDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
+        return None
+
+    def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+        if self.content_lower in ["menu", "menú"]:
+            return [
+                MenuRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
+        return None
+
+    def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+        return [UnhandledMessageReceived(**base_args, message=self.content)]
 
 
 class SendAdHocMessage(Command):
