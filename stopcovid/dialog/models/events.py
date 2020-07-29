@@ -64,6 +64,9 @@ class DialogEventType(enum.Enum):
     NEXT_DRILL_REQUESTED = "NEXT_DRILL_REQUESTED"
     OPTED_OUT = "OPTED_OUT"
     SCHEDULING_DRILL_REQUESTED = "SCHEDULING_DRILL_REQUESTED"
+    NAME_CHANGE_DRILL_REQUESTED = "NAME_CHANGE_DRILL_REQUESTED"
+    LANGUAGE_CHANGE_DRILL_REQUESTED = "LANGUAGE_CHANGE_DRILL_REQUESTED"
+    MENU_REQUESTED = "MENU_REQUESTED"
     AD_HOC_MESSAGE_SENT = "AD_HOC_MESSAGE_SENT"
 
 
@@ -418,6 +421,75 @@ class SchedulingDrillRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
+class NameChangeDrillRequestedSchema(DialogEventSchema):
+    @post_load
+    def make_next_drill_requested(self, data, **kwargs):
+        return NameChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class NameChangeDrillRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            NameChangeDrillRequestedSchema(),
+            DialogEventType.NAME_CHANGE_DRILL_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
+class LanguageChangeDrillRequestedSchema(DialogEventSchema):
+    @post_load
+    def make_next_drill_requested(self, data, **kwargs):
+        return LanguageChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class LanguageChangeDrillRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            LanguageChangeDrillRequestedSchema(),
+            DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
+class MenuRequestedSchema(DialogEventSchema):
+    @post_load
+    def make_next_drill_requested(self, data, **kwargs):
+        return MenuRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class MenuRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            MenuRequestedSchema(),
+            DialogEventType.MENU_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.ADVANCED_TO_NEXT_PROMPT: AdvancedToNextPromptSchema,
     DialogEventType.DRILL_COMPLETED: DrillCompletedSchema,
@@ -430,6 +502,9 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.NEXT_DRILL_REQUESTED: NextDrillRequestedSchema,
     DialogEventType.SCHEDULING_DRILL_REQUESTED: SchedulingDrillRequestedSchema,
     DialogEventType.AD_HOC_MESSAGE_SENT: AdHocMessageSentSchema,
+    DialogEventType.NAME_CHANGE_DRILL_REQUESTED: NameChangeDrillRequestedSchema,
+    DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED: LanguageChangeDrillRequestedSchema,
+    DialogEventType.MENU_REQUESTED: MenuRequestedSchema,
 }
 
 

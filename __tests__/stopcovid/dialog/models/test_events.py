@@ -16,6 +16,9 @@ from stopcovid.dialog.models.events import (
     DialogEvent,
     event_from_dict,
     AdHocMessageSent,
+    NameChangeDrillRequested,
+    LanguageChangeDrillRequested,
+    MenuRequested,
 )
 from stopcovid.dialog.models.state import UserProfile, DialogState, PromptState
 from stopcovid.dialog.registration import CodeValidationPayload
@@ -431,6 +434,24 @@ class TestSerialization(unittest.TestCase):
         original = AdHocMessageSent(
             "123456789", user_profile=UserProfile(True), sms=SMS(body="foobar")
         )
+        serialized = original.to_dict()
+        deserialized = event_from_dict(serialized)
+        self._make_base_assertions(original, deserialized)
+
+    def test_name_change_drill_requested(self):
+        original = NameChangeDrillRequested("123456789", user_profile=UserProfile(True))
+        serialized = original.to_dict()
+        deserialized = event_from_dict(serialized)
+        self._make_base_assertions(original, deserialized)
+
+    def test_language_change_drill_requested(self):
+        original = LanguageChangeDrillRequested("123456789", user_profile=UserProfile(True))
+        serialized = original.to_dict()
+        deserialized = event_from_dict(serialized)
+        self._make_base_assertions(original, deserialized)
+
+    def test_menu_requested(self):
+        original = MenuRequested("123456789", user_profile=UserProfile(True))
         serialized = original.to_dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)

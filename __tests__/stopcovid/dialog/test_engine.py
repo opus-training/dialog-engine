@@ -411,3 +411,42 @@ class TestProcessCommand(unittest.TestCase):
         event = batch.events[0]
         self.assertEqual(event.sms.body, message)  # type:ignore
         self.assertEqual(event.sms.media_url, media_url)  # type:ignore
+
+    def test_change_name_drill_requested(self):
+        for message in ["name", "nombre"]:
+            self.dialog_state.user_profile.validated = True
+            self.dialog_state.current_drill = "balbla"
+            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.current_prompt_state = "blabla"
+            command = ProcessSMSMessage(self.phone_number, message)
+            batch = self._process_command(command)
+            self._assert_event_types(batch, DialogEventType.NAME_CHANGE_DRILL_REQUESTED)
+            self.assertIsNone(self.dialog_state.current_drill)
+            self.assertIsNone(self.dialog_state.drill_instance_id)
+            self.assertIsNone(self.dialog_state.current_prompt_state)
+
+    def test_change_language_drill_requested(self):
+        for message in ["lang", "idioma"]:
+            self.dialog_state.user_profile.validated = True
+            self.dialog_state.current_drill = "balbla"
+            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.current_prompt_state = "blabla"
+            command = ProcessSMSMessage(self.phone_number, message)
+            batch = self._process_command(command)
+            self._assert_event_types(batch, DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED)
+            self.assertIsNone(self.dialog_state.current_drill)
+            self.assertIsNone(self.dialog_state.drill_instance_id)
+            self.assertIsNone(self.dialog_state.current_prompt_state)
+
+    def test_menu_requested(self):
+        for message in ["menu", "menú"]:
+            self.dialog_state.user_profile.validated = True
+            self.dialog_state.current_drill = "balbla"
+            self.dialog_state.drill_instance_id = 1
+            self.dialog_state.current_prompt_state = "blabla"
+            command = ProcessSMSMessage(self.phone_number, message)
+            batch = self._process_command(command)
+            self._assert_event_types(batch, DialogEventType.MENU_REQUESTED)
+            self.assertIsNone(self.dialog_state.current_drill)
+            self.assertIsNone(self.dialog_state.drill_instance_id)
+            self.assertIsNone(self.dialog_state.current_prompt_state)
