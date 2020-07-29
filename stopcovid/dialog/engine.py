@@ -132,10 +132,10 @@ class ProcessSMSMessage(Command):
         # for the next handler.
         for handler in [
             self._respond_to_help,
+            self._menu_requested,
             self._name_change_drill_requested,
             self._language_change_drill_requested,
             self._update_schedule_requested,
-            self._menu_requested,
             self._handle_opt_out,
             self._handle_opt_back_in,
             self._validate_registration,
