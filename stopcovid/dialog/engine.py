@@ -162,14 +162,7 @@ class ProcessSMSMessage(Command):
     def _handle_opt_out(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
-        if self.content_lower in [
-            "cancel",
-            "end",
-            "quit",
-            "stop",
-            "stopall",
-            "unsubscribe",
-        ]:
+        if self.content_lower == "stop":
             return [OptedOut(drill_instance_id=dialog_state.drill_instance_id, **base_args)]
         return None
 
@@ -177,7 +170,7 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         if dialog_state.user_profile.opted_out:
-            if self.content_lower == "start":
+            if self.content_lower in ["start", "unstop", "go"]:
                 return [NextDrillRequested(**base_args)]
             return []
         return None
