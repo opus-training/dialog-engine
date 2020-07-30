@@ -20,6 +20,7 @@ from stopcovid.dialog.models.events import (
     LanguageChangeDrillRequested,
     MenuRequested,
     UnhandledMessageReceived,
+    SupportRequested,
 )
 from stopcovid.dialog.models.state import UserProfile, DialogState, PromptState
 from stopcovid.dialog.registration import CodeValidationPayload
@@ -463,6 +464,20 @@ class TestSerialization(unittest.TestCase):
 
     def test_language_change_drill_requested(self):
         original = LanguageChangeDrillRequested(
+            "123456789",
+            user_profile=UserProfile(True),
+            abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",
+        )
+        serialized = original.to_dict()
+        deserialized = event_from_dict(serialized)
+        self._make_base_assertions(original, deserialized)
+        self.assertEqual(
+            deserialized.abandoned_drill_instance_id,
+            uuid.UUID("11111111-1111-1111-1111-111111111111"),
+        )
+
+    def test_support_requested(self):
+        original = SupportRequested(
             "123456789",
             user_profile=UserProfile(True),
             abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",

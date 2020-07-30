@@ -486,7 +486,7 @@ class SupportRequestedSchema(DialogEventSchema):
 
     @post_load
     def to_dataclass(self, data, **kwargs):
-        return LanguageChangeDrillRequested(**{k: v for k, v in data.items() if k != "event_type"})
+        return SupportRequested(**{k: v for k, v in data.items() if k != "event_type"})
 
 
 class SupportRequested(DialogEvent):
