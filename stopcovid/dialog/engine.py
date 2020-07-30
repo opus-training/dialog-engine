@@ -163,12 +163,7 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         if self.content_lower in [
-            "cancel",
-            "end",
-            "quit",
             "stop",
-            "stopall",
-            "unsubscribe",
         ]:
             return [OptedOut(drill_instance_id=dialog_state.drill_instance_id, **base_args)]
         return None
