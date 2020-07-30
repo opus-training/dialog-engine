@@ -22,6 +22,7 @@ from stopcovid.dialog.models.events import (
     LanguageChangeDrillRequested,
     MenuRequested,
     UnhandledMessageReceived,
+    SupportRequested,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -134,6 +135,7 @@ class ProcessSMSMessage(Command):
         for handler in [
             self._respond_to_help,
             self._menu_requested,
+            self._support_requested,
             self._name_change_drill_requested,
             self._language_change_drill_requested,
             self._update_schedule_requested,
@@ -277,6 +279,15 @@ class ProcessSMSMessage(Command):
         if self.content_lower in ["name", "nombre"]:
             return [
                 NameChangeDrillRequested(
+                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                )
+            ]
+        return None
+
+    def _support_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+        if self.content_lower in ["support", "ayuda"]:
+            return [
+                SupportRequested(
                     **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
                 )
             ]

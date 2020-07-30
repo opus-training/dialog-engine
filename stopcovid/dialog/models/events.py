@@ -69,6 +69,7 @@ class DialogEventType(enum.Enum):
     MENU_REQUESTED = "MENU_REQUESTED"
     AD_HOC_MESSAGE_SENT = "AD_HOC_MESSAGE_SENT"
     UNHANDLED_MESSAGE_RECEIVED = "UNHANDLED_MESSAGE_RECEIVED"
+    SUPPORT_REQUESTED = "SUPPORT_REQUESTED"
 
 
 class DialogEvent(ABC):
@@ -480,6 +481,32 @@ class LanguageChangeDrillRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
+class SupportRequestedSchema(DialogEventSchema):
+    abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
+
+    @post_load
+    def to_dataclass(self, data, **kwargs):
+        return SupportRequested(**{k: v for k, v in data.items() if k != "event_type"})
+
+
+class SupportRequested(DialogEvent):
+    def __init__(self, phone_number: str, user_profile: UserProfile, **kwargs):
+        super().__init__(
+            SupportRequestedSchema(),
+            DialogEventType.SUPPORT_REQUESTED,
+            phone_number,
+            user_profile,
+            **kwargs,
+        )
+        self.abandoned_drill_instance_id = kwargs.get("abandoned_drill_instance_id")
+
+    def apply_to(self, dialog_state: DialogState):
+        dialog_state.current_drill = None
+        dialog_state.drill_instance_id = None
+        dialog_state.current_prompt_state = None
+        dialog_state.user_profile.opted_out = False
+
+
 class MenuRequestedSchema(DialogEventSchema):
     abandoned_drill_instance_id = fields.UUID(required=False, allow_none=True)
 
@@ -545,6 +572,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEventSchema]] = {
     DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED: LanguageChangeDrillRequestedSchema,
     DialogEventType.MENU_REQUESTED: MenuRequestedSchema,
     DialogEventType.UNHANDLED_MESSAGE_RECEIVED: UnhandledMessageReceivedSchema,
+    DialogEventType.SUPPORT_REQUESTED: SupportRequestedSchema,
 }
 
 
