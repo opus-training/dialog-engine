@@ -170,7 +170,7 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
         if dialog_state.user_profile.opted_out:
-            if self.content_lower == "start":
+            if self.content_lower in ["start", "unstop", "go"]:
                 return [NextDrillRequested(**base_args)]
             return []
         return None
