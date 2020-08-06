@@ -74,7 +74,7 @@ class InMemoryRepository(DialogRepository):
     def persist_dialog_state(  # noqa: C901
         self, event_batch: DialogEventBatch, dialog_state: DialogState
     ):
-        self.repo[dialog_state.phone_number] = json.dumps(dialog_state.dict())
+        self.repo[dialog_state.phone_number] = dialog_state.json()
 
         drill_to_start = None
         for event in event_batch.events:
