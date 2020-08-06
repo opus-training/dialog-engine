@@ -91,7 +91,15 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_advance_sequence_numbers(self):
         validator = MagicMock()
-        validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
+        validation_payload = CodeValidationPayload(
+            valid=True,
+            account_info={
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+        )
         validator.validate_code = MagicMock(return_value=validation_payload)
         command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
         batch = self._process_command(command)
@@ -100,7 +108,15 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_first_message_validates_user(self):
         validator = MagicMock()
-        validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
+        validation_payload = CodeValidationPayload(
+            valid=True,
+            account_info={
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+        )
         validator.validate_code = MagicMock(return_value=validation_payload)
         command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
         self.assertFalse(self.dialog_state.user_profile.validated)
@@ -124,7 +140,15 @@ class TestProcessCommand(unittest.TestCase):
         command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict())
         self._process_command(command)
 
-        validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
+        validation_payload = CodeValidationPayload(
+            valid=True,
+            account_info={
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+        )
         validator.validate_code = MagicMock(return_value=validation_payload)
         command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
 

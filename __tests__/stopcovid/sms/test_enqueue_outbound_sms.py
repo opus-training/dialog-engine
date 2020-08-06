@@ -25,7 +25,7 @@ from stopcovid.dialog.models.events import (
     AdHocMessageSent,
 )
 from stopcovid.drills.drills import Drill, Prompt, PromptMessage
-from stopcovid.dialog.registration import CodeValidationPayload
+from stopcovid.dialog.registration import CodeValidationPayload, AccountInfo
 from stopcovid.sms.types import SMS
 
 
@@ -37,7 +37,9 @@ class TestHandleCommand(unittest.TestCase):
             language="en",
             name="Mario",
             is_demo=False,
-            account_info={"employer_name": "Tacombi"},
+            account_info=AccountInfo(
+                employer_id=1, employer_name="Tacombi", unit_id=1, unit_name="unit name",
+            ),
         )
         self.non_validated_user_profile = UserProfile(
             validated=False, language="en", name="Luigi", is_demo=False

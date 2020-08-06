@@ -1,8 +1,7 @@
 import unittest
-from decimal import Decimal
-
 
 from stopcovid.dialog.models.state import UserProfile
+from stopcovid.dialog.registration import AccountInfo
 
 
 class TestUserProfile(unittest.TestCase):
@@ -12,14 +11,21 @@ class TestUserProfile(unittest.TestCase):
             is_demo=True,
             name="Devin Booker",
             language="en",
-            account_info={"employer_id": Decimal(91), "unit_id": Decimal(19)},
+            account_info=AccountInfo(
+                employer_id=1, unit_id=1, employer_name="employer_name", unit_name="unit_name",
+            ),
         )
         expected = {
             "validated": True,
             "is_demo": True,
             "name": "Devin Booker",
             "language": "en",
-            "account_info": {"employer_id": 91, "unit_id": 19},
+            "account_info": {
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
             "opted_out": False,
         }
 
