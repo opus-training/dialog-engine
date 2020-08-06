@@ -1,6 +1,5 @@
 import unittest
 from decimal import Decimal
-import json
 import os
 
 import requests_mock
@@ -106,4 +105,4 @@ class TestRegistration(unittest.TestCase):
         )
 
         # json serialization doesnt blow up
-        json.dumps(payload.dict())
+        payload.json()

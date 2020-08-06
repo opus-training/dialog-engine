@@ -30,11 +30,10 @@ class UserProfile(pydantic.BaseModel):
     def __str__(self):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
-    def __setattr__(self, key, value):
-        if key == "language" and value is not None:
-            super().__setattr__(key, value.lower()[:2])
-        else:
-            super().__setattr__(key, value)
+    @pydantic.validator("language", pre=True, always=True)
+    def set_language(cls, value):
+        if value is not None:
+            return value.lower()[:2]
 
 
 class PromptState(pydantic.BaseModel):
