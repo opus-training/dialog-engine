@@ -30,7 +30,7 @@ from stopcovid.dialog.registration import (
     DefaultRegistrationValidator,
 )
 from stopcovid.dialog.models.state import DialogState
-from stopcovid.drills.drills import Drill, DrillSchema
+from stopcovid.drills.drills import Drill
 from stopcovid.sms.types import SMS
 
 DEFAULT_REGISTRATION_VALIDATOR = DefaultRegistrationValidator()
@@ -80,7 +80,7 @@ class StartDrill(Command):
     def __init__(self, phone_number: str, drill_slug: str, drill_body: dict):
         super().__init__(phone_number)
         self.drill_slug = drill_slug
-        self.drill = DrillSchema().load(drill_body)
+        self.drill = Drill(**drill_body)
 
     def __str__(self):
         return f"Start Drill: {self.drill_slug}"
@@ -318,4 +318,8 @@ class SendAdHocMessage(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        return [AdHocMessageSent(self.phone_number, dialog_state.user_profile, self.sms)]
+        return [AdHocMessageSent(
+            phone_number=self.phone_number,
+            user_profile=dialog_state.user_profile,
+            sms=self.sms)
+        ]

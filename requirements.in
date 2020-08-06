@@ -1,7 +1,7 @@
 requests
 boto3
 Jinja2
-marshmallow
+pydantic
 rollbar
 twilio
 sqlalchemy-aurora-data-api

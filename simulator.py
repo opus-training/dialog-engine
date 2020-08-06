@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import sys
 from time import sleep
 from typing import List, Dict
@@ -20,7 +21,7 @@ from stopcovid.dialog.models.events import (
 )
 from stopcovid.dialog.engine import process_command, StartDrill, ProcessSMSMessage
 from stopcovid.dialog.registration import RegistrationValidator, CodeValidationPayload
-from stopcovid.dialog.models.state import DialogStateSchema, DialogState, UserProfile
+from stopcovid.dialog.models.state import DialogState, UserProfile
 from stopcovid.drills.content_loader import SourceRepoDrillLoader, translate, SupportedTranslation
 
 SEQ = 1
@@ -49,13 +50,13 @@ class InMemoryRepository(DialogRepository):
 
     def fetch_dialog_state(self, phone_number: str) -> DialogState:
         if phone_number in self.repo:
-            state = DialogStateSchema().loads(self.repo[phone_number])
+            state = DialogState(**json.loads(self.repo[phone_number]))
             return state
         else:
             return DialogState(
                 phone_number=phone_number,
                 seq="0",
-                user_profile=UserProfile(False, language=self.lang),
+                user_profile=UserProfile(validated=False, language=self.lang),
             )
 
     def get_next_unstarted_drill(self):
@@ -73,7 +74,7 @@ class InMemoryRepository(DialogRepository):
     def persist_dialog_state(  # noqa: C901
         self, event_batch: DialogEventBatch, dialog_state: DialogState
     ):
-        self.repo[dialog_state.phone_number] = DialogStateSchema().dumps(dialog_state)
+        self.repo[dialog_state.phone_number] = json.dumps(dialog_state.dict())
 
         drill_to_start = None
         for event in event_batch.events:
@@ -157,7 +158,7 @@ class InMemoryRepository(DialogRepository):
             SEQ += 1
             drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, drill.slug, drill.to_dict()), str(SEQ), repo=self,
+                StartDrill(PHONE_NUMBER, drill.slug, drill.dict()), str(SEQ), repo=self,
             )
 
 

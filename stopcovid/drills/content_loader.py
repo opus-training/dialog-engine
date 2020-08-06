@@ -5,7 +5,7 @@ from typing import Dict
 from jinja2 import Template
 
 
-from .drills import Drill, DrillSchema
+from .drills import Drill
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -63,7 +63,7 @@ class SourceRepoDrillLoader:
         self.all_drill_slugs = []
         raw_drills = json.loads(drill_content)
         for drill_slug, raw_drill in raw_drills.items():
-            self.drills_dict[drill_slug] = DrillSchema().load(raw_drill)
+            self.drills_dict[drill_slug] = Drill(**raw_drill)
             self.all_drill_slugs.append(drill_slug)
 
         self.all_drill_slugs.sort()
