@@ -30,7 +30,7 @@ from stopcovid.dialog.registration import (
     DefaultRegistrationValidator,
 )
 from stopcovid.dialog.models.state import DialogState
-from stopcovid.drills.drills import Drill, DrillSchema
+from stopcovid.drills.drills import Drill
 from stopcovid.sms.types import SMS
 
 DEFAULT_REGISTRATION_VALIDATOR = DefaultRegistrationValidator()
@@ -80,7 +80,7 @@ class StartDrill(Command):
     def __init__(self, phone_number: str, drill_slug: str, drill_body: dict):
         super().__init__(phone_number)
         self.drill_slug = drill_slug
-        self.drill = DrillSchema().load(drill_body)
+        self.drill = Drill(**drill_body)
 
     def __str__(self):
         return f"Start Drill: {self.drill_slug}"
@@ -168,7 +168,7 @@ class ProcessSMSMessage(Command):
 
     def _handle_opt_back_in(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         if dialog_state.user_profile.opted_out:
             if self.content_lower in ["start", "unstop", "go"]:
                 return [NextDrillRequested(**base_args)]
@@ -177,7 +177,7 @@ class ProcessSMSMessage(Command):
 
     def _validate_registration(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
 
         if dialog_state.user_profile.is_demo or not dialog_state.user_profile.validated:
             validation_payload = self.registration_validator.validate_code(self.content_lower)
@@ -202,7 +202,7 @@ class ProcessSMSMessage(Command):
 
     def _check_response(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
             return None
@@ -250,7 +250,7 @@ class ProcessSMSMessage(Command):
 
     def _advance_to_next_drill(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
             if self.content_lower in ["more", "mas", "más"]:
@@ -259,7 +259,7 @@ class ProcessSMSMessage(Command):
 
     def _update_schedule_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["schedule", "calendario", "horario"]:
             return [
                 SchedulingDrillRequested(
@@ -315,7 +315,9 @@ class SendAdHocMessage(Command):
         super().__init__(phone_number)
         self.sms = SMS(body=message, media_url=media_url)
 
-    def execute(
-        self, dialog_state: DialogState
-    ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        return [AdHocMessageSent(self.phone_number, dialog_state.user_profile, self.sms)]
+    def execute(self, dialog_state: DialogState) -> List[DialogEvent]:
+        return [
+            AdHocMessageSent(
+                phone_number=self.phone_number, user_profile=dialog_state.user_profile, sms=self.sms
+            )
+        ]

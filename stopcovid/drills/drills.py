@@ -1,49 +1,21 @@
-from dataclasses import dataclass
 from typing import Optional, List
 
-from marshmallow import Schema, fields, post_load
+import pydantic
 
 from .response_check import is_correct_response
 
 
-def drill_from_dict(obj):
-    return DrillSchema().load(obj)
-
-
-class PromptMessageSchema(Schema):
-    text = fields.String(required=True, allow_none=True)
-    media_url = fields.URL(allow_none=True)
-
-    @post_load
-    def make_prompt_message(self, data, **kwargs):
-        return PromptMessage(**data)
-
-
-@dataclass
-class PromptMessage:
+class PromptMessage(pydantic.BaseModel):
     text: Optional[str]
     media_url: Optional[str] = None
 
 
-class PromptSchema(Schema):
-    slug = fields.String(required=True)
-    messages = fields.List(fields.Nested(PromptMessageSchema), required=True)
-    response_user_profile_key = fields.String(allow_none=True)
-    correct_response = fields.String(allow_none=True)
-    max_failures = fields.Int(allow_none=True)
-
-    @post_load
-    def make_prompt(self, data, **kwargs):
-        return Prompt(**data)
-
-
-@dataclass
-class Prompt:
+class Prompt(pydantic.BaseModel):
     slug: str
     messages: List[PromptMessage]
     response_user_profile_key: Optional[str] = None
     correct_response: Optional[str] = None
-    max_failures: int = 1
+    max_failures: Optional[int] = 1
 
     def should_advance_with_answer(self, answer: str) -> bool:
         if self.correct_response is None:
@@ -54,19 +26,7 @@ class Prompt:
         return self.response_user_profile_key is not None
 
 
-class DrillSchema(Schema):
-    name = fields.String(required=True)
-    slug = fields.String(required=True)
-    auto_continue = fields.Boolean(required=False)
-    prompts = fields.List(fields.Nested(PromptSchema), required=True)
-
-    @post_load
-    def make_drill(self, data, **kwargs):
-        return Drill(**data)
-
-
-@dataclass
-class Drill:
+class Drill(pydantic.BaseModel):
     slug: str
     name: str
     prompts: List[Prompt]
@@ -89,6 +49,3 @@ class Drill:
             if p.slug == slug:
                 return_next = True
         return None
-
-    def to_dict(self):
-        return DrillSchema().dump(self)

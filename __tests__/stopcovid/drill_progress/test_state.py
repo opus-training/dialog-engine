@@ -23,4 +23,4 @@ class TestUserProfile(unittest.TestCase):
             "opted_out": False,
         }
 
-        self.assertDictContainsSubset(expected, profile.to_dict())
+        self.assertDictContainsSubset(expected, profile.dict())

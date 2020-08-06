@@ -12,14 +12,14 @@ from .types import InboundCommand, InboundCommandType
 def handle_inbound_commands(commands: List[InboundCommand]):
 
     for command in commands:
-        if command.command_type == InboundCommandType.INBOUND_SMS:
+        if command.command_type is InboundCommandType.INBOUND_SMS:
             process_command(
                 ProcessSMSMessage(
                     phone_number=command.payload["From"], content=command.payload["Body"],
                 ),
                 command.sequence_number,
             )
-        elif command.command_type == InboundCommandType.START_DRILL:
+        elif command.command_type is InboundCommandType.START_DRILL:
             process_command(
                 StartDrill(
                     phone_number=command.payload["phone_number"],
@@ -28,7 +28,7 @@ def handle_inbound_commands(commands: List[InboundCommand]):
                 ),
                 command.sequence_number,
             )
-        elif command.command_type == InboundCommandType.SEND_AD_HOC_MESSAGE:
+        elif command.command_type is InboundCommandType.SEND_AD_HOC_MESSAGE:
             process_command(
                 SendAdHocMessage(
                     phone_number=command.payload["phone_number"],

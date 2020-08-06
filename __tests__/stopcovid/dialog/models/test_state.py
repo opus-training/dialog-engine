@@ -1,19 +1,20 @@
+import json
 import unittest
 
-from stopcovid.dialog.models.state import UserProfile, UserProfileSchema
+from stopcovid.dialog.models.state import UserProfile
 
 
 class TestUserProfileSerialization(unittest.TestCase):
     def test_serialize_and_deserialize_language(self):
         profile = UserProfile(validated=True, language="English")
         self.assertEqual("en", profile.language)
-        serialized = UserProfileSchema().dumps(profile)
-        deserialized = UserProfileSchema().loads(serialized)
+        serialized = profile.json()
+        deserialized = UserProfile(**json.loads(serialized))
         self.assertEqual("en", deserialized.language)
 
     def test_serialize_and_deserialize_no_language(self):
         profile = UserProfile(validated=True)
         self.assertIsNone(profile.language)
-        serialized = UserProfileSchema().dumps(profile)
-        deserialized = UserProfileSchema().loads(serialized)
+        serialized = profile.json()
+        deserialized = UserProfile(**json.loads(serialized))
         self.assertIsNone(deserialized.language)

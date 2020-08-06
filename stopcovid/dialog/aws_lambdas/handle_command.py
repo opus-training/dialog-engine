@@ -1,7 +1,7 @@
 import rollbar
 
 from stopcovid.utils.kinesis import get_payload_from_kinesis_record
-from stopcovid.dialog.command_stream.types import InboundCommandSchema
+from stopcovid.dialog.command_stream.types import InboundCommand
 from stopcovid.dialog.command_stream.command_stream import handle_inbound_commands
 from stopcovid.utils.logging import configure_logging
 from stopcovid.utils.rollbar import configure_rollbar
@@ -13,12 +13,10 @@ configure_rollbar()
 
 def _make_inbound_command(record):
     event = get_payload_from_kinesis_record(record)
-    return InboundCommandSchema().load(
-        {
-            "payload": event["payload"],
-            "command_type": event["type"],
-            "sequence_number": record["kinesis"]["sequenceNumber"],
-        }
+    return InboundCommand(
+        payload=event["payload"],
+        command_type=event["type"],
+        sequence_number=record["kinesis"]["sequenceNumber"],
     )
 
 

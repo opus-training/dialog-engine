@@ -14,7 +14,7 @@ idna==2.9                 # via requests
 jinja2==2.11.1            # via -r requirements.in
 jmespath==0.9.5           # via boto3, botocore
 markupsafe==1.1.1         # via jinja2
-marshmallow==3.5.1        # via -r requirements.in
+pydantic==1.6.1           # via -r requirements.in
 pyjwt==1.7.1              # via twilio
 python-dateutil==2.8.1    # via botocore
 pytz==2019.3              # via twilio

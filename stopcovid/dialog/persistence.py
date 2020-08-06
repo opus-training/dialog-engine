@@ -1,3 +1,4 @@
+import json
 import os
 import uuid
 from abc import ABC, abstractmethod
@@ -5,7 +6,7 @@ from abc import ABC, abstractmethod
 import boto3
 
 from stopcovid.utils import dynamodb as dynamodb_utils
-from .models.state import DialogState, DialogStateSchema
+from .models.state import DialogState
 from .models.events import DialogEventBatch, batch_from_dict
 
 
@@ -47,7 +48,7 @@ class DynamoDBDialogRepository(DialogRepository):
         if "Item" not in response:
             return DialogState(phone_number=phone_number, seq="0")
         dialog_dict = dynamodb_utils.deserialize(response["Item"])
-        return DialogStateSchema().load(dialog_dict)
+        return DialogState(**dialog_dict)
 
     def fetch_dialog_event_batch(self, phone_number: str, batch_id: uuid.UUID) -> DialogEventBatch:
         response = self.dynamodb.get_item(
@@ -65,13 +66,13 @@ class DynamoDBDialogRepository(DialogRepository):
                 {
                     "Put": {
                         "TableName": self.event_batch_table_name(),
-                        "Item": dynamodb_utils.serialize(event_batch.to_dict()),
+                        "Item": dynamodb_utils.serialize(json.loads(event_batch.json())),
                     }
                 },
                 {
                     "Put": {
                         "TableName": self.state_table_name(),
-                        "Item": dynamodb_utils.serialize(dialog_state.to_dict()),
+                        "Item": dynamodb_utils.serialize(json.loads(dialog_state.json())),
                     }
                 },
             ]

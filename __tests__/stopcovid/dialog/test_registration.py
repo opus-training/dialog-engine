@@ -1,14 +1,10 @@
 import unittest
 from decimal import Decimal
-import json
 import os
 
 import requests_mock
 
-from stopcovid.dialog.registration import (
-    DefaultRegistrationValidator,
-    CodeValidationPayloadSchema,
-)
+from stopcovid.dialog.registration import DefaultRegistrationValidator, CodeValidationPayload
 
 
 class TestRegistration(unittest.TestCase):
@@ -21,7 +17,7 @@ class TestRegistration(unittest.TestCase):
     def test_invalid_code(self):
         with requests_mock.Mocker() as m:
             m.post(
-                self.url, json={"valid": "False", "is_demo": "False", "account_info": "None"},
+                self.url, json={"valid": False, "is_demo": False, "account_info": None},
             )
             payload = DefaultRegistrationValidator().validate_code(
                 "foo", url=self.url, key=self.key
@@ -98,19 +94,15 @@ class TestRegistration(unittest.TestCase):
             self.assertEqual(1, m.call_count)
 
     def test_code_validation_payload_json_serializable(self):
-        payload = CodeValidationPayloadSchema().load(
-            {
-                "valid": "True",
-                "is_demo": "False",
-                "account_info": {"employer_id": Decimal(12), "unit_id": Decimal(1)},
-            }
+        payload = CodeValidationPayload(
+            valid="True",
+            is_demo="False",
+            account_info={"employer_id": Decimal(12), "unit_id": Decimal(1)},
         )
-
-        as_dict = CodeValidationPayloadSchema().dump(payload)
         self.assertEqual(
-            as_dict,
+            payload.dict(),
             {"valid": True, "is_demo": False, "account_info": {"employer_id": 12, "unit_id": 1},},
         )
 
         # json serialization doesnt blow up
-        json.dumps(as_dict)
+        payload.json()
