@@ -5,6 +5,7 @@ import uuid
 from typing import List
 from unittest.mock import patch, MagicMock
 
+from stopcovid.dialog.models.state import UserProfile
 from stopcovid.sms.enqueue_outbound_sms import (
     get_messages,
     get_outbound_sms_commands,
@@ -12,7 +13,6 @@ from stopcovid.sms.enqueue_outbound_sms import (
     publish_outbound_sms_messages,
     OutboundSMS,
 )
-from stopcovid.dialog.models.state import UserProfileSchema
 from stopcovid.dialog.models.events import (
     DrillStarted,
     UserValidated,
@@ -32,17 +32,15 @@ from stopcovid.sms.types import SMS
 class TestHandleCommand(unittest.TestCase):
     def setUp(self):
         self.phone = "+15554238324"
-        self.validated_user_profile = UserProfileSchema().load(
-            {
-                "validated": True,
-                "language": "en",
-                "name": "Mario",
-                "is_demo": False,
-                "account_info": {"employer_name": "Tacombi"},
-            }
+        self.validated_user_profile = UserProfile(
+            validated=True,
+            language="en",
+            name="Mario",
+            is_demo=False,
+            account_info={"employer_name": "Tacombi"},
         )
-        self.non_validated_user_profile = UserProfileSchema().load(
-            {"validated": False, "language": "en", "name": "Luigi", "is_demo": False}
+        self.non_validated_user_profile = UserProfile(
+            validated=False, language="en", name="Luigi", is_demo=False
         )
 
         self.drill = Drill(
@@ -65,7 +63,7 @@ class TestHandleCommand(unittest.TestCase):
 
     def test_get_messages(self):
         dialog_event = CompletedPrompt(
-            self.phone,
+            phone_number=self.phone,
             user_profile=self.validated_user_profile,
             prompt=self.drill.prompts[1],
             response="a",
@@ -81,7 +79,9 @@ class TestHandleCommand(unittest.TestCase):
 
     def test_user_validation_failed_event(self):
         dialog_events: List[DialogEvent] = [
-            UserValidationFailed(self.phone, self.non_validated_user_profile)
+            UserValidationFailed(
+                phone_number=self.phone, user_profile=self.non_validated_user_profile
+            )
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 1)
@@ -93,14 +93,22 @@ class TestHandleCommand(unittest.TestCase):
     def test_user_validated_event(self):
         code_validation_payload = CodeValidationPayload(valid=True, is_demo=False)
         dialog_events: List[DialogEvent] = [
-            UserValidated(self.phone, self.validated_user_profile, code_validation_payload)
+            UserValidated(
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
+                code_validation_payload=code_validation_payload,
+            )
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 0)
 
     def test_drill_completed_event(self):
         dialog_events: List[DialogEvent] = [
-            DrillCompleted(self.phone, self.validated_user_profile, drill_instance_id=uuid.uuid4())
+            DrillCompleted(
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
+                drill_instance_id=uuid.uuid4(),
+            )
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 0)
@@ -108,8 +116,8 @@ class TestHandleCommand(unittest.TestCase):
     def test_drill_started_event(self):
         dialog_events: List[DialogEvent] = [
             DrillStarted(
-                self.phone,
-                self.validated_user_profile,
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
                 drill=self.drill,
                 first_prompt=self.drill.prompts[0],
             )
@@ -124,8 +132,8 @@ class TestHandleCommand(unittest.TestCase):
     def test_completed_prompt_event(self):
         dialog_events: List[DialogEvent] = [
             CompletedPrompt(
-                self.phone,
-                self.validated_user_profile,
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
                 prompt=self.drill.prompts[1],
                 response="a",
                 drill_instance_id=uuid.uuid4(),
@@ -141,8 +149,8 @@ class TestHandleCommand(unittest.TestCase):
     def test_abandoned_failed_prompt_event(self):
         dialog_events: List[DialogEvent] = [
             FailedPrompt(
-                self.phone,
-                self.validated_user_profile,
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
                 prompt=self.drill.prompts[1],
                 response="a",
                 drill_instance_id=uuid.uuid4(),
@@ -161,8 +169,8 @@ class TestHandleCommand(unittest.TestCase):
     def test_non_abandoned_failed_prompt_event(self):
         dialog_events: List[DialogEvent] = [
             FailedPrompt(
-                self.phone,
-                self.validated_user_profile,
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
                 prompt=self.drill.prompts[1],
                 response="a",
                 drill_instance_id=uuid.uuid4(),
@@ -179,8 +187,8 @@ class TestHandleCommand(unittest.TestCase):
     def test_advance_to_next_prompt_event(self):
         dialog_events: List[DialogEvent] = [
             AdvancedToNextPrompt(
-                self.phone,
-                self.validated_user_profile,
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
                 prompt=self.drill.prompts[1],
                 drill_instance_id=uuid.uuid4(),
             )
@@ -200,7 +208,11 @@ class TestHandleCommand(unittest.TestCase):
     def test_ad_hoc_message_sent(self):
         body = "we have lift off"
         dialog_events: List[DialogEvent] = [
-            AdHocMessageSent(self.phone, self.validated_user_profile, sms=SMS(body=body))
+            AdHocMessageSent(
+                phone_number=self.phone,
+                user_profile=self.validated_user_profile,
+                sms=SMS(body=body),
+            )
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
         self.assertEqual(len(outbound_messages), 1)

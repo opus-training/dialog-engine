@@ -245,7 +245,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
 
 
 def event_from_dict(event_dict: Dict[str, Any]) -> DialogEvent:
-    event_type = DialogEventType[event_dict["event_type"]]
+    event_type = DialogEventType(event_dict["event_type"])
     return TYPE_TO_SCHEMA[event_type](**event_dict)
 
 

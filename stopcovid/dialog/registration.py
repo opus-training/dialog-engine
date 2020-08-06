@@ -1,14 +1,13 @@
 import functools
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+import pydantic
 import requests
 
 
-@dataclass
-class CodeValidationPayload:
+class CodeValidationPayload(pydantic.BaseModel):
     valid: bool
     is_demo: bool = False
     account_info: Optional[Dict[str, Any]] = None

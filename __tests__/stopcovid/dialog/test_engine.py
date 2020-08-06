@@ -3,6 +3,7 @@ import logging
 import unittest
 from unittest.mock import MagicMock, Mock
 from typing import Optional
+from uuid import UUID
 
 from stopcovid.dialog.engine import (
     process_command,
@@ -24,37 +25,39 @@ from stopcovid.dialog.models.state import DialogState, PromptState
 from stopcovid.dialog.registration import CodeValidationPayload
 from stopcovid.drills.drills import Drill, Prompt, PromptMessage
 
-DRILL = Drill(
-    name="test-drill",
-    slug="test-drill",
-    prompts=[
-        Prompt(slug="ignore-response-1", messages=[PromptMessage(text="{{msg1}}")]),
-        Prompt(
-            slug="store-response",
-            messages=[PromptMessage(text="{{msg1}}")],
-            response_user_profile_key="self_rating_1",
-        ),
-        Prompt(
-            slug="graded-response-1",
-            messages=[PromptMessage(text="{{msg1}}")],
-            correct_response="{{response1}}",
-        ),
-        Prompt(
-            slug="graded-response-2",
-            messages=[PromptMessage(text="{{msg1}}")],
-            correct_response="{{response1}}",
-        ),
-        Prompt(slug="ignore-response-2", messages=[PromptMessage(text="{{msg1}}")]),
-    ],
-)
-
 
 class TestProcessCommand(unittest.TestCase):
     def setUp(self) -> None:
         logging.disable(logging.CRITICAL)
         self.phone_number = "123456789"
-        self.dialog_state = DialogState(phone_number=self.phone_number, seq="0")
-        self.drill = DRILL
+        self.dialog_state = DialogState(
+            phone_number=self.phone_number,
+            seq="0",
+            drill_instance_id=UUID("11111111-1111-1111-1111-111111111111")
+        )
+        self.drill = Drill(
+            name="test-drill",
+            slug="test-drill",
+            prompts=[
+                Prompt(slug="ignore-response-1", messages=[PromptMessage(text="{{msg1}}")]),
+                Prompt(
+                    slug="store-response",
+                    messages=[PromptMessage(text="{{msg1}}")],
+                    response_user_profile_key="self_rating_1",
+                ),
+                Prompt(
+                    slug="graded-response-1",
+                    messages=[PromptMessage(text="{{msg1}}")],
+                    correct_response="{{response1}}",
+                ),
+                Prompt(
+                    slug="graded-response-2",
+                    messages=[PromptMessage(text="{{msg1}}")],
+                    correct_response="{{response1}}",
+                ),
+                Prompt(slug="ignore-response-2", messages=[PromptMessage(text="{{msg1}}")]),
+            ],
+        )
         self.repo = MagicMock()
         self.repo.fetch_dialog_state = MagicMock(return_value=self.dialog_state)
         self.repo.persist_dialog_state = MagicMock()
@@ -81,14 +84,7 @@ class TestProcessCommand(unittest.TestCase):
         if not drill:
             drill = self.drill
         self.dialog_state.current_drill = drill
-        underlying_prompt = drill.prompts[prompt_index]
-        prompt = Mock(wraps=underlying_prompt)
-        prompt.slug = underlying_prompt.slug
-        prompt.messages = underlying_prompt.messages
-        prompt.response_user_profile_key = underlying_prompt.response_user_profile_key
-        prompt.max_failures = underlying_prompt.max_failures
-        prompt.should_advance_with_answer.return_value = should_advance
-        drill.prompts[prompt_index] = prompt
+        prompt = drill.prompts[prompt_index]
         self.dialog_state.current_prompt_state = PromptState(slug=prompt.slug, start_time=self.now)
 
     def test_skip_processed_sequence_numbers(self):
@@ -128,7 +124,7 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
 
-        command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict())
         self._process_command(command)
 
         validation_payload = CodeValidationPayload(valid=True, account_info={"company": "WeWork"})
@@ -148,7 +144,7 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
 
-        command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict())
         self._process_command(command)
 
         # the user's next message isn't a validation code - so we just keep going
@@ -174,20 +170,20 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_start_drill(self):
         self.dialog_state.user_profile.validated = True
-        command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict())
 
         batch = self._process_command(command)
 
         self._assert_event_types(batch, DialogEventType.DRILL_STARTED)
         event: DrillStarted = batch.events[0]  # type: ignore
-        self.assertEqual(self.drill.to_dict(), event.drill.to_dict())
+        self.assertEqual(self.drill.dict(), event.drill.dict())
         self.assertEqual(self.drill.first_prompt().slug, event.first_prompt.slug)
         self.assertIsNotNone(event.drill_instance_id)
 
     def test_start_drill_not_validated(self):
         self.dialog_state.user_profile.validated = False
         self.dialog_state.user_profile.opted_out = False
-        command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict())
 
         batch = self._process_command(command)
         self.assertEqual(0, len(batch.events))
@@ -195,7 +191,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_start_drill_opted_out(self):
         self.dialog_state.user_profile.validated = True
         self.dialog_state.user_profile.opted_out = True
-        command = StartDrill(self.phone_number, self.drill.slug, self.drill.to_dict())
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict())
 
         batch = self._process_command(command)
         self.assertEqual(0, len(batch.events))
@@ -418,7 +414,8 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
             self.assertEqual(
-                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+                batch.events[0].abandoned_drill_instance_id,
+                UUID("11111111-1111-1111-1111-111111111111"),
             )
 
     def test_change_name_drill_requested(self):
@@ -434,7 +431,8 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
             self.assertEqual(
-                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+                batch.events[0].abandoned_drill_instance_id,
+                UUID("11111111-1111-1111-1111-111111111111"),
             )
 
     def test_change_language_drill_requested(self):
@@ -450,7 +448,8 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
             self.assertEqual(
-                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+                batch.events[0].abandoned_drill_instance_id,
+                UUID("11111111-1111-1111-1111-111111111111"),
             )
 
     def test_support_requested(self):
@@ -469,7 +468,8 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
             self.assertEqual(
-                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+                batch.events[0].abandoned_drill_instance_id,
+                UUID("11111111-1111-1111-1111-111111111111"),
             )
 
     def test_menu_requested(self):
@@ -485,7 +485,8 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
             self.assertEqual(
-                batch.events[0].abandoned_drill_instance_id, "11111111-1111-1111-1111-111111111111"
+                batch.events[0].abandoned_drill_instance_id,
+                UUID("11111111-1111-1111-1111-111111111111"),
             )
 
     def test_unhandled_message_received(self):

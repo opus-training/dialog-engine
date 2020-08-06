@@ -1,6 +1,6 @@
 import unittest
 
-from stopcovid.dialog.models.state import UserProfile, UserProfileSchema
+from stopcovid.dialog.models.state import UserProfile
 
 
 class TestUserProfileSerialization(unittest.TestCase):

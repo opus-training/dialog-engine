@@ -43,7 +43,7 @@ def handler(event, context):
 
     inbound_commands = [_make_inbound_command(record) for record in event["Records"]]
     for command in inbound_commands:
-        if command.command_type == InboundCommandType.INBOUND_SMS:
+        if command.command_type is InboundCommandType.INBOUND_SMS:
             if not idempotency_checker.already_processed(
                 command.sequence_number, IDEMPOTENCY_REALM
             ):
