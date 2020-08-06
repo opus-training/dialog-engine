@@ -1,10 +1,11 @@
 import uuid
 import datetime
-from typing import Optional, Dict, Any
+from typing import Optional
 
 import pydantic
 
 from stopcovid.dialog.models import SCHEMA_VERSION
+from stopcovid.dialog.registration import AccountInfo
 from stopcovid.drills import drills
 
 
@@ -14,7 +15,7 @@ class UserProfile(pydantic.BaseModel):
     is_demo: bool = False
     name: Optional[str] = None
     language: Optional[str] = None
-    account_info: Dict[str, Any] = pydantic.Field(default_factory=lambda: {})
+    account_info: Optional[AccountInfo] = None
     self_rating_1: Optional[str] = None
     self_rating_2: Optional[str] = None
     self_rating_3: Optional[str] = None

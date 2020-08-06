@@ -20,7 +20,7 @@ from stopcovid.dialog.models.events import (
     DialogEventBatch,
 )
 from stopcovid.dialog.engine import process_command, StartDrill, ProcessSMSMessage
-from stopcovid.dialog.registration import RegistrationValidator, CodeValidationPayload
+from stopcovid.dialog.registration import RegistrationValidator, CodeValidationPayload, AccountInfo
 from stopcovid.dialog.models.state import DialogState, UserProfile
 from stopcovid.drills.content_loader import SourceRepoDrillLoader, translate, SupportedTranslation
 
@@ -122,7 +122,7 @@ class InMemoryRepository(DialogRepository):
                         ],
                     )
             elif isinstance(event, UserValidated):
-                drill_to_start = dialog_state.user_profile.account_info["code"]
+                drill_to_start = dialog_state.user_profile.account_info.employer_name
             elif isinstance(event, OptedOut):
                 print("(You've been opted out.)")
                 if event.drill_instance_id:
@@ -165,7 +165,12 @@ class InMemoryRepository(DialogRepository):
 class FakeRegistrationValidator(RegistrationValidator):
     def validate_code(self, code) -> CodeValidationPayload:
         if code in DRILLS.keys():
-            return CodeValidationPayload(valid=True, account_info={"code": code})
+            return CodeValidationPayload(
+                valid=True,
+                account_info=AccountInfo(
+                    employer_id=1, employer_name=code, unit_id=1, unit_name="unit_name",
+                ),
+            )
         return CodeValidationPayload(valid=False)
 
 
