@@ -65,7 +65,7 @@ class DynamoDBDialogRepository(DialogRepository):
                 {
                     "Put": {
                         "TableName": self.event_batch_table_name(),
-                        "Item": dynamodb_utils.serialize(event_batch.to_dict()),
+                        "Item": dynamodb_utils.serialize(event_batch.dict()),
                     }
                 },
                 {

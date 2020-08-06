@@ -9,7 +9,6 @@ from stopcovid.utils.kinesis import get_payload_from_kinesis_record
 from stopcovid.utils.rollbar import configure_rollbar
 
 from stopcovid.dialog.command_stream.types import (
-    InboundCommandSchema,
     InboundCommandType,
     InboundCommand,
 )
@@ -25,12 +24,10 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 def _make_inbound_command(record) -> InboundCommand:
     event = get_payload_from_kinesis_record(record)
-    return InboundCommandSchema().load(
-        {
-            "payload": event["payload"],
-            "command_type": event["type"],
-            "sequence_number": record["kinesis"]["sequenceNumber"],
-        }
+    return InboundCommand(
+        payload=event["payload"],
+        command_type=event["type"],
+        sequence_number=record["kinesis"]["sequenceNumber"],
     )
 
 

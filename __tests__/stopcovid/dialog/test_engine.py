@@ -33,7 +33,7 @@ class TestProcessCommand(unittest.TestCase):
         self.dialog_state = DialogState(
             phone_number=self.phone_number,
             seq="0",
-            drill_instance_id=UUID("11111111-1111-1111-1111-111111111111")
+            drill_instance_id=UUID("11111111-1111-1111-1111-111111111111"),
         )
         self.drill = Drill(
             name="test-drill",

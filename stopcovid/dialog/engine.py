@@ -168,7 +168,7 @@ class ProcessSMSMessage(Command):
 
     def _handle_opt_back_in(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         if dialog_state.user_profile.opted_out:
             if self.content_lower in ["start", "unstop", "go"]:
                 return [NextDrillRequested(**base_args)]
@@ -177,7 +177,7 @@ class ProcessSMSMessage(Command):
 
     def _validate_registration(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
 
         if dialog_state.user_profile.is_demo or not dialog_state.user_profile.validated:
             validation_payload = self.registration_validator.validate_code(self.content_lower)
@@ -202,7 +202,7 @@ class ProcessSMSMessage(Command):
 
     def _check_response(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
             return None
@@ -250,7 +250,7 @@ class ProcessSMSMessage(Command):
 
     def _advance_to_next_drill(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         prompt = dialog_state.get_prompt()
         if prompt is None:
             if self.content_lower in ["more", "mas", "más"]:
@@ -259,7 +259,7 @@ class ProcessSMSMessage(Command):
 
     def _update_schedule_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["schedule", "calendario", "horario"]:
             return [
                 SchedulingDrillRequested(
@@ -315,9 +315,7 @@ class SendAdHocMessage(Command):
         super().__init__(phone_number)
         self.sms = SMS(body=message, media_url=media_url)
 
-    def execute(
-        self, dialog_state: DialogState
-    ) -> List[stopcovid.dialog.models.events.DialogEvent]:
+    def execute(self, dialog_state: DialogState) -> List[DialogEvent]:
         return [
             AdHocMessageSent(
                 phone_number=self.phone_number, user_profile=dialog_state.user_profile, sms=self.sms

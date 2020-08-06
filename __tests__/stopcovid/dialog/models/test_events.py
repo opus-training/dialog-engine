@@ -243,7 +243,9 @@ class TestAdvancedToNextPrompt(unittest.TestCase):
 class TestDrillCompleted(unittest.TestCase):
     def test_drill_completed(self):
         profile = UserProfile(validated=False)
-        event = DrillCompleted(phone_number="123456789", user_profile=profile, drill_instance_id=uuid.uuid4())
+        event = DrillCompleted(
+            phone_number="123456789", user_profile=profile, drill_instance_id=uuid.uuid4()
+        )
         dialog_state = DialogState(
             phone_number="123456789",
             seq="0",
@@ -261,7 +263,9 @@ class TestDrillCompleted(unittest.TestCase):
 class TestOptedOut(unittest.TestCase):
     def test_opted_out_during_drill(self):
         profile = UserProfile(validated=True)
-        event = OptedOut(phone_number="123456789", user_profile=profile, drill_instance_id=uuid.uuid4())
+        event = OptedOut(
+            phone_number="123456789", user_profile=profile, drill_instance_id=uuid.uuid4()
+        )
         dialog_state = DialogState(
             phone_number="123456789",
             seq="0",
@@ -388,7 +392,9 @@ class TestSerialization(unittest.TestCase):
 
     def test_drill_completed(self):
         original = DrillCompleted(
-            phone_number="12345678", user_profile=UserProfile(validated=True), drill_instance_id=uuid.uuid4(),
+            phone_number="12345678",
+            user_profile=UserProfile(validated=True),
+            drill_instance_id=uuid.uuid4(),
         )
         serialized = original.dict()
         deserialized: DrillCompleted = event_from_dict(serialized)  # type: ignore
@@ -406,14 +412,18 @@ class TestSerialization(unittest.TestCase):
         self._make_base_assertions(original, deserialized)
 
     def test_user_validation_failed(self):
-        original = UserValidationFailed(phone_number="123456789", user_profile=UserProfile(validated=True))
+        original = UserValidationFailed(
+            phone_number="123456789", user_profile=UserProfile(validated=True)
+        )
         serialized = original.dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
 
     def test_opted_out(self):
         original = OptedOut(
-            phone_number="123456789", user_profile=UserProfile(validated=True), drill_instance_id=uuid.uuid4()
+            phone_number="123456789",
+            user_profile=UserProfile(validated=True),
+            drill_instance_id=uuid.uuid4(),
         )
         serialized = original.dict()
         deserialized: OptedOut = event_from_dict(serialized)  # type: ignore
@@ -421,7 +431,9 @@ class TestSerialization(unittest.TestCase):
         self.assertEqual(original.drill_instance_id, deserialized.drill_instance_id)
 
     def test_next_drill_requested(self):
-        original = NextDrillRequested(phone_number="123456789", user_profile=UserProfile(validated=True))
+        original = NextDrillRequested(
+            phone_number="123456789", user_profile=UserProfile(validated=True)
+        )
         serialized = original.dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
@@ -442,7 +454,9 @@ class TestSerialization(unittest.TestCase):
 
     def test_send_adhoc_message(self):
         original = AdHocMessageSent(
-            phone_number="123456789", user_profile=UserProfile(validated=True), sms=SMS(body="foobar")
+            phone_number="123456789",
+            user_profile=UserProfile(validated=True),
+            sms=SMS(body="foobar"),
         )
         serialized = original.dict()
         deserialized = event_from_dict(serialized)

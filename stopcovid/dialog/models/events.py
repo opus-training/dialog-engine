@@ -256,15 +256,6 @@ class DialogEventBatch(pydantic.BaseModel):
     batch_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
     created_time: datetime = pydantic.Field(default_factory=lambda: datetime.now(UTC))
 
-    def to_dict(self):
-        return {
-            "batch_id": str(self.batch_id),
-            "seq": self.seq,
-            "phone_number": self.phone_number,
-            "created_time": self.created_time.isoformat(),
-            "events": [event.dict() for event in self.events],
-        }
-
 
 def batch_from_dict(batch_dict: Dict[str, Any]) -> DialogEventBatch:
     events = batch_dict.pop("events") if "events" in batch_dict else []
