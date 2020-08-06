@@ -14,11 +14,14 @@ class TestEnum(Enum):
 
 class SerializerTest(unittest.TestCase):
     def test_serializer(self):
+        a_datetime = datetime.now(UTC)
+        a_date = date.today()
+        a_uuid = uuid.uuid4()
         a_dict = {
-            "datetime": datetime.now(UTC),
-            "date": date.today(),
+            "datetime": a_datetime,
+            "date": a_date,
             "float": 1.234,
-            "uuid": uuid.uuid4(),
+            "uuid": a_uuid,
             "enum": TestEnum.Key,
             "string": "abcdefg",
             "int": 432,
@@ -27,10 +30,10 @@ class SerializerTest(unittest.TestCase):
             "dict": {"a": "b"},
         }
         expected = {
-            "datetime": {"S": "2020-08-06T21:11:00.004223+00:00"},
-            "date": {"S": "2020-08-06"},
+            "datetime": {"S": a_datetime.isoformat()},
+            "date": {"S": a_date.isoformat()},
             "float": {"N": "1.234"},
-            "uuid": {"S": "7fb67b15-5faf-488c-9e4a-c16978b9ce9d"},
+            "uuid": {"S": str(a_uuid)},
             "enum": {"S": "Val"},
             "string": {"S": "abcdefg"},
             "int": {"N": "432"},
