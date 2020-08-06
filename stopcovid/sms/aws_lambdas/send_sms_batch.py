@@ -1,3 +1,5 @@
+import json
+
 import rollbar
 
 from stopcovid.sms.send_sms import send_sms_batches
@@ -13,6 +15,6 @@ configure_rollbar()
 @rollbar.lambda_function
 def handler(event, context):
     verify_deploy_stage()
-    batches = [SMSBatch(**record["body"]) for record in event["Records"]]
+    batches = [SMSBatch(**json.loads(record["body"])) for record in event["Records"]]
     send_sms_batches(batches)
     return {"statusCode": 200}
