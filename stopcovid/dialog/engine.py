@@ -318,8 +318,8 @@ class SendAdHocMessage(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        return [AdHocMessageSent(
-            phone_number=self.phone_number,
-            user_profile=dialog_state.user_profile,
-            sms=self.sms)
+        return [
+            AdHocMessageSent(
+                phone_number=self.phone_number, user_profile=dialog_state.user_profile, sms=self.sms
+            )
         ]

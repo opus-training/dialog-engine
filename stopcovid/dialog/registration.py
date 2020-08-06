@@ -1,25 +1,17 @@
 import functools
 import os
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 import requests
-import pydantic
-
-
-class AccountInfo(pydantic.BaseModel):
-    employer_id: int
-    employer_name: str
-    unit_id: int
-    unit_name: str
 
 
 @dataclass
 class CodeValidationPayload:
     valid: bool
     is_demo: bool = False
-    account_info: Optional[AccountInfo] = None
+    account_info: Optional[Dict[str, Any]] = None
 
 
 class RegistrationValidator(ABC):

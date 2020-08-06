@@ -7,9 +7,7 @@ from typing import Optional, Dict, Type, Any, List
 import pydantic
 from pytz import UTC
 
-from stopcovid.dialog.registration import (
-    CodeValidationPayload,
-)
+from stopcovid.dialog.registration import CodeValidationPayload
 from stopcovid.dialog.models.state import (
     DialogState,
     UserProfile,
@@ -84,7 +82,7 @@ class UserValidated(DialogEvent):
         dialog_state.current_drill = None
         dialog_state.user_profile.validated = True
         dialog_state.user_profile.is_demo = self.code_validation_payload.is_demo
-        dialog_state.user_profile.account_info = self.code_validation_payload.account_info.dict()
+        dialog_state.user_profile.account_info = self.code_validation_payload.account_info
 
 
 class UserValidationFailed(DialogEvent):
