@@ -63,12 +63,27 @@ class TestUserValidationEvents(unittest.TestCase):
             phone_number="123456789",
             user_profile=profile,
             code_validation_payload=CodeValidationPayload(
-                valid=True, is_demo=False, account_info={"foo": "bar"}
+                valid=True,
+                is_demo=False,
+                account_info={
+                    "employer_id": 1,
+                    "unit_id": 1,
+                    "employer_name": "employer_name",
+                    "unit_name": "unit_name",
+                },
             ),
         )
         event.apply_to(dialog_state)
         self.assertTrue(dialog_state.user_profile.validated)
-        self.assertEqual({"foo": "bar"}, dialog_state.user_profile.account_info)
+        self.assertEqual(
+            {
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+            dialog_state.user_profile.account_info,
+        )
 
     def test_user_revalidated(self):
         profile = UserProfile(validated=True, is_demo=True)
@@ -84,7 +99,14 @@ class TestUserValidationEvents(unittest.TestCase):
             phone_number="123456789",
             user_profile=profile,
             code_validation_payload=CodeValidationPayload(
-                valid=True, is_demo=False, account_info={"foo": "bar"}
+                valid=True,
+                is_demo=False,
+                account_info={
+                    "employer_id": 1,
+                    "unit_id": 1,
+                    "employer_name": "employer_name",
+                    "unit_name": "unit_name",
+                },
             ),
         )
         event.apply_to(dialog_state)
@@ -93,7 +115,15 @@ class TestUserValidationEvents(unittest.TestCase):
         self.assertIsNone(dialog_state.current_drill)
         self.assertIsNone(dialog_state.current_prompt_state)
         self.assertIsNone(dialog_state.drill_instance_id)
-        self.assertEqual({"foo": "bar"}, dialog_state.user_profile.account_info)
+        self.assertEqual(
+            {
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+            dialog_state.user_profile.account_info,
+        )
 
     def test_user_validation_failed(self):
         profile = UserProfile(validated=False)

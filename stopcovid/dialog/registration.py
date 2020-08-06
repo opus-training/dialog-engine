@@ -1,16 +1,23 @@
 import functools
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import pydantic
 import requests
 
 
+class AccountInfo(pydantic.BaseModel):
+    employer_id: int
+    employer_name: str
+    unit_id: int
+    unit_name: str
+
+
 class CodeValidationPayload(pydantic.BaseModel):
     valid: bool
     is_demo: bool = False
-    account_info: Optional[Dict[str, Any]] = None
+    account_info: Optional[AccountInfo] = None
 
 
 class RegistrationValidator(ABC):

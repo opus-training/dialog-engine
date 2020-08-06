@@ -1,10 +1,13 @@
 import unittest
-from decimal import Decimal
 import os
 
 import requests_mock
 
-from stopcovid.dialog.registration import DefaultRegistrationValidator, CodeValidationPayload
+from stopcovid.dialog.registration import (
+    DefaultRegistrationValidator,
+    CodeValidationPayload,
+    AccountInfo,
+)
 
 
 class TestRegistration(unittest.TestCase):
@@ -85,7 +88,12 @@ class TestRegistration(unittest.TestCase):
                 json={
                     "valid": "True",
                     "is_demo": "False",
-                    "account_info": {"employer_id": 165, "unit_id": 429},
+                    "account_info": {
+                        "employer_id": 1,
+                        "unit_id": 1,
+                        "employer_name": "employer_name",
+                        "unit_name": "unit_name",
+                    },
                 },
             )
             validator = DefaultRegistrationValidator()
@@ -97,11 +105,22 @@ class TestRegistration(unittest.TestCase):
         payload = CodeValidationPayload(
             valid="True",
             is_demo="False",
-            account_info={"employer_id": Decimal(12), "unit_id": Decimal(1)},
+            account_info=AccountInfo(
+                employer_id=1, unit_id=1, employer_name="employer_name", unit_name="unit_name",
+            ),
         )
         self.assertEqual(
             payload.dict(),
-            {"valid": True, "is_demo": False, "account_info": {"employer_id": 12, "unit_id": 1},},
+            {
+                "valid": True,
+                "is_demo": False,
+                "account_info": {
+                    "employer_id": 1,
+                    "unit_id": 1,
+                    "employer_name": "employer_name",
+                    "unit_name": "unit_name",
+                },
+            },
         )
 
         # json serialization doesnt blow up
