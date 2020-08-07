@@ -71,6 +71,9 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
         # side effects on the events that we're persisting. The user_profile on the event
         # should reflect the user_profile *before* the event is applied to the dialog_state.
         deepcopy(event).apply_to(dialog_state)
+    end_account_info = dialog_state.user_profile.account_info
+    for event in events:
+        event.user_profile.account_info = end_account_info
     dialog_state.seq = seq
     repo.persist_dialog_state(
         DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq), dialog_state,

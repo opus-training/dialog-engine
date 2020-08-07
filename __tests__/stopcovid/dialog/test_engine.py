@@ -20,7 +20,7 @@ from stopcovid.dialog.models.events import (
     FailedPrompt,
     DrillCompleted,
 )
-from stopcovid.dialog.models.state import DialogState, PromptState
+from stopcovid.dialog.models.state import DialogState, PromptState, AccountInfo
 
 from stopcovid.dialog.registration import CodeValidationPayload
 from stopcovid.drills.drills import Drill, Prompt, PromptMessage
@@ -125,6 +125,13 @@ class TestProcessCommand(unittest.TestCase):
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
         self.assertEqual(
             validation_payload, batch.events[0].code_validation_payload  # type: ignore
+        )
+        # and account info is set on the event and user profile
+        self.assertEqual(
+            batch.events[0].user_profile.account_info,
+            AccountInfo(
+                employer_id=1, unit_id=1, employer_name="employer_name", unit_name="unit_name"
+            ),
         )
 
     def test_revalidate_demo_user(self):
