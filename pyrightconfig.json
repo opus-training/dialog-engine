@@ -1,4 +1,0 @@
-{
-  "include": ["stopcovid/**", "__tests__/**", "simulator.py"],
-  "pythonVersion": "3.7"
-}
