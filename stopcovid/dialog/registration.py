@@ -8,10 +8,10 @@ import requests
 
 
 class AccountInfo(pydantic.BaseModel):
-    employer_id: int
-    employer_name: str
-    unit_id: int
-    unit_name: str
+    employer_id: Optional[int] = None
+    employer_name: Optional[str] = None
+    unit_id: Optional[int] = None
+    unit_name: Optional[str] = None
 
 
 class CodeValidationPayload(pydantic.BaseModel):
