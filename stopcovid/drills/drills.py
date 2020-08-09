@@ -22,9 +22,6 @@ class Prompt(pydantic.BaseModel):
             return True
         return is_correct_response(answer, self.correct_response)
 
-    def stores_answer(self) -> bool:
-        return self.response_user_profile_key is not None
-
 
 class Drill(pydantic.BaseModel):
     slug: str

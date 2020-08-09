@@ -172,6 +172,7 @@ class TestCompletedPrompt(unittest.TestCase):
         event.apply_to(dialog_state)
         self.assertEqual(profile, dialog_state.user_profile)
         self.assertIsNone(dialog_state.current_prompt_state)
+        self.assertIsNone(event.user_profile_updates)
 
     def test_completed_and_stored(self):
         profile = UserProfile(validated=True)
@@ -192,6 +193,7 @@ class TestCompletedPrompt(unittest.TestCase):
         event.apply_to(dialog_state)
         self.assertEqual(UserProfile(validated=True, self_rating_1="7"), dialog_state.user_profile)
         self.assertIsNone(dialog_state.current_prompt_state)
+        self.assertEqual(event.user_profile_updates, {"self_rating_1": "7"})
 
 
 class TestFailedPrompt(unittest.TestCase):
