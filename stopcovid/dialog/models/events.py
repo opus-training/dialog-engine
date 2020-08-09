@@ -45,7 +45,7 @@ class DialogEvent(pydantic.BaseModel):
     created_time: datetime = pydantic.Field(default_factory=lambda: datetime.now(UTC))
     event_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
     schema_version: int = SCHEMA_VERSION
-    user_profile_updates: Optional[Dict[str, str]]
+    user_profile_updates: Optional[Dict[str, str]] = None
 
     @abstractmethod
     def apply_to(self, dialog_state: DialogState):
