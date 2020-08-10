@@ -213,11 +213,15 @@ class ProcessSMSMessage(Command):
             return None
         events: List[DialogEvent] = []
         if prompt.should_advance_with_answer(self.content_lower):
+            user_profile_updates = None
+            if prompt.response_user_profile_key:
+                user_profile_updates = {prompt.response_user_profile_key: self.content}
             events.append(
                 CompletedPrompt(
                     prompt=prompt,
                     drill_instance_id=dialog_state.drill_instance_id,
                     response=self.content,
+                    user_profile_updates=user_profile_updates,
                     **base_args,
                 )
             )

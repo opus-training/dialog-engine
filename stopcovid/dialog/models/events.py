@@ -103,7 +103,6 @@ class CompletedPrompt(DialogEvent):
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_prompt_state = None
         if self.prompt.response_user_profile_key:
-            self.user_profile_updates = {self.prompt.response_user_profile_key: self.response}
             setattr(
                 dialog_state.user_profile, self.prompt.response_user_profile_key, self.response,
             )

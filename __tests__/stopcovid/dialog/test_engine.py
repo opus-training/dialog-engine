@@ -325,6 +325,7 @@ class TestProcessCommand(unittest.TestCase):
         self._assert_event_types(
             batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.DRILL_COMPLETED,
         )
+        self.assertEqual(batch.events[0].user_profile_updates, {"language": "en"})
 
     @patch("stopcovid.drills.drills.Prompt.should_advance_with_answer", return_value=False)
     def test_conclude_with_too_many_wrong_answers(self, *args):
@@ -346,6 +347,7 @@ class TestProcessCommand(unittest.TestCase):
         self.assertTrue(failed_event.abandoned)
         self.assertEqual(failed_event.response, "completely wrong answer")
         self.assertEqual(failed_event.drill_instance_id, self.drill_instance_id)
+        self.assertEqual(batch.events[0].user_profile_updates, None)
 
         advanced_event: AdvancedToNextPrompt = batch.events[1]  # type: ignore
         self.assertEqual(self.drill.prompts[4], advanced_event.prompt)
