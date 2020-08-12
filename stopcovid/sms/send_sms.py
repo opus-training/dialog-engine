@@ -12,6 +12,7 @@ from . import publish
 from ..utils.idempotency import IdempotencyChecker
 
 DELAY_SECONDS_BETWEEN_MESSAGES = 3
+DELAY_SECONDS_AFTER_MEDIA = 10
 
 IDEMPOTENCY_REALM = "send-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
@@ -43,9 +44,12 @@ def _send_batch(batch: SMSBatch):
         _publish_send(res)
         twilio_responses.append(res)
 
-        # sleep after every  message besides the last one
+        # sleep after every message besides the last one
         if i < len(batch.messages) - 1:
-            sleep(DELAY_SECONDS_BETWEEN_MESSAGES)
+            if message.media_url:
+                sleep(DELAY_SECONDS_AFTER_MEDIA)
+            else:
+                sleep(DELAY_SECONDS_BETWEEN_MESSAGES)
 
     idempotency_checker.record_as_processed(
         batch.idempotency_key, IDEMPOTENCY_REALM, IDEMPOTENCY_EXPIRATION_MINUTES

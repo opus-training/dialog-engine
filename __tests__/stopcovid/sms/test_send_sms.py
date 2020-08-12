@@ -76,6 +76,17 @@ class TestSendSMS(unittest.TestCase):
         send_sms_batches(batches)
         self.assertEqual(sleep_mock.call_count, 2)
 
+    def test_sleeps_longer_after_media_url(self, sleep_mock, twilio_mock, *args):
+        batches = [
+            SMSBatch(
+                phone_number="+15551234321",
+                messages=[SMS(body="hello", media_url="www.cat.gif"), SMS(body="how are you"),],
+                idempotency_key="foo",
+            )
+        ]
+        send_sms_batches(batches)
+        sleep_mock.assert_called_once_with(10)
+
     def test_do_not_sleep_on_single_message(self, sleep_mock, twilio_mock, *args):
         batches = [
             SMSBatch(
