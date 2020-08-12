@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 from stopcovid.sms.types import SMSBatch, SMS
-from stopcovid.sms.send_sms import send_sms_batches
+from stopcovid.sms.send_sms import send_sms_batches, DELAY_SECONDS_AFTER_MEDIA
 
 
 @patch("stopcovid.sms.send_sms.publish")
@@ -85,7 +85,7 @@ class TestSendSMS(unittest.TestCase):
             )
         ]
         send_sms_batches(batches)
-        sleep_mock.assert_called_once_with(10)
+        sleep_mock.assert_called_once_with(DELAY_SECONDS_AFTER_MEDIA)
 
     def test_do_not_sleep_on_single_message(self, sleep_mock, twilio_mock, *args):
         batches = [
