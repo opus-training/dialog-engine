@@ -174,26 +174,6 @@ class TestCompletedPrompt(unittest.TestCase):
         self.assertIsNone(dialog_state.current_prompt_state)
         self.assertIsNone(event.user_profile_updates)
 
-    def test_completed_and_stored(self):
-        profile = UserProfile(validated=True)
-        event = CompletedPrompt(
-            phone_number="123456789",
-            user_profile=profile,
-            prompt=DRILL.prompts[1],
-            drill_instance_id=uuid.uuid4(),
-            response="7",
-        )
-        dialog_state = DialogState(
-            phone_number="123456789",
-            seq="0",
-            user_profile=profile,
-            current_drill=DRILL,
-            current_prompt_state=PromptState(slug=DRILL.prompts[0].slug, start_time=NOW),
-        )
-        event.apply_to(dialog_state)
-        self.assertEqual(UserProfile(validated=True, self_rating_1="7"), dialog_state.user_profile)
-        self.assertIsNone(dialog_state.current_prompt_state)
-
 
 class TestFailedPrompt(unittest.TestCase):
     def test_failed_and_not_abandoned(self):

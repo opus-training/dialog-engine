@@ -103,9 +103,14 @@ class CompletedPrompt(DialogEvent):
     def apply_to(self, dialog_state: DialogState):
         dialog_state.current_prompt_state = None
         if self.prompt.response_user_profile_key:
-            setattr(
-                dialog_state.user_profile, self.prompt.response_user_profile_key, self.response,
-            )
+            try:
+                setattr(
+                    dialog_state.user_profile, self.prompt.response_user_profile_key, self.response,
+                )
+            except AttributeError:
+                # the dialog engine represenatation of the user profile does not accept this field.
+                # the data attr and response will be persisted on the DialogEvent.user_profile_updates dict
+                pass
 
 
 class FailedPrompt(DialogEvent):

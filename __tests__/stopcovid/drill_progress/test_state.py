@@ -18,7 +18,6 @@ class TestUserProfile(unittest.TestCase):
         expected = {
             "validated": True,
             "is_demo": True,
-            "name": "Devin Booker",
             "language": "en",
             "account_info": {
                 "employer_id": 1,
@@ -29,4 +28,4 @@ class TestUserProfile(unittest.TestCase):
             "opted_out": False,
         }
 
-        self.assertDictContainsSubset(expected, profile.dict())
+        self.assertEqual(expected, profile.dict())

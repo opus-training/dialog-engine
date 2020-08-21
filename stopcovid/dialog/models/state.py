@@ -13,24 +13,8 @@ class UserProfile(pydantic.BaseModel):
     validated: bool
     opted_out: bool = False
     is_demo: bool = False
-    name: Optional[str] = None
     language: Optional[str] = None
     account_info: Optional[AccountInfo] = None
-    self_rating_1: Optional[str] = None
-    self_rating_2: Optional[str] = None
-    self_rating_3: Optional[str] = None
-    self_rating_4: Optional[str] = None
-    self_rating_5: Optional[str] = None
-    self_rating_6: Optional[str] = None
-    self_rating_7: Optional[str] = None
-    self_rating_8: Optional[str] = None
-    job: Optional[str] = None
-    schedule_days: Optional[str] = None
-    schedule_time: Optional[str] = None
-    esl_level: Optional[str] = None
-
-    def __str__(self):
-        return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
     @pydantic.validator("language", pre=True, always=True)
     def set_language(cls, value):
