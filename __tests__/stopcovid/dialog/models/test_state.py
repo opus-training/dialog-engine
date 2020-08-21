@@ -18,3 +18,10 @@ class TestUserProfileSerialization(unittest.TestCase):
         serialized = profile.json()
         deserialized = UserProfile(**json.loads(serialized))
         self.assertIsNone(deserialized.language)
+
+    def test_user_profile_ignores_additional_fields(self):
+        profile = UserProfile(validated=True, language="en", foo="bar", joel="embiid")
+        self.assertEqual("en", profile.language)
+        serialized = profile.json()
+        deserialized = UserProfile(**json.loads(serialized))
+        self.assertEqual("en", deserialized.language)
