@@ -109,7 +109,7 @@ class CompletedPrompt(DialogEvent):
                 )
             except AttributeError:
                 # the dialog engine represenatation of the user profile does not accept this field.
-                # the data attr and response will be persisted on the DialogEvent.user_profile_updates dict
+                # the key response will be persisted on the DialogEvent.user_profile_updates dict
                 pass
 
 
