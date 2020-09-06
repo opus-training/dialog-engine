@@ -39,7 +39,10 @@ class OutboundSMS:
     media_url: Optional[str] = None
 
 
-def get_messages(dialog_event: DialogEvent, messages: List[PromptMessage],) -> List[OutboundSMS]:
+def get_messages(
+    dialog_event: DialogEvent,
+    messages: List[PromptMessage],
+) -> List[OutboundSMS]:
 
     return [
         OutboundSMS(

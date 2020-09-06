@@ -12,7 +12,10 @@ class TestUserProfile(unittest.TestCase):
             name="Devin Booker",
             language="en",
             account_info=AccountInfo(
-                employer_id=1, unit_id=1, employer_name="employer_name", unit_name="unit_name",
+                employer_id=1,
+                unit_id=1,
+                employer_name="employer_name",
+                unit_name="unit_name",
             ),
         )
         expected = {

@@ -104,7 +104,9 @@ class CompletedPrompt(DialogEvent):
         dialog_state.current_prompt_state = None
         if self.prompt.response_user_profile_key:
             setattr(
-                dialog_state.user_profile, self.prompt.response_user_profile_key, self.response,
+                dialog_state.user_profile,
+                self.prompt.response_user_profile_key,
+                self.response,
             )
 
 

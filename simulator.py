@@ -33,7 +33,10 @@ STARTED_DRILLS: Dict[UUID, str] = {}
 
 
 def fake_sms(
-    phone_number: str, user_profile: UserProfile, messages: List[str], with_initial_pause=False,
+    phone_number: str,
+    user_profile: UserProfile,
+    messages: List[str],
+    with_initial_pause=False,
 ):
     first = True
     for message in messages:
@@ -158,7 +161,9 @@ class InMemoryRepository(DialogRepository):
             SEQ += 1
             drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, drill.slug, drill.dict()), str(SEQ), repo=self,
+                StartDrill(PHONE_NUMBER, drill.slug, drill.dict()),
+                str(SEQ),
+                repo=self,
             )
 
 
@@ -168,7 +173,10 @@ class FakeRegistrationValidator(RegistrationValidator):
             return CodeValidationPayload(
                 valid=True,
                 account_info=AccountInfo(
-                    employer_id=1, employer_name=code, unit_id=1, unit_name="unit_name",
+                    employer_id=1,
+                    employer_name=code,
+                    unit_id=1,
+                    unit_name="unit_name",
                 ),
             )
         return CodeValidationPayload(valid=False)
