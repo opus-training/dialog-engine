@@ -1,6 +1,6 @@
 requests-mock
 psycopg2-binary
 pip-tools
-black
+black==20.8b0
 flake8
 mypy

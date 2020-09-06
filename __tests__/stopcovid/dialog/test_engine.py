@@ -32,7 +32,9 @@ class TestProcessCommand(unittest.TestCase):
         self.drill_instance_id = UUID("11111111-1111-1111-1111-111111111111")
         self.phone_number = "123456789"
         self.dialog_state = DialogState(
-            phone_number=self.phone_number, seq="0", drill_instance_id=self.drill_instance_id,
+            phone_number=self.phone_number,
+            seq="0",
+            drill_instance_id=self.drill_instance_id,
         )
         self.drill = Drill(
             name="test-drill",
@@ -68,7 +70,8 @@ class TestProcessCommand(unittest.TestCase):
         process_command(command, str(self.next_seq), repo=self.repo)
         self.next_seq += 1
         self.assertEqual(
-            persist_dialog_call_count + 1, len(self.repo.persist_dialog_state.call_args_list),
+            persist_dialog_call_count + 1,
+            len(self.repo.persist_dialog_state.call_args_list),
         )
         return self.repo.persist_dialog_state.call_args[0][0]
 
@@ -182,7 +185,9 @@ class TestProcessCommand(unittest.TestCase):
 
         batch = self._process_command(command)
         self._assert_event_types(
-            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT,
+            batch,
+            DialogEventType.COMPLETED_PROMPT,
+            DialogEventType.ADVANCED_TO_NEXT_PROMPT,
         )
 
     def test_first_message_does_not_validate_user(self):
@@ -230,7 +235,9 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "go")
         batch = self._process_command(command)
         self._assert_event_types(
-            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT,
+            batch,
+            DialogEventType.COMPLETED_PROMPT,
+            DialogEventType.ADVANCED_TO_NEXT_PROMPT,
         )
         completed_event: CompletedPrompt = batch.events[0]  # type: ignore
         self.assertEqual(completed_event.prompt, self.drill.prompts[0])
@@ -264,7 +271,9 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "completely wrong answer")
         batch = self._process_command(command)
         self._assert_event_types(
-            batch, DialogEventType.FAILED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT,
+            batch,
+            DialogEventType.FAILED_PROMPT,
+            DialogEventType.ADVANCED_TO_NEXT_PROMPT,
         )
 
         failed_event: FailedPrompt = batch.events[0]  # type: ignore
@@ -323,7 +332,9 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
 
         self._assert_event_types(
-            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.DRILL_COMPLETED,
+            batch,
+            DialogEventType.COMPLETED_PROMPT,
+            DialogEventType.DRILL_COMPLETED,
         )
         self.assertEqual(batch.events[0].user_profile_updates, {"language": "en"})
 
@@ -366,7 +377,8 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "")
         batch = self._process_command(command)
         self._assert_event_types(
-            batch, DialogEventType.FAILED_PROMPT,
+            batch,
+            DialogEventType.FAILED_PROMPT,
         )
 
         failed_event: FailedPrompt = batch.events[0]  # type: ignore

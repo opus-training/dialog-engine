@@ -28,6 +28,7 @@ class UserProfile(pydantic.BaseModel):
     schedule_days: Optional[str] = None
     schedule_time: Optional[str] = None
     esl_level: Optional[str] = None
+    team_size: Optional[str] = None
 
     def __str__(self):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
