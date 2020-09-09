@@ -56,6 +56,7 @@ functions:
   twilioWebhook:
     handler: stopcovid/sms/aws_lambdas/twilio_webhook.handler
     timeout: 20
+    provisionedConcurrency: 5
     events:
       - http:
           path: webhooks/twilio
