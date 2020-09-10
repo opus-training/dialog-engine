@@ -65,7 +65,6 @@ functions:
   sendMessage:
     handler: stopcovid/sms/aws_lambdas/send_sms_batch.handler
     timeout: 60
-    provisionedConcurrency: 3
     events:
       - sqs:
           arn:
