@@ -65,6 +65,7 @@ functions:
   sendMessage:
     handler: stopcovid/sms/aws_lambdas/send_sms_batch.handler
     timeout: 60
+    provisionedConcurrency: 3
     events:
       - sqs:
           arn:
@@ -94,6 +95,7 @@ functions:
 
   handleCommand:
     handler: stopcovid/dialog/aws_lambdas/handle_command.handler
+    provisionedConcurrency: 3
     events:
       - stream:
           type: kinesis
@@ -118,6 +120,7 @@ functions:
 
   distributeDialogEvents:
     handler: stopcovid/sms/aws_lambdas/enqueue_sms_batch.handler
+    provisionedConcurrency: 3
     events:
       - stream:
           type: dynamodb
@@ -138,6 +141,7 @@ functions:
   publishDialogEventBatches:
     handler: stopcovid/dialog/aws_lambdas/publish_dialog_event_batches.handler
     timeout: 60
+    provisionedConcurrency: 3
     events:
       - stream:
           type: dynamodb
