@@ -1,4 +1,4 @@
-def distance(s1, s2):
+def distance(s1: str, s2: str) -> float:
     if len(s1) < len(s2):
         return distance(s2, s1)
 
