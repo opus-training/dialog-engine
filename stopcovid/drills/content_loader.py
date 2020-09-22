@@ -63,7 +63,7 @@ class SourceRepoDrillLoader:
         self.all_drill_slugs = []
         self._populate_content()
 
-    def _populate_drills(self, drill_content: str):
+    def _populate_drills(self, drill_content: str) -> None:
         self.drills_dict = {}
         self.all_drill_slugs = []
         raw_drills = json.loads(drill_content)
@@ -73,7 +73,7 @@ class SourceRepoDrillLoader:
 
         self.all_drill_slugs.sort()
 
-    def _populate_content(self):
+    def _populate_content(self) -> None:
         with open(os.path.join(__location__, "drill_content/drills.json")) as f:
             self._populate_drills(f.read())
 

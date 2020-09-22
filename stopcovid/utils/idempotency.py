@@ -15,7 +15,7 @@ class IdempotencyChecker:
         self.dynamodb = boto3.client("dynamodb", **kwargs)
         self.stage = os.environ.get("STAGE")
 
-    def record_as_processed(self, idempotency_key: str, realm: str, expiration_minutes: int):
+    def record_as_processed(self, idempotency_key: str, realm: str, expiration_minutes: int) -> None:
         self.dynamodb.put_item(
             TableName=self._table_name(),
             Item=dynamodb_utils.serialize(
@@ -37,14 +37,14 @@ class IdempotencyChecker:
         )
         return "Item" in response
 
-    def _table_name(self):
+    def _table_name(self) -> str:
         return f"idempotency-checks-{self.stage}"
 
     @staticmethod
     def _now() -> datetime.datetime:
         return datetime.datetime.now(tz=datetime.timezone.utc)
 
-    def drop_and_recreate_table(self):
+    def drop_and_recreate_table(self) -> None:
         if self.stage != "test":
             raise RuntimeError("Method unsafe to run in non test environment")
         try:

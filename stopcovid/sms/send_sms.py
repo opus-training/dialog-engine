@@ -3,7 +3,7 @@ import logging
 import json
 
 
-from typing import List
+from typing import List, Any
 
 from . import twilio
 from stopcovid.sms.types import SMSBatch
@@ -18,7 +18,7 @@ IDEMPOTENCY_REALM = "send-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
 
 
-def _publish_send(twilio_response):
+def _publish_send(twilio_response: Any) -> None:
     try:
         publish.publish_outbound_sms([twilio_response])
     except Exception:
@@ -33,7 +33,7 @@ def _publish_send(twilio_response):
         logging.info(f"Failed to publisht to kinesis log: {json.dumps(twilio_dict)}")
 
 
-def _send_batch(batch: SMSBatch):
+def _send_batch(batch: SMSBatch) -> None:
     idempotency_checker = IdempotencyChecker()
     if idempotency_checker.already_processed(batch.idempotency_key, IDEMPOTENCY_REALM):
         logging.info(f"SMS Batch already processed. Skipping. {batch}")
@@ -57,6 +57,6 @@ def _send_batch(batch: SMSBatch):
     return twilio_responses
 
 
-def send_sms_batches(batches: List[SMSBatch]):
+def send_sms_batches(batches: List[SMSBatch]) -> None:
     for batch in batches:
         _send_batch(batch)

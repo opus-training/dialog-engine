@@ -13,7 +13,7 @@ configure_rollbar()
 
 
 @rollbar.lambda_function
-def handler(event, context):
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     batches = [SMSBatch(**json.loads(record["body"])) for record in event["Records"]]
     send_sms_batches(batches)

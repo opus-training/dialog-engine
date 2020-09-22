@@ -3,7 +3,7 @@ import os
 import json
 
 
-def publish_outbound_sms(twilio_responses):
+def publish_outbound_sms(twilio_responses: list):
     kinesis = boto3.client("kinesis")
     stage = os.environ.get("STAGE")
     records = [

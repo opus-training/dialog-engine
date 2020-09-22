@@ -11,7 +11,7 @@ configure_logging()
 configure_rollbar()
 
 
-def _make_inbound_command(record):
+def _make_inbound_command(record: dict) -> InboundCommand:
     event = get_payload_from_kinesis_record(record)
     return InboundCommand(
         payload=event["payload"],
@@ -21,7 +21,7 @@ def _make_inbound_command(record):
 
 
 @rollbar.lambda_function
-def handler(event, context):
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     inbound_commands = [_make_inbound_command(record) for record in event["Records"]]
     handle_inbound_commands(inbound_commands)

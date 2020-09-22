@@ -24,7 +24,7 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 
 @rollbar.lambda_function
-def handler(event, context):
+def handler(event: dict, context: dict) -> None:
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")
     stage = os.environ["STAGE"]
@@ -60,7 +60,7 @@ def handler(event, context):
     }
 
 
-def extract_form(event):
+def extract_form(event: dict) -> dict:
     # We're getting an x-www-form-url-encoded string and we need to translate it into a dict.
     # We aren't using urllib.parse.parse_qs because it gives a slightly different answer, resulting
     # in failed signature validation.

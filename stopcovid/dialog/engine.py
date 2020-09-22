@@ -38,7 +38,7 @@ DEFAULT_REGISTRATION_VALIDATOR = DefaultRegistrationValidator()
 
 
 class Command(ABC):
-    def __init__(self, phone_number: str):
+    def __init__(self, phone_number: str) -> None:
         self.phone_number = phone_number
 
     @abstractmethod
@@ -82,12 +82,12 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
 
 
 class StartDrill(Command):
-    def __init__(self, phone_number: str, drill_slug: str, drill_body: dict):
+    def __init__(self, phone_number: str, drill_slug: str, drill_body: dict) -> None:
         super().__init__(phone_number)
         self.drill_slug = drill_slug
         self.drill = Drill(**drill_body)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Start Drill: {self.drill_slug}"
 
     def execute(
@@ -115,7 +115,7 @@ class ProcessSMSMessage(Command):
         phone_number: str,
         content: str,
         registration_validator: Optional[RegistrationValidator] = None,
-    ):
+    ) -> None:
         super().__init__(phone_number)
         self.content = content.strip()
         self.content_lower = self.content.lower()
@@ -123,7 +123,7 @@ class ProcessSMSMessage(Command):
             registration_validator = DEFAULT_REGISTRATION_VALIDATOR
         self.registration_validator = registration_validator
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"Process SMS: '{self.content}'"
 
     def execute(
@@ -287,7 +287,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+    def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[NameChangeDrillRequested]]:
         if self.content_lower in ["name", "nombre"]:
             return [
                 NameChangeDrillRequested(
@@ -296,7 +296,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _support_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+    def _support_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[SupportRequested]]:
         if self.content_lower in ["support", "ayuda"]:
             return [
                 SupportRequested(
@@ -307,7 +307,7 @@ class ProcessSMSMessage(Command):
 
     def _language_change_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ):
+    ) -> Optional[List[LanguageChangeDrillRequested]]:
         if self.content_lower in ["lang", "language", "idioma"]:
             return [
                 LanguageChangeDrillRequested(
@@ -316,7 +316,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+    def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[MenuRequested]]:
         if self.content_lower in ["menu", "menú"]:
             return [
                 MenuRequested(
@@ -325,7 +325,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+    def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> List[UnhandledMessageReceived]:
         return [UnhandledMessageReceived(**base_args, message=self.content)]
 
 
@@ -334,7 +334,7 @@ class SendAdHocMessage(Command):
         super().__init__(phone_number)
         self.sms = SMS(body=message, media_url=media_url)
 
-    def execute(self, dialog_state: DialogState) -> List[DialogEvent]:
+    def execute(self, dialog_state: DialogState) -> List[AdHocMessageSent]:
         return [
             AdHocMessageSent(
                 phone_number=self.phone_number, user_profile=dialog_state.user_profile, sms=self.sms

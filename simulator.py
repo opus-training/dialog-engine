@@ -37,7 +37,7 @@ def fake_sms(
     user_profile: UserProfile,
     messages: List[str],
     with_initial_pause=False,
-):
+) -> None:
     first = True
     for message in messages:
         if with_initial_pause or not first:
@@ -47,7 +47,7 @@ def fake_sms(
 
 
 class InMemoryRepository(DialogRepository):
-    def __init__(self, lang):
+    def __init__(self, lang) -> None:
         self.repo = {}
         self.lang = lang
 
@@ -62,7 +62,7 @@ class InMemoryRepository(DialogRepository):
                 user_profile=UserProfile(validated=False, language=self.lang),
             )
 
-    def get_next_unstarted_drill(self):
+    def get_next_unstarted_drill(self) -> None:
         language = self.fetch_dialog_state(PHONE_NUMBER).user_profile.language
         unstarted_drills = [
             code
@@ -76,7 +76,7 @@ class InMemoryRepository(DialogRepository):
 
     def persist_dialog_state(  # noqa: C901
         self, event_batch: DialogEventBatch, dialog_state: DialogState
-    ):
+    ) -> None:
         self.repo[dialog_state.phone_number] = dialog_state.json()
 
         drill_to_start = None
@@ -182,7 +182,7 @@ class FakeRegistrationValidator(RegistrationValidator):
         return CodeValidationPayload(valid=False)
 
 
-def main():
+def main() -> None:
     global SEQ
     if len(sys.argv) > 1:
         lang = sys.argv[1]
