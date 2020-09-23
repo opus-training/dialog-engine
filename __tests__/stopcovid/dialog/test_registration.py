@@ -20,7 +20,8 @@ class TestRegistration(unittest.TestCase):
     def test_invalid_code(self):
         with requests_mock.Mocker() as m:
             m.post(
-                self.url, json={"valid": False, "is_demo": False, "account_info": None},
+                self.url,
+                json={"valid": False, "is_demo": False, "account_info": None},
             )
             payload = DefaultRegistrationValidator().validate_code(
                 "foo", url=self.url, key=self.key
@@ -106,7 +107,10 @@ class TestRegistration(unittest.TestCase):
             valid="True",
             is_demo="False",
             account_info=AccountInfo(
-                employer_id=1, unit_id=1, employer_name="employer_name", unit_name="unit_name",
+                employer_id=1,
+                unit_id=1,
+                employer_name="employer_name",
+                unit_name="unit_name",
             ),
         )
         self.assertEqual(

@@ -34,6 +34,9 @@ class DefaultRegistrationValidator(RegistrationValidator):
         response = requests.post(
             url=url,
             json={"code": code, "stage": os.getenv("STAGE")},
-            headers={"authorization": f"Bearer {key}", "content-type": "application/json",},
+            headers={
+                "authorization": f"Bearer {key}",
+                "content-type": "application/json",
+            },
         )
         return CodeValidationPayload(**response.json())

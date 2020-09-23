@@ -1,7 +1,7 @@
 import argparse
 import sys
 import uuid
-from typing import Dict, Iterator, List, Any
+from typing import Dict, Iterator, Any
 import json
 
 import boto3

@@ -15,7 +15,8 @@ def handle_inbound_commands(commands: List[InboundCommand]) -> dict:
         if command.command_type is InboundCommandType.INBOUND_SMS:
             process_command(
                 ProcessSMSMessage(
-                    phone_number=command.payload["From"], content=command.payload["Body"],
+                    phone_number=command.payload["From"],
+                    content=command.payload["Body"],
                 ),
                 command.sequence_number,
             )

@@ -76,7 +76,8 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None) -
         event.user_profile.account_info = end_account_info
     dialog_state.seq = seq
     repo.persist_dialog_state(
-        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq), dialog_state,
+        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq),
+        dialog_state,
     )
 
 

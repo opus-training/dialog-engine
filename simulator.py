@@ -163,7 +163,9 @@ class InMemoryRepository(DialogRepository):
             SEQ += 1
             drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, drill.slug, drill.dict()), str(SEQ), repo=self,
+                StartDrill(PHONE_NUMBER, drill.slug, drill.dict()),
+                str(SEQ),
+                repo=self,
             )
 
 
@@ -173,7 +175,10 @@ class FakeRegistrationValidator(RegistrationValidator):
             return CodeValidationPayload(
                 valid=True,
                 account_info=AccountInfo(
-                    employer_id=1, employer_name=code, unit_id=1, unit_name="unit_name",
+                    employer_id=1,
+                    employer_name=code,
+                    unit_id=1,
+                    unit_name="unit_name",
                 ),
             )
         return CodeValidationPayload(valid=False)

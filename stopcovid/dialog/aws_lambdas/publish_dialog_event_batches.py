@@ -33,7 +33,10 @@ def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]) -> 
     stage = os.environ.get("STAGE")
     stream_name = f"dialog-event-batches-{stage}"
     records = [
-        {"PartitionKey": event_batch.phone_number, "Data": event_batch.json(),}
+        {
+            "PartitionKey": event_batch.phone_number,
+            "Data": event_batch.json(),
+        }
         for event_batch in event_batches
     ]
     response = kinesis.put_records(StreamName=stream_name, Records=records)
