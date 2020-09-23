@@ -79,6 +79,7 @@ class UserValidated(DialogEvent):
     code_validation_payload: CodeValidationPayload
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
         dialog_state.current_drill = None
@@ -121,6 +122,8 @@ class FailedPrompt(DialogEvent):
         if self.abandoned:
             dialog_state.current_prompt_state = None
         else:
+            assert dialog_state.current_prompt_state
+            assert dialog_state.current_prompt_state.failures is not None
             dialog_state.current_prompt_state.last_response_time = self.created_time
             dialog_state.current_prompt_state.failures += 1
 
@@ -152,6 +155,7 @@ class OptedOut(DialogEvent):
     drill_instance_id: Optional[uuid.UUID]
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.drill_instance_id = None
         dialog_state.user_profile.opted_out = True
         dialog_state.current_drill = None
@@ -162,6 +166,7 @@ class NextDrillRequested(DialogEvent):
     event_type: DialogEventType = DialogEventType.NEXT_DRILL_REQUESTED
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.user_profile.opted_out = False
 
 
@@ -170,6 +175,7 @@ class SchedulingDrillRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -181,6 +187,7 @@ class NameChangeDrillRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -192,6 +199,7 @@ class LanguageChangeDrillRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -203,6 +211,7 @@ class SupportRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -214,6 +223,7 @@ class ManagerDashboardRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -233,6 +243,7 @@ class MenuRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        assert dialog_state.user_profile
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
