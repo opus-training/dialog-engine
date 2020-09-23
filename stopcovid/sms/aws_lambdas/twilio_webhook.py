@@ -24,7 +24,7 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 
 @rollbar.lambda_function
-def handler(event: dict, context: dict) -> None:
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")
     stage = os.environ["STAGE"]

@@ -35,9 +35,9 @@ class UserProfile(pydantic.BaseModel):
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
     @pydantic.validator("language", pre=True, always=True)
-    def set_language(cls, value: str) -> str:
-        if value is not None:
-            return value.lower()[:2]
+    def set_language(cls, value: Optional[str]) -> Optional[str]:
+        return  value.lower()[:2] if value else None
+
 
 
 class PromptState(pydantic.BaseModel):

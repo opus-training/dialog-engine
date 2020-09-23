@@ -2,7 +2,7 @@
 import json
 import sys
 from time import sleep
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import UUID
 
 from stopcovid.dialog.persistence import DialogRepository
@@ -62,7 +62,7 @@ class InMemoryRepository(DialogRepository):
                 user_profile=UserProfile(validated=False, language=self.lang),
             )
 
-    def get_next_unstarted_drill(self) -> None:
+    def get_next_unstarted_drill(self) -> Optional[str]:
         state = self.fetch_dialog_state(PHONE_NUMBER)
         assert state.user_profile
         language = state.user_profile.language

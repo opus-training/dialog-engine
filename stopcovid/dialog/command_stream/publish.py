@@ -29,7 +29,7 @@ class CommandPublisher:
         )
 
     @staticmethod
-    def _get_kinesis_client():  # type: ignore
+    def _get_kinesis_client():
         return boto3.client("kinesis")
 
     def _publish_commands(self, commands: List[Tuple[str, Dict[str, Any]]]) -> None:

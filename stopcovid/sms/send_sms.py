@@ -3,7 +3,9 @@ import logging
 import json
 
 
-from typing import List, Any
+from typing import List, Any, Optional
+
+from twilio.rest.api.v2010.account.message import MessageInstance
 
 from . import twilio
 from stopcovid.sms.types import SMSBatch
@@ -33,11 +35,11 @@ def _publish_send(twilio_response: Any) -> None:
         logging.info(f"Failed to publisht to kinesis log: {json.dumps(twilio_dict)}")
 
 
-def _send_batch(batch: SMSBatch) -> None:
+def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
     idempotency_checker = IdempotencyChecker()
     if idempotency_checker.already_processed(batch.idempotency_key, IDEMPOTENCY_REALM):
         logging.info(f"SMS Batch already processed. Skipping. {batch}")
-        return
+        return None
     twilio_responses = []
     for i, message in enumerate(batch.messages):
         res = twilio.send_message(batch.phone_number, message.body, message.media_url)

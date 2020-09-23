@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Callable
 
 import stopcovid.dialog.models.events
 from stopcovid.dialog.models.events import (
@@ -137,7 +137,7 @@ class ProcessSMSMessage(Command):
         # a chain of responsibility. Each handler can handle the current command and return an
         # event list. A handler can also NOT handle an event and return None, thereby leaving it
         # for the next handler.
-        for handler in [
+        handlers: List[Callable[[DialogState, Dict[str, Any]], Optional[List[DialogEvent]]]] = [
             self._respond_to_help,
             self._menu_requested,
             self._support_requested,
@@ -151,7 +151,8 @@ class ProcessSMSMessage(Command):
             self._check_response,
             self._advance_to_next_drill,
             self._unhandled_message,
-        ]:
+        ]
+        for handler in handlers:
             result = handler(dialog_state, base_args)
             if result is not None:
                 return result
@@ -159,7 +160,7 @@ class ProcessSMSMessage(Command):
 
     def _respond_to_help(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower == "help":
             # Twilio will respond with help text
             return []
@@ -167,7 +168,7 @@ class ProcessSMSMessage(Command):
 
     def _handle_opt_out(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[stopcovid.dialog.models.events.DialogEvent]]:
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower == "stop":
             return [OptedOut(drill_instance_id=dialog_state.drill_instance_id, **base_args)]
         return None
@@ -287,7 +288,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[NameChangeDrillRequested]]:
+    def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["name", "nombre"]:
             return [
                 NameChangeDrillRequested(
@@ -296,7 +297,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _support_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[SupportRequested]]:
+    def _support_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["support", "ayuda"]:
             return [
                 SupportRequested(
@@ -307,7 +308,7 @@ class ProcessSMSMessage(Command):
 
     def _language_change_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
-    ) -> Optional[List[LanguageChangeDrillRequested]]:
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["lang", "language", "idioma"]:
             return [
                 LanguageChangeDrillRequested(
@@ -316,7 +317,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[MenuRequested]]:
+    def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["menu", "menú"]:
             return [
                 MenuRequested(
@@ -325,7 +326,7 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> List[UnhandledMessageReceived]:
+    def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> List[DialogEvent]:
         return [UnhandledMessageReceived(**base_args, message=self.content)]
 
 
@@ -334,7 +335,7 @@ class SendAdHocMessage(Command):
         super().__init__(phone_number)
         self.sms = SMS(body=message, media_url=media_url)
 
-    def execute(self, dialog_state: DialogState) -> List[AdHocMessageSent]:
+    def execute(self, dialog_state: DialogState) -> List[DialogEvent]:
         return [
             AdHocMessageSent(
                 phone_number=self.phone_number, user_profile=dialog_state.user_profile, sms=self.sms
