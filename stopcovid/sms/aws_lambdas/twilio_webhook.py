@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Any, Dict
+from typing import Any, Dict, cast
 from urllib.parse import unquote_plus
 
 import boto3
@@ -75,4 +75,4 @@ def is_signature_valid(event: Dict[str, Any], form: Dict[str, Any], stage: str) 
     validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
     url = f"https://{event['headers']['Host']}/{stage}{event['path']}"
     signature = event["headers"].get("X-Twilio-Signature")
-    return validator.validate(url, form, signature)
+    return cast(bool, validator.validate(url, form, signature))
