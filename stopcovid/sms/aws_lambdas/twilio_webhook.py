@@ -23,7 +23,7 @@ IDEMPOTENCY_REALM = "twilio-webhook"
 IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 
-@rollbar.lambda_function
+@rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")

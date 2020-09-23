@@ -20,7 +20,7 @@ def _make_inbound_command(record: dict) -> InboundCommand:
     )
 
 
-@rollbar.lambda_function
+@rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     inbound_commands = [_make_inbound_command(record) for record in event["Records"]]

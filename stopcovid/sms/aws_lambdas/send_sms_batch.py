@@ -12,7 +12,7 @@ configure_logging()
 configure_rollbar()
 
 
-@rollbar.lambda_function
+@rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     batches = [SMSBatch(**json.loads(record["body"])) for record in event["Records"]]
