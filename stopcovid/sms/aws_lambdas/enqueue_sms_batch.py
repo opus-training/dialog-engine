@@ -1,8 +1,9 @@
 import logging
+from typing import List
 
 import rollbar
 
-from stopcovid.dialog.models.events import batch_from_dict
+from stopcovid.dialog.models.events import batch_from_dict, DialogEventBatch, DialogEvent
 from stopcovid.utils import dynamodb as dynamodb_utils
 
 
@@ -16,18 +17,18 @@ configure_rollbar()
 
 
 @rollbar.lambda_function
-def handler(event, context):
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
-    event_batches = [
+    event_batches: List[DialogEventBatch] = [
         batch_from_dict(dynamodb_utils.deserialize(record["dynamodb"]["NewImage"]))
         for record in event["Records"]
         if record["dynamodb"].get("NewImage")
     ]
 
-    dialog_events = []
+    dialog_events: List[DialogEvent] = []
     for batch in event_batches:
-        for event in batch.events:
-            dialog_events.append(event)
+        for dialog_event in batch.events:
+            dialog_events.append(dialog_event)
 
     enqueue_outbound_sms_commands(dialog_events)
     for batch in event_batches:

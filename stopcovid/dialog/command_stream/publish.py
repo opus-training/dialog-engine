@@ -7,10 +7,12 @@ import boto3
 
 
 class CommandPublisher:
-    def __init__(self):
+    def __init__(self) -> None:
         self.stage = os.environ.get("STAGE")
 
-    def publish_process_sms_command(self, phone_number: str, content: str, twilio_webhook: dict) -> None:
+    def publish_process_sms_command(
+        self, phone_number: str, content: str, twilio_webhook: dict
+    ) -> None:
         logging.info(f"({phone_number}) publishing INBOUND_SMS command")
         self._publish_commands(
             [
@@ -29,7 +31,7 @@ class CommandPublisher:
         )
 
     @staticmethod
-    def _get_kinesis_client():
+    def _get_kinesis_client() -> Any:
         return boto3.client("kinesis")
 
     def _publish_commands(self, commands: List[Tuple[str, Dict[str, Any]]]) -> None:

@@ -1,11 +1,10 @@
 import argparse
 import sys
 import uuid
-from typing import Dict, Iterator
+from typing import Dict, Iterator, List, Any
 import json
 
 import boto3
-from sqlalchemy import create_engine
 
 from stopcovid.dialog.models.events import batch_from_dict, DialogEventBatch
 from stopcovid.utils import dynamodb as dynamodb_utils
@@ -14,7 +13,7 @@ from stopcovid.utils.logging import configure_logging
 configure_logging()
 
 
-def get_env(stage: str):
+def get_env(stage: str) -> Dict[str, str]:
     filename = {"dev": ".env.development", "prod": ".env.production"}[stage]
     with open(filename) as file:
         return {
@@ -23,7 +22,7 @@ def get_env(stage: str):
         }
 
 
-def handle_redrive_sqs(args):
+def handle_redrive_sqs(args: Any) -> None:
     sqs = boto3.resource("sqs")
 
     queue_configs = {
@@ -78,7 +77,7 @@ def handle_redrive_sqs(args):
         total_redriven += len(messages)
 
 
-def handle_replay_sqs_failures(args):
+def handle_replay_sqs_failures(args: Any) -> None:
     sqs = boto3.resource("sqs")
     kinesis = boto3.client("kinesis")
 
@@ -132,22 +131,7 @@ def _get_dialog_events(phone_number: str, stage: str) -> Iterator[DialogEventBat
         args["ExclusiveStartKey"] = result["LastEvaluatedKey"]
 
 
-def db_engine_factory(stage: str):
-    environment = get_env(stage)
-
-    def engine_factory():
-        return create_engine(
-            "postgresql+auroradataapi://:@/postgres",
-            connect_args=dict(
-                aurora_cluster_arn=environment["DB_CLUSTER_ARN"],
-                secret_arn=environment["DB_SECRET_ARN"],
-            ),
-        )
-
-    return engine_factory
-
-
-def get_all_users(args):
+def get_all_users(args: Any) -> None:
     dynamodb = boto3.client("dynamodb")
     table_name = f"dialog-state-{args.stage}"
     args = {}
@@ -160,7 +144,7 @@ def get_all_users(args):
         args["ExclusiveStartKey"] = result["LastEvaluatedKey"]
 
 
-def handle_show_stream_record(args):
+def handle_show_stream_record(args: Any) -> None:
     kinesis = boto3.client("kinesis")
     stream_name = f"{args.kinesis_stream}-{args.stage}"
     shard_iterator = kinesis.get_shard_iterator(
@@ -174,7 +158,7 @@ def handle_show_stream_record(args):
         print(json.loads(record["Data"]))
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stage", choices=["dev", "prod"], required=True)
     subparsers = parser.add_subparsers(

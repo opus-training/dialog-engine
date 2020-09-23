@@ -51,9 +51,7 @@ def handler(event: dict, context: dict) -> dict:
                     StreamName=f"message-log-{stage}",
                 )
                 idempotency_checker.record_as_processed(
-                    command.sequence_number,
-                    IDEMPOTENCY_REALM,
-                    IDEMPOTENCY_EXPIRATION_MINUTES,
+                    command.sequence_number, IDEMPOTENCY_REALM, IDEMPOTENCY_EXPIRATION_MINUTES,
                 )
 
     return {"statusCode": 200}

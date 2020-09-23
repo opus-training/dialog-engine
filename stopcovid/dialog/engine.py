@@ -46,7 +46,7 @@ class Command(ABC):
         pass
 
 
-def process_command(command: Command, seq: str, repo: DialogRepository = None):
+def process_command(command: Command, seq: str, repo: DialogRepository = None) -> None:
     if repo is None:
         repo = DynamoDBDialogRepository()
     dialog_state = repo.fetch_dialog_state(command.phone_number)
@@ -76,8 +76,7 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None):
         event.user_profile.account_info = end_account_info
     dialog_state.seq = seq
     repo.persist_dialog_state(
-        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq),
-        dialog_state,
+        DialogEventBatch(events=events, phone_number=command.phone_number, seq=seq), dialog_state,
     )
 
 
@@ -268,7 +267,9 @@ class ProcessSMSMessage(Command):
                 return [NextDrillRequested(**base_args)]
         return None
 
-    def _manager_dashboard_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+    def _manager_dashboard_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["dashboard", "tablero"]:
             return [
                 ManagerDashboardRequested(
@@ -288,7 +289,9 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _name_change_drill_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
+    def _name_change_drill_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["name", "nombre"]:
             return [
                 NameChangeDrillRequested(
@@ -297,7 +300,9 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _support_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
+    def _support_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["support", "ayuda"]:
             return [
                 SupportRequested(
@@ -317,7 +322,9 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _menu_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
+    def _menu_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["menu", "menú"]:
             return [
                 MenuRequested(
@@ -326,7 +333,9 @@ class ProcessSMSMessage(Command):
             ]
         return None
 
-    def _unhandled_message(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> List[DialogEvent]:
+    def _unhandled_message(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> List[DialogEvent]:
         return [UnhandledMessageReceived(**base_args, message=self.content)]
 
 

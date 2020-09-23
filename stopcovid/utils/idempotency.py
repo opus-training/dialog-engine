@@ -1,5 +1,6 @@
 import datetime
 import os
+from typing import Any
 
 import boto3
 
@@ -11,11 +12,13 @@ class IdempotencyChecker:
     # double processing of an item is still possible if the underlying operation
     # succeeds and record_as_processed() fails
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any) -> None:
         self.dynamodb = boto3.client("dynamodb", **kwargs)
         self.stage = os.environ.get("STAGE")
 
-    def record_as_processed(self, idempotency_key: str, realm: str, expiration_minutes: int) -> None:
+    def record_as_processed(
+        self, idempotency_key: str, realm: str, expiration_minutes: int
+    ) -> None:
         self.dynamodb.put_item(
             TableName=self._table_name(),
             Item=dynamodb_utils.serialize(

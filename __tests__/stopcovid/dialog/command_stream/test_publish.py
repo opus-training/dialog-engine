@@ -24,8 +24,7 @@ class TestCommandPublisher(unittest.TestCase):
         self.put_records_mock.assert_called_once()
         self.assertEqual(1, len(self.put_records_mock.call_args[1]["Records"]))
         self.assertEqual(
-            "123456789",
-            self.put_records_mock.call_args[1]["Records"][0]["PartitionKey"],
+            "123456789", self.put_records_mock.call_args[1]["Records"][0]["PartitionKey"],
         )
 
     @patch("stopcovid.dialog.command_stream.publish.rollbar")

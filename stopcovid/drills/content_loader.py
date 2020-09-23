@@ -1,7 +1,7 @@
 import json
 import os
 import enum
-from typing import Dict
+from typing import Dict, Any, List
 from jinja2 import Template
 
 
@@ -40,7 +40,7 @@ TRANSLATIONS = {
 }
 
 
-def template_additional_args(message: str, **kwargs) -> str:
+def template_additional_args(message: str, **kwargs: Any) -> str:
     template = Template(message)
     result = template.render({**kwargs})
 
@@ -50,7 +50,7 @@ def template_additional_args(message: str, **kwargs) -> str:
     return result
 
 
-def translate(language: str, template: SupportedTranslation, **kwargs) -> str:
+def translate(language: str, template: SupportedTranslation, **kwargs: Any) -> str:
     value = TRANSLATIONS.get(language, TRANSLATIONS["en"])[template]
     if kwargs:
         value = template_additional_args(value, **kwargs)
@@ -58,9 +58,9 @@ def translate(language: str, template: SupportedTranslation, **kwargs) -> str:
 
 
 class SourceRepoDrillLoader:
-    def __init__(self):
+    def __init__(self) -> None:
         self.drills_dict: Dict[str, Drill] = {}
-        self.all_drill_slugs = []
+        self.all_drill_slugs: List[str] = []
         self._populate_content()
 
     def _populate_drills(self, drill_content: str) -> None:

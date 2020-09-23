@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from collections import defaultdict
-from typing import List, Optional
+from typing import List, Optional, Any
 from dataclasses import dataclass
 import uuid
 
@@ -39,10 +39,7 @@ class OutboundSMS:
     media_url: Optional[str] = None
 
 
-def get_messages(
-    dialog_event: DialogEvent,
-    messages: List[PromptMessage],
-) -> List[OutboundSMS]:
+def get_messages(dialog_event: DialogEvent, messages: List[PromptMessage],) -> List[OutboundSMS]:
 
     return [
         OutboundSMS(
@@ -55,7 +52,7 @@ def get_messages(
     ]
 
 
-def get_messages_for_event(event: DialogEvent):  # noqa: C901
+def get_messages_for_event(event: DialogEvent) -> List[OutboundSMS]:  # noqa: C901
     language = event.user_profile.language
 
     if isinstance(event, AdvancedToNextPrompt):
@@ -130,14 +127,14 @@ def get_outbound_sms_commands(dialog_events: List[DialogEvent]) -> List[Outbound
     return outbound_messages
 
 
-def enqueue_outbound_sms_commands(dialog_events: List[DialogEvent]):
+def enqueue_outbound_sms_commands(dialog_events: List[DialogEvent]) -> None:
     outbound_messages = get_outbound_sms_commands(dialog_events)
     publish_outbound_sms_messages(outbound_messages)
 
 
-def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]):
+def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]) -> Any:
     if not outbound_sms_messages:
-        return
+        return None
 
     sqs = boto3.resource("sqs")
 
@@ -173,7 +170,7 @@ def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]):
     return queue.send_messages(Entries=entries)
 
 
-def _get_message_deduplication_id(messages):
+def _get_message_deduplication_id(messages: List[OutboundSMS]) -> str:
     unique_message_ids = sorted(list(set([str(message.event_id) for message in messages])))
     combined = "-".join(unique_message_ids)
     m = hashlib.shake_256()

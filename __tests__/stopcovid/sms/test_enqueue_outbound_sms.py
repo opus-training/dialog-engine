@@ -38,10 +38,7 @@ class TestHandleCommand(unittest.TestCase):
             name="Mario",
             is_demo=False,
             account_info=AccountInfo(
-                employer_id=1,
-                employer_name="Tacombi",
-                unit_id=1,
-                unit_name="unit name",
+                employer_id=1, employer_name="Tacombi", unit_id=1, unit_name="unit name",
             ),
         )
         self.non_validated_user_profile = UserProfile(
@@ -55,10 +52,7 @@ class TestHandleCommand(unittest.TestCase):
                 Prompt(slug="ignore-response-1", messages=[PromptMessage(text="Hello")]),
                 Prompt(
                     slug="graded-response-1",
-                    messages=[
-                        PromptMessage(text="Intro!"),
-                        PromptMessage(text="Question 1"),
-                    ],
+                    messages=[PromptMessage(text="Intro!"), PromptMessage(text="Question 1"),],
                     correct_response="a) Philadelphia",
                 ),
                 Prompt(
@@ -337,10 +331,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["phone_number"], phone_number_1)
         self.assertEqual(
             sqs_message["messages"],
-            [
-                {"body": "message 1", "media_url": None},
-                {"body": "message 2", "media_url": None},
-            ],
+            [{"body": "message 1", "media_url": None}, {"body": "message 2", "media_url": None},],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_1)
 
@@ -364,39 +355,25 @@ class TestPublishOutboundSMS(unittest.TestCase):
 
         messages = [
             OutboundSMS(
-                event_id=phone_number_1_event_ids[0],
-                phone_number=phone_number_1,
-                body="message 1",
+                event_id=phone_number_1_event_ids[0], phone_number=phone_number_1, body="message 1",
             ),
             OutboundSMS(
-                event_id=phone_number_1_event_ids[1],
-                phone_number=phone_number_1,
-                body="message 2",
+                event_id=phone_number_1_event_ids[1], phone_number=phone_number_1, body="message 2",
             ),
             OutboundSMS(
-                event_id=phone_number_2_event_ids[0],
-                phone_number=phone_number_2,
-                body="message 3",
+                event_id=phone_number_2_event_ids[0], phone_number=phone_number_2, body="message 3",
             ),
             OutboundSMS(
-                event_id=phone_number_2_event_ids[1],
-                phone_number=phone_number_2,
-                body="message 4",
+                event_id=phone_number_2_event_ids[1], phone_number=phone_number_2, body="message 4",
             ),
             OutboundSMS(
-                event_id=phone_number_3_event_ids[0],
-                phone_number=phone_number_3,
-                body="message 5",
+                event_id=phone_number_3_event_ids[0], phone_number=phone_number_3, body="message 5",
             ),
             OutboundSMS(
-                event_id=phone_number_3_event_ids[1],
-                phone_number=phone_number_3,
-                body="message 6",
+                event_id=phone_number_3_event_ids[1], phone_number=phone_number_3, body="message 6",
             ),
             OutboundSMS(
-                event_id=phone_number_3_event_ids[2],
-                phone_number=phone_number_3,
-                body="message 7",
+                event_id=phone_number_3_event_ids[2], phone_number=phone_number_3, body="message 7",
             ),
         ]
 
@@ -412,10 +389,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["phone_number"], phone_number_1)
         self.assertEqual(
             sqs_message["messages"],
-            [
-                {"body": "message 1", "media_url": None},
-                {"body": "message 2", "media_url": None},
-            ],
+            [{"body": "message 1", "media_url": None}, {"body": "message 2", "media_url": None},],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_1)
 
@@ -426,10 +400,7 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["phone_number"], phone_number_2)
         self.assertEqual(
             sqs_message["messages"],
-            [
-                {"body": "message 3", "media_url": None},
-                {"body": "message 4", "media_url": None},
-            ],
+            [{"body": "message 3", "media_url": None}, {"body": "message 4", "media_url": None},],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_2)
 
