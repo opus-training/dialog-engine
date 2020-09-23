@@ -59,7 +59,7 @@ def translate(language: str, template: SupportedTranslation, **kwargs) -> str:
 
 class SourceRepoDrillLoader:
     def __init__(self):
-        self.drills_dict = {}
+        self.drills_dict: Dict[str, dict] = {}
         self.all_drill_slugs = []
         self._populate_content()
 

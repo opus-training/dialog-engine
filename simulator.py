@@ -36,7 +36,7 @@ def fake_sms(
     phone_number: str,
     user_profile: UserProfile,
     messages: List[str],
-    with_initial_pause=False,
+    with_initial_pause: bool=False,
 ) -> None:
     first = True
     for message in messages:
@@ -47,8 +47,8 @@ def fake_sms(
 
 
 class InMemoryRepository(DialogRepository):
-    def __init__(self, lang) -> None:
-        self.repo = {}
+    def __init__(self, lang: str) -> None:
+        self.repo: dict = {}
         self.lang = lang
 
     def fetch_dialog_state(self, phone_number: str) -> DialogState:
@@ -63,7 +63,9 @@ class InMemoryRepository(DialogRepository):
             )
 
     def get_next_unstarted_drill(self) -> None:
-        language = self.fetch_dialog_state(PHONE_NUMBER).user_profile.language
+        state = self.fetch_dialog_state(PHONE_NUMBER)
+        assert state.user_profile
+        language = state.user_profile.language
         unstarted_drills = [
             code
             for code in DRILLS.keys()
