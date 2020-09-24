@@ -71,6 +71,7 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None) -
         # side effects on the events that we're persisting. The user_profile on the event
         # should reflect the user_profile *before* the event is applied to the dialog_state.
         deepcopy(event).apply_to(dialog_state)
+
     end_account_info = dialog_state.user_profile.account_info
     for event in events:
         event.user_profile.account_info = end_account_info
@@ -229,6 +230,7 @@ class ProcessSMSMessage(Command):
             )
             should_advance = True
         else:
+            assert dialog_state.current_prompt_state
             should_advance = dialog_state.current_prompt_state.failures >= prompt.max_failures
             events.append(
                 FailedPrompt(
@@ -241,6 +243,7 @@ class ProcessSMSMessage(Command):
             )
 
         if should_advance:
+            assert dialog_state.current_drill
             next_prompt = dialog_state.get_next_prompt()
             if next_prompt is not None:
                 events.append(
@@ -253,7 +256,6 @@ class ProcessSMSMessage(Command):
                 if dialog_state.is_next_prompt_last():
                     # assume the last prompt doesn't wait for an answer
                     events.append(self._get_drill_completed_event(dialog_state, base_args))
-
             elif len(dialog_state.current_drill.prompts) == 1:
                 events.append(self._get_drill_completed_event(dialog_state, base_args))
 

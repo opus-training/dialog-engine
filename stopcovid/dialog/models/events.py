@@ -121,6 +121,7 @@ class FailedPrompt(DialogEvent):
         if self.abandoned:
             dialog_state.current_prompt_state = None
         else:
+            assert dialog_state.current_prompt_state
             dialog_state.current_prompt_state.last_response_time = self.created_time
             dialog_state.current_prompt_state.failures += 1
 
