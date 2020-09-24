@@ -53,9 +53,7 @@ class PromptState(pydantic.BaseModel):
 class DialogState(pydantic.BaseModel):
     phone_number: str
     seq: str
-    user_profile: UserProfile = pydantic.Field(
-        default_factory=lambda: UserProfile(validated=False)
-    )
+    user_profile: UserProfile = pydantic.Field(default_factory=lambda: UserProfile(validated=False))
     current_drill: Optional[drills.Drill] = None
     drill_instance_id: Optional[uuid.UUID] = None
     current_prompt_state: Optional[PromptState] = None
