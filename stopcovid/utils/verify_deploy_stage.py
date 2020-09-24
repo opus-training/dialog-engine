@@ -1,7 +1,7 @@
 import os
 
 
-def verify_deploy_stage():
+def verify_deploy_stage() -> None:
     stage = os.environ["STAGE"]
     deploy_stage = os.getenv("DEPLOY_STAGE")
     if stage != deploy_stage:

@@ -1,7 +1,7 @@
 import functools
 import os
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Any
 
 import pydantic
 import requests
@@ -22,13 +22,13 @@ class CodeValidationPayload(pydantic.BaseModel):
 
 class RegistrationValidator(ABC):
     @abstractmethod
-    def validate_code(self, code) -> CodeValidationPayload:
+    def validate_code(self, code: str) -> CodeValidationPayload:
         pass
 
 
 class DefaultRegistrationValidator(RegistrationValidator):
     @functools.lru_cache(maxsize=1024)
-    def validate_code(self, code, **kwargs) -> CodeValidationPayload:
+    def validate_code(self, code: str, **kwargs: Any) -> CodeValidationPayload:
         url = kwargs.get("url", os.environ["REGISTRATION_VALIDATION_URL"])
         key = kwargs.get("key", os.getenv("REGISTRATION_VALIDATION_KEY"))
         response = requests.post(

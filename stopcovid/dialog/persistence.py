@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 from abc import ABC, abstractmethod
+from typing import Any
 
 import boto3
 
@@ -16,25 +17,27 @@ class DialogRepository(ABC):
         pass
 
     @abstractmethod
-    def persist_dialog_state(self, event_batch: DialogEventBatch, dialog_state: DialogState):
+    def persist_dialog_state(
+        self, event_batch: DialogEventBatch, dialog_state: DialogState
+    ) -> None:
         pass
 
 
 class DynamoDBDialogRepository(DialogRepository):
-    def __init__(self, table_name_suffix=None, **kwargs):
+    def __init__(self, table_name_suffix: str = None, **kwargs: Any) -> None:
         self.dynamodb = boto3.client("dynamodb", **kwargs)
         if table_name_suffix is None:
             table_name_suffix = os.getenv("DIALOG_TABLE_NAME_SUFFIX", "")
         self.table_name_suffix = table_name_suffix
 
-    def event_batch_table_name(self):
+    def event_batch_table_name(self) -> str:
         return (
             f"dialog-event-batches-{self.table_name_suffix}"
             if self.table_name_suffix
             else "dialog-event-batches"
         )
 
-    def state_table_name(self):
+    def state_table_name(self) -> str:
         return (
             f"dialog-state-{self.table_name_suffix}" if self.table_name_suffix else "dialog-state"
         )
@@ -60,7 +63,9 @@ class DynamoDBDialogRepository(DialogRepository):
 
         return batch_from_dict(dialog_dict)
 
-    def persist_dialog_state(self, event_batch: DialogEventBatch, dialog_state: DialogState):
+    def persist_dialog_state(
+        self, event_batch: DialogEventBatch, dialog_state: DialogState
+    ) -> None:
         if event_batch.events:
             write_items = [
                 {
@@ -78,7 +83,7 @@ class DynamoDBDialogRepository(DialogRepository):
             ]
             self.dynamodb.transact_write_items(TransactItems=write_items)
 
-    def ensure_tables_exist(self):
+    def ensure_tables_exist(self) -> None:
         # useful for testing but will likely be duplicated elsewhere
 
         # noinspection PyBroadException

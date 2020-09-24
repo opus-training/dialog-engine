@@ -22,7 +22,7 @@ IDEMPOTENCY_REALM = "inbound-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 
-def _make_inbound_command(record) -> InboundCommand:
+def _make_inbound_command(record: dict) -> InboundCommand:
     event = get_payload_from_kinesis_record(record)
     return InboundCommand(
         payload=event["payload"],
@@ -31,8 +31,8 @@ def _make_inbound_command(record) -> InboundCommand:
     )
 
 
-@rollbar.lambda_function
-def handler(event, context):
+@rollbar.lambda_function  # type: ignore
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")
     stage = os.environ["STAGE"]

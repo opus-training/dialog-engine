@@ -4,11 +4,11 @@ import sys
 import rollbar
 
 
-def _is_running_unit_tests():
+def _is_running_unit_tests() -> bool:
     return sys.argv[0].split(" ")[-1] == "unittest"
 
 
-def configure_rollbar():
+def configure_rollbar() -> None:
     if _is_running_unit_tests():
         return
 

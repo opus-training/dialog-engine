@@ -2,7 +2,7 @@
 import json
 import sys
 from time import sleep
-from typing import List, Dict
+from typing import List, Dict, Optional
 from uuid import UUID
 
 from stopcovid.dialog.persistence import DialogRepository
@@ -36,8 +36,8 @@ def fake_sms(
     phone_number: str,
     user_profile: UserProfile,
     messages: List[str],
-    with_initial_pause=False,
-):
+    with_initial_pause: bool = False,
+) -> None:
     first = True
     for message in messages:
         if with_initial_pause or not first:
@@ -47,8 +47,8 @@ def fake_sms(
 
 
 class InMemoryRepository(DialogRepository):
-    def __init__(self, lang):
-        self.repo = {}
+    def __init__(self, lang: str) -> None:
+        self.repo: dict = {}
         self.lang = lang
 
     def fetch_dialog_state(self, phone_number: str) -> DialogState:
@@ -62,8 +62,10 @@ class InMemoryRepository(DialogRepository):
                 user_profile=UserProfile(validated=False, language=self.lang),
             )
 
-    def get_next_unstarted_drill(self):
-        language = self.fetch_dialog_state(PHONE_NUMBER).user_profile.language
+    def get_next_unstarted_drill(self) -> Optional[str]:
+        state = self.fetch_dialog_state(PHONE_NUMBER)
+        assert state.user_profile
+        language = state.user_profile.language
         unstarted_drills = [
             code
             for code in DRILLS.keys()
@@ -76,7 +78,7 @@ class InMemoryRepository(DialogRepository):
 
     def persist_dialog_state(  # noqa: C901
         self, event_batch: DialogEventBatch, dialog_state: DialogState
-    ):
+    ) -> None:
         self.repo[dialog_state.phone_number] = dialog_state.json()
 
         drill_to_start = None
@@ -168,7 +170,7 @@ class InMemoryRepository(DialogRepository):
 
 
 class FakeRegistrationValidator(RegistrationValidator):
-    def validate_code(self, code) -> CodeValidationPayload:
+    def validate_code(self, code: str) -> CodeValidationPayload:
         if code in DRILLS.keys():
             return CodeValidationPayload(
                 valid=True,
@@ -182,7 +184,7 @@ class FakeRegistrationValidator(RegistrationValidator):
         return CodeValidationPayload(valid=False)
 
 
-def main():
+def main() -> None:
     global SEQ
     if len(sys.argv) > 1:
         lang = sys.argv[1]

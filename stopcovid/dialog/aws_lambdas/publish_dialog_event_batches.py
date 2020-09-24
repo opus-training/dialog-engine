@@ -14,8 +14,8 @@ configure_logging()
 configure_rollbar()
 
 
-@rollbar.lambda_function
-def handler(event, context):
+@rollbar.lambda_function  # type: ignore
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     event_batches = [
         batch_from_dict(dynamodb_utils.deserialize(record["dynamodb"]["NewImage"]))
@@ -28,7 +28,7 @@ def handler(event, context):
     return {"statusCode": 200}
 
 
-def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]):
+def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]) -> None:
     kinesis = boto3.client("kinesis")
     stage = os.environ.get("STAGE")
     stream_name = f"dialog-event-batches-{stage}"

@@ -31,13 +31,15 @@ class UserProfile(pydantic.BaseModel):
     esl_opt_in: Optional[str] = None
     team_size: Optional[str] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
     @pydantic.validator("language", pre=True, always=True)
-    def set_language(cls, value):
+    def set_language(cls, value: Optional[str]) -> Optional[str]:
         if value is not None:
             return value.lower()[:2]
+        else:
+            return None
 
 
 class PromptState(pydantic.BaseModel):

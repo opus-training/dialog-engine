@@ -48,17 +48,17 @@ class DialogEvent(pydantic.BaseModel):
     user_profile_updates: Optional[Dict[str, str]] = None
 
     @abstractmethod
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         pass
 
 
 class DrillStarted(DialogEvent):
-    event_type = DialogEventType.DRILL_STARTED
+    event_type: DialogEventType = DialogEventType.DRILL_STARTED
     drill: drills.Drill
     first_prompt: drills.Prompt
     drill_instance_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = self.drill
         dialog_state.drill_instance_id = self.drill_instance_id
         dialog_state.current_prompt_state = PromptState(
@@ -67,18 +67,18 @@ class DrillStarted(DialogEvent):
 
 
 class AdHocMessageSent(DialogEvent):
-    event_type = DialogEventType.AD_HOC_MESSAGE_SENT
+    event_type: DialogEventType = DialogEventType.AD_HOC_MESSAGE_SENT
     sms: SMS
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         pass
 
 
 class UserValidated(DialogEvent):
-    event_type = DialogEventType.USER_VALIDATED
+    event_type: DialogEventType = DialogEventType.USER_VALIDATED
     code_validation_payload: CodeValidationPayload
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
         dialog_state.current_drill = None
@@ -88,19 +88,19 @@ class UserValidated(DialogEvent):
 
 
 class UserValidationFailed(DialogEvent):
-    event_type = DialogEventType.USER_VALIDATION_FAILED
+    event_type: DialogEventType = DialogEventType.USER_VALIDATION_FAILED
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         pass
 
 
 class CompletedPrompt(DialogEvent):
-    event_type = DialogEventType.COMPLETED_PROMPT
+    event_type: DialogEventType = DialogEventType.COMPLETED_PROMPT
     prompt: drills.Prompt
     response: str
     drill_instance_id: uuid.UUID
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_prompt_state = None
         if self.prompt.response_user_profile_key:
             setattr(
@@ -111,13 +111,13 @@ class CompletedPrompt(DialogEvent):
 
 
 class FailedPrompt(DialogEvent):
-    event_type = DialogEventType.FAILED_PROMPT
+    event_type: DialogEventType = DialogEventType.FAILED_PROMPT
     prompt: drills.Prompt
     abandoned: bool
     response: Optional[str]
     drill_instance_id: uuid.UUID
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         if self.abandoned:
             dialog_state.current_prompt_state = None
         else:
@@ -126,32 +126,32 @@ class FailedPrompt(DialogEvent):
 
 
 class AdvancedToNextPrompt(DialogEvent):
-    event_type = DialogEventType.ADVANCED_TO_NEXT_PROMPT
+    event_type: DialogEventType = DialogEventType.ADVANCED_TO_NEXT_PROMPT
     prompt: drills.Prompt
     drill_instance_id: uuid.UUID
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_prompt_state = PromptState(
             slug=self.prompt.slug, start_time=self.created_time
         )
 
 
 class DrillCompleted(DialogEvent):
-    event_type = DialogEventType.DRILL_COMPLETED
+    event_type: DialogEventType = DialogEventType.DRILL_COMPLETED
     drill_instance_id: uuid.UUID
     auto_continue: bool = False
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
 
 
 class OptedOut(DialogEvent):
-    event_type = DialogEventType.OPTED_OUT
+    event_type: DialogEventType = DialogEventType.OPTED_OUT
     drill_instance_id: Optional[uuid.UUID]
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.drill_instance_id = None
         dialog_state.user_profile.opted_out = True
         dialog_state.current_drill = None
@@ -159,17 +159,17 @@ class OptedOut(DialogEvent):
 
 
 class NextDrillRequested(DialogEvent):
-    event_type = DialogEventType.NEXT_DRILL_REQUESTED
+    event_type: DialogEventType = DialogEventType.NEXT_DRILL_REQUESTED
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.user_profile.opted_out = False
 
 
 class SchedulingDrillRequested(DialogEvent):
-    event_type = DialogEventType.SCHEDULING_DRILL_REQUESTED
+    event_type: DialogEventType = DialogEventType.SCHEDULING_DRILL_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -177,10 +177,10 @@ class SchedulingDrillRequested(DialogEvent):
 
 
 class NameChangeDrillRequested(DialogEvent):
-    event_type = DialogEventType.NAME_CHANGE_DRILL_REQUESTED
+    event_type: DialogEventType = DialogEventType.NAME_CHANGE_DRILL_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -188,10 +188,10 @@ class NameChangeDrillRequested(DialogEvent):
 
 
 class LanguageChangeDrillRequested(DialogEvent):
-    event_type = DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED
+    event_type: DialogEventType = DialogEventType.LANGUAGE_CHANGE_DRILL_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -199,10 +199,10 @@ class LanguageChangeDrillRequested(DialogEvent):
 
 
 class SupportRequested(DialogEvent):
-    event_type = DialogEventType.SUPPORT_REQUESTED
+    event_type: DialogEventType = DialogEventType.SUPPORT_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -210,10 +210,10 @@ class SupportRequested(DialogEvent):
 
 
 class ManagerDashboardRequested(DialogEvent):
-    event_type = DialogEventType.MANAGER_DASHBOARD_REQUESTED
+    event_type: DialogEventType = DialogEventType.MANAGER_DASHBOARD_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -221,18 +221,18 @@ class ManagerDashboardRequested(DialogEvent):
 
 
 class UnhandledMessageReceived(DialogEvent):
-    event_type = DialogEventType.UNHANDLED_MESSAGE_RECEIVED
+    event_type: DialogEventType = DialogEventType.UNHANDLED_MESSAGE_RECEIVED
     message: str = "None"
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         pass
 
 
 class MenuRequested(DialogEvent):
-    event_type = DialogEventType.MENU_REQUESTED
+    event_type: DialogEventType = DialogEventType.MENU_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
-    def apply_to(self, dialog_state: DialogState):
+    def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None
         dialog_state.drill_instance_id = None
         dialog_state.current_prompt_state = None
@@ -261,7 +261,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
 
 
 def event_from_dict(event_dict: Dict[str, Any]) -> DialogEvent:
-    event_type = DialogEventType(event_dict["event_type"])
+    event_type: DialogEventType = DialogEventType(event_dict["event_type"])
     return TYPE_TO_SCHEMA[event_type](**event_dict)
 
 
