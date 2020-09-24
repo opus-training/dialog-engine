@@ -42,15 +42,15 @@ class UserProfile(pydantic.BaseModel):
 class PromptState(pydantic.BaseModel):
     slug: str
     start_time: datetime.datetime
-    failures: Optional[int] = 0
-    reminder_triggered: Optional[bool] = False
+    failures: int = 0
+    reminder_triggered: bool = False
     last_response_time: Optional[datetime.datetime] = None
 
 
 class DialogState(pydantic.BaseModel):
     phone_number: str
     seq: str
-    user_profile: Optional[UserProfile] = pydantic.Field(
+    user_profile: UserProfile = pydantic.Field(
         default_factory=lambda: UserProfile(validated=False)
     )
     current_drill: Optional[drills.Drill] = None
