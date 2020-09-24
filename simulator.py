@@ -66,6 +66,7 @@ class InMemoryRepository(DialogRepository):
         state = self.fetch_dialog_state(PHONE_NUMBER)
         assert state.user_profile
         language = state.user_profile.language
+        assert language
         unstarted_drills = [
             code
             for code in DRILLS.keys()
@@ -80,7 +81,7 @@ class InMemoryRepository(DialogRepository):
         self, event_batch: DialogEventBatch, dialog_state: DialogState
     ) -> None:
         self.repo[dialog_state.phone_number] = dialog_state.json()
-
+        assert dialog_state.user_profile.language
         drill_to_start = None
         for event in event_batch.events:
             if isinstance(event, AdvancedToNextPrompt):
@@ -127,6 +128,7 @@ class InMemoryRepository(DialogRepository):
                         ],
                     )
             elif isinstance(event, UserValidated):
+                assert dialog_state.user_profile.account_info
                 drill_to_start = dialog_state.user_profile.account_info.employer_name
             elif isinstance(event, OptedOut):
                 print("(You've been opted out.)")
@@ -139,6 +141,7 @@ class InMemoryRepository(DialogRepository):
             elif isinstance(event, UserValidationFailed):
                 print(f"(try {', '.join(DRILLS.keys())})")
             elif isinstance(event, DrillStarted):
+                assert dialog_state.current_drill
                 STARTED_DRILLS[event.drill_instance_id] = dialog_state.current_drill.slug
                 fake_sms(
                     event.phone_number,
