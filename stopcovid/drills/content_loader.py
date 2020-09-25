@@ -1,7 +1,7 @@
 import json
 import os
 import enum
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from jinja2 import Template
 
 
@@ -50,8 +50,8 @@ def template_additional_args(message: str, **kwargs: Any) -> str:
     return result
 
 
-def translate(language: str, template: SupportedTranslation, **kwargs: Any) -> str:
-    value = TRANSLATIONS.get(language, TRANSLATIONS["en"])[template]
+def translate(language: Optional[str], template: SupportedTranslation, **kwargs: Any) -> str:
+    value = TRANSLATIONS.get(language or "en", TRANSLATIONS["en"])[template]
     if kwargs:
         value = template_additional_args(value, **kwargs)
     return value

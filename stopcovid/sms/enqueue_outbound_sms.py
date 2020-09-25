@@ -62,7 +62,6 @@ def get_messages_for_event(event: DialogEvent) -> List[OutboundSMS]:  # noqa: C9
         return get_messages(event, event.prompt.messages)
 
     elif isinstance(event, FailedPrompt):
-        assert language
         if not event.abandoned:
             return get_messages(
                 event,
@@ -84,7 +83,6 @@ def get_messages_for_event(event: DialogEvent) -> List[OutboundSMS]:  # noqa: C9
 
     elif isinstance(event, CompletedPrompt):
         if event.prompt.correct_response is not None:
-            assert language
             return get_messages(
                 event,
                 [
