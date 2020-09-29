@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Any, Dict
+from typing import Any, Dict, cast
 from urllib.parse import unquote_plus
 
 import boto3
@@ -23,8 +23,8 @@ IDEMPOTENCY_REALM = "twilio-webhook"
 IDEMPOTENCY_EXPIRATION_MINUTES = 60
 
 
-@rollbar.lambda_function
-def handler(event, context):
+@rollbar.lambda_function  # type: ignore
+def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
     kinesis = boto3.client("kinesis")
     stage = os.environ["STAGE"]
@@ -60,7 +60,7 @@ def handler(event, context):
     }
 
 
-def extract_form(event):
+def extract_form(event: dict) -> dict:
     # We're getting an x-www-form-url-encoded string and we need to translate it into a dict.
     # We aren't using urllib.parse.parse_qs because it gives a slightly different answer, resulting
     # in failed signature validation.
@@ -75,4 +75,4 @@ def is_signature_valid(event: Dict[str, Any], form: Dict[str, Any], stage: str) 
     validator = RequestValidator(os.environ["TWILIO_AUTH_TOKEN"])
     url = f"https://{event['headers']['Host']}/{stage}{event['path']}"
     signature = event["headers"].get("X-Twilio-Signature")
-    return validator.validate(url, form, signature)
+    return cast(bool, validator.validate(url, form, signature))

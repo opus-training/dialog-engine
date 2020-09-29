@@ -28,31 +28,32 @@ class UserProfile(pydantic.BaseModel):
     schedule_days: Optional[str] = None
     schedule_time: Optional[str] = None
     esl_level: Optional[str] = None
+    esl_opt_in: Optional[str] = None
     team_size: Optional[str] = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
     @pydantic.validator("language", pre=True, always=True)
-    def set_language(cls, value):
+    def set_language(cls, value: Optional[str]) -> Optional[str]:
         if value is not None:
             return value.lower()[:2]
+        else:
+            return None
 
 
 class PromptState(pydantic.BaseModel):
     slug: str
     start_time: datetime.datetime
-    failures: Optional[int] = 0
-    reminder_triggered: Optional[bool] = False
+    failures: int = 0
+    reminder_triggered: bool = False
     last_response_time: Optional[datetime.datetime] = None
 
 
 class DialogState(pydantic.BaseModel):
     phone_number: str
     seq: str
-    user_profile: Optional[UserProfile] = pydantic.Field(
-        default_factory=lambda: UserProfile(validated=False)
-    )
+    user_profile: UserProfile = pydantic.Field(default_factory=lambda: UserProfile(validated=False))
     current_drill: Optional[drills.Drill] = None
     drill_instance_id: Optional[uuid.UUID] = None
     current_prompt_state: Optional[PromptState] = None
@@ -64,7 +65,12 @@ class DialogState(pydantic.BaseModel):
         return self.current_drill.get_prompt(self.current_prompt_state.slug)
 
     def get_next_prompt(self) -> Optional[drills.Prompt]:
+        assert self.current_drill
+        assert self.current_prompt_state
         return self.current_drill.get_next_prompt(self.current_prompt_state.slug)
 
     def is_next_prompt_last(self) -> bool:
-        return self.current_drill.prompts[-1].slug == self.get_next_prompt().slug
+        assert self.current_drill
+        next_prompt = self.get_next_prompt()
+        assert next_prompt
+        return self.current_drill.prompts[-1].slug == next_prompt.slug
