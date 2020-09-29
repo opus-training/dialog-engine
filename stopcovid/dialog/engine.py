@@ -23,7 +23,7 @@ from stopcovid.dialog.models.events import (
     MenuRequested,
     UnhandledMessageReceived,
     SupportRequested,
-    ManagerDashboardRequested,
+    DashboardRequested,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -144,7 +144,7 @@ class ProcessSMSMessage(Command):
             self._name_change_drill_requested,
             self._language_change_drill_requested,
             self._update_schedule_requested,
-            self._manager_dashboard_requested,
+            self._dashboard_requested,
             self._handle_opt_out,
             self._handle_opt_back_in,
             self._validate_registration,
@@ -267,10 +267,10 @@ class ProcessSMSMessage(Command):
                 return [NextDrillRequested(**base_args)]
         return None
 
-    def _manager_dashboard_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+    def _dashboard_requested(self, dialog_state: DialogState, base_args: Dict[str, Any]):
         if self.content_lower in ["dashboard", "tablero"]:
             return [
-                ManagerDashboardRequested(
+                DashboardRequested(
                     **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
                 )
             ]

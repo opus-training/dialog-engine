@@ -498,7 +498,7 @@ class TestProcessCommand(unittest.TestCase):
                 UUID("11111111-1111-1111-1111-111111111111"),
             )
 
-    def test_manager_dashboard_requested(self):
+    def test_dashboard_requested(self):
         for message in ["dashboard", "tablero"]:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.current_drill = "balbla"
@@ -506,7 +506,7 @@ class TestProcessCommand(unittest.TestCase):
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
             batch = self._process_command(command)
-            self._assert_event_types(batch, DialogEventType.MANAGER_DASHBOARD_REQUESTED)
+            self._assert_event_types(batch, DialogEventType.DASHBOARD_REQUESTED)
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
