@@ -35,7 +35,7 @@ class DialogEventType(enum.Enum):
     AD_HOC_MESSAGE_SENT = "AD_HOC_MESSAGE_SENT"
     UNHANDLED_MESSAGE_RECEIVED = "UNHANDLED_MESSAGE_RECEIVED"
     SUPPORT_REQUESTED = "SUPPORT_REQUESTED"
-    MANAGER_DASHBOARD_REQUESTED = "MANAGER_DASHBOARD_REQUESTED"
+    DASHBOARD_REQUESTED = "DASHBOARD_REQUESTED"
 
 
 class DialogEvent(pydantic.BaseModel):
@@ -210,8 +210,8 @@ class SupportRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
-class ManagerDashboardRequested(DialogEvent):
-    event_type: DialogEventType = DialogEventType.MANAGER_DASHBOARD_REQUESTED
+class DashboardRequested(DialogEvent):
+    event_type: DialogEventType = DialogEventType.DASHBOARD_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
@@ -257,7 +257,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.MENU_REQUESTED: MenuRequested,
     DialogEventType.UNHANDLED_MESSAGE_RECEIVED: UnhandledMessageReceived,
     DialogEventType.SUPPORT_REQUESTED: SupportRequested,
-    DialogEventType.MANAGER_DASHBOARD_REQUESTED: ManagerDashboardRequested,
+    DialogEventType.DASHBOARD_REQUESTED: DashboardRequested,
 }
 
 
