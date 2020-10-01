@@ -30,6 +30,7 @@ class UserProfile(pydantic.BaseModel):
     esl_level: Optional[str] = None
     esl_opt_in: Optional[str] = None
     team_size: Optional[str] = None
+    company_name: Optional[str] = None
 
     def __str__(self) -> str:
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
