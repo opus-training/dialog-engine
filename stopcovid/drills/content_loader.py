@@ -32,7 +32,7 @@ TRANSLATIONS = {
         SupportedTranslation.CORRECTED_ANSWER: "🤖 La bonne réponse est *{{correct_answer}}*.\n\nPassons à la suite.",
         SupportedTranslation.MATCH_CORRECT_ANSWER: "🤖 C'est Correct!",
     },
-    "kh": {
+    "km": {
         SupportedTranslation.INCORRECT_ANSWER: "🤖សូមអភ័យទោសមិនត្រឹមត្រូវ។ ព្យាយាមម្តងទៀត។",
         SupportedTranslation.CORRECTED_ANSWER: "🤖ចម្លើយដែលត្រឹមត្រូវគឺ * {{correct_answer}} * ។\n\nអាចទៅកន្លែងបន្ទាប់។",
         SupportedTranslation.MATCH_CORRECT_ANSWER: "🤖ត្រឹមត្រូវ!",
