@@ -1,4 +1,5 @@
 import logging
+import uuid
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List, Optional, Dict, Any, Callable
@@ -83,9 +84,17 @@ def process_command(command: Command, seq: str, repo: DialogRepository = None) -
 
 
 class StartDrill(Command):
-    def __init__(self, phone_number: str, drill_slug: str, drill_body: dict) -> None:
+    # TODO: make `drill_instance_id` required once scadmin is creating DrillInstances
+    def __init__(
+        self,
+        phone_number: str,
+        drill_slug: str,
+        drill_body: dict,
+        drill_instance_id: Optional[uuid.UUID] = None,
+    ) -> None:
         super().__init__(phone_number)
         self.drill_slug = drill_slug
+        self.drill_instance_id = drill_instance_id
         self.drill = Drill(**drill_body)
 
     def __str__(self) -> str:
@@ -100,6 +109,18 @@ class StartDrill(Command):
                 f"who hasn't validated or has opted out."
             )
             return []
+
+        if self.drill_instance_id:
+            return [
+                DrillStarted(
+                    phone_number=self.phone_number,
+                    user_profile=dialog_state.user_profile,
+                    drill=self.drill,
+                    first_prompt=self.drill.first_prompt(),
+                    drill_instance_id=self.drill_instance_id,
+                )
+            ]
+        # TODO: remove return once scadmin is creating DrillInstances
         return [
             DrillStarted(
                 phone_number=self.phone_number,
