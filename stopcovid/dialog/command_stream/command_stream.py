@@ -21,26 +21,15 @@ def handle_inbound_commands(commands: List[InboundCommand]) -> dict:
                 command.sequence_number,
             )
         elif command.command_type is InboundCommandType.START_DRILL:
-            if "drill_instance_id" in command.payload:
-                process_command(
-                    StartDrill(
-                        phone_number=command.payload["phone_number"],
-                        drill_slug=command.payload["drill_slug"],
-                        drill_body=command.payload["drill_body"],
-                        drill_instance_id=command.payload["drill_instance_id"],
-                    ),
-                    command.sequence_number,
-                )
-            # TODO: remove this branch once scadmin is creating DrillInstances
-            else:
-                process_command(
-                    StartDrill(
-                        phone_number=command.payload["phone_number"],
-                        drill_slug=command.payload["drill_slug"],
-                        drill_body=command.payload["drill_body"],
-                    ),
-                    command.sequence_number,
-                )
+            process_command(
+                StartDrill(
+                    phone_number=command.payload["phone_number"],
+                    drill_slug=command.payload["drill_slug"],
+                    drill_body=command.payload["drill_body"],
+                    drill_instance_id=command.payload["drill_instance_id"],
+                ),
+                command.sequence_number,
+            )
         elif command.command_type is InboundCommandType.SEND_AD_HOC_MESSAGE:
             process_command(
                 SendAdHocMessage(
