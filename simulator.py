@@ -3,7 +3,7 @@ import json
 import sys
 from time import sleep
 from typing import List, Dict, Optional
-from uuid import UUID
+import uuid
 
 from stopcovid.dialog.persistence import DialogRepository
 from stopcovid.dialog.models.events import (
@@ -29,7 +29,7 @@ PHONE_NUMBER = "123456789"
 DRILLS = SourceRepoDrillLoader().get_drills()
 
 
-STARTED_DRILLS: Dict[UUID, str] = {}
+STARTED_DRILLS: Dict[uuid.UUID, str] = {}
 
 
 def fake_sms(
@@ -166,7 +166,7 @@ class InMemoryRepository(DialogRepository):
             SEQ += 1
             drill = DRILLS[drill_to_start]
             process_command(
-                StartDrill(PHONE_NUMBER, drill.slug, drill.dict()),
+                StartDrill(PHONE_NUMBER, drill.slug, drill.dict(), uuid.uuid4()),
                 str(SEQ),
                 repo=self,
             )
