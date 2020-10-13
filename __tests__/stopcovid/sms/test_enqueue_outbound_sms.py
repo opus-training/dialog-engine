@@ -128,6 +128,7 @@ class TestHandleCommand(unittest.TestCase):
                 user_profile=self.validated_user_profile,
                 drill=self.drill,
                 first_prompt=self.drill.prompts[0],
+                drill_instance_id=uuid.uuid4(),
             )
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
