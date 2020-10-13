@@ -56,7 +56,7 @@ class DrillStarted(DialogEvent):
     event_type: DialogEventType = DialogEventType.DRILL_STARTED
     drill: drills.Drill
     first_prompt: drills.Prompt
-    drill_instance_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
+    drill_instance_id: uuid.UUID
 
     def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = self.drill

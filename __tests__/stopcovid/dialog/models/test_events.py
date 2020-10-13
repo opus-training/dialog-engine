@@ -141,6 +141,7 @@ class TestDrillStarted(unittest.TestCase):
             user_profile=profile,
             drill=DRILL,
             first_prompt=DRILL.prompts[0],
+            drill_instance_id=uuid.uuid4(),
         )
         dialog_state = DialogState(phone_number="123456789", seq="0", user_profile=profile)
         event.apply_to(dialog_state)
