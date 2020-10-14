@@ -27,7 +27,6 @@ class Drill(pydantic.BaseModel):
     slug: str
     name: str
     prompts: List[Prompt]
-    auto_continue: Optional[bool] = False
 
     def first_prompt(self) -> Prompt:
         return self.prompts[0]
