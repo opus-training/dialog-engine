@@ -140,7 +140,6 @@ class AdvancedToNextPrompt(DialogEvent):
 class DrillCompleted(DialogEvent):
     event_type: DialogEventType = DialogEventType.DRILL_COMPLETED
     drill_instance_id: uuid.UUID
-    auto_continue: bool = False
 
     def apply_to(self, dialog_state: DialogState) -> None:
         dialog_state.current_drill = None

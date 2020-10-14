@@ -153,12 +153,7 @@ class InMemoryRepository(DialogRepository):
                     ],
                 )
             elif isinstance(event, DrillCompleted):
-                if event.auto_continue:
-                    drill_to_start = self.get_next_unstarted_drill()
-                else:
-                    print(
-                        "(The drill is complete. Type 'more' for another drill or crtl-D to exit.)"
-                    )
+                print("(The drill is complete. Type 'more' for another drill or crtl-D to exit.)")
             elif isinstance(event, SchedulingDrillRequested):
                 print("Scheduling drill requested")
         if drill_to_start:
