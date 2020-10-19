@@ -370,6 +370,7 @@ class CreateUser(Command):
         return [
             UserCreated(
                 phone_number=self.phone_number,
+                user_profile=dialog_state.user_profile,
                 name=self.name,
                 unit_id=self.unit_id,
                 employer_id=self.employer_id,
