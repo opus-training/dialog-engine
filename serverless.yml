@@ -3,6 +3,8 @@ app: slowcovid
 org: jeffreysilver
 
 custom:
+  datadog:
+    forwarder: ${ssm:/stopcovid/${self:provider.stage}/logForwardingDestinationArn}
   enterprise:
     collectLambdaLogs: false
   logForwarding:
@@ -51,6 +53,7 @@ provider:
 plugins:
   - serverless-python-requirements
   - serverless-log-forwarding
+  - serverless-plugin-datadog
 
 functions:
   twilioWebhook:
