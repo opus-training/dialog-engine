@@ -7,7 +7,7 @@ from typing import Optional, Dict, Type, Any, List
 import pydantic
 from pytz import UTC
 
-from stopcovid.dialog.registration import CodeValidationPayload
+from stopcovid.dialog.registration import CodeValidationPayload, AccountInfo
 from stopcovid.dialog.models.state import (
     DialogState,
     UserProfile,
@@ -36,6 +36,7 @@ class DialogEventType(enum.Enum):
     UNHANDLED_MESSAGE_RECEIVED = "UNHANDLED_MESSAGE_RECEIVED"
     SUPPORT_REQUESTED = "SUPPORT_REQUESTED"
     DASHBOARD_REQUESTED = "DASHBOARD_REQUESTED"
+    USER_UPDATED = "USER_UPDATED"
 
 
 class DialogEvent(pydantic.BaseModel):
@@ -239,6 +240,25 @@ class MenuRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
+class UserUpdated(DialogEvent):
+    event_type: DialogEventType = DialogEventType.USER_UPDATED
+    user_profile_data: dict
+
+    def apply_to(self, dialog_state: DialogState) -> None:
+        # TODO: revisit this (pretty unfortunate) updating logic. Maybe we should always just
+        # overwrite the dialog engine user profile data from scadmin, rather than having two
+        # sources of truth?
+        account_info = dialog_state.user_profile.account_info
+        if "account_info" in self.user_profile_data:
+            account_info = (
+                account_info.copy(update=self.user_profile_data["account_info"])
+                if account_info
+                else AccountInfo(**self.user_profile_data["account_info"])
+            )
+        dialog_state.user_profile = dialog_state.user_profile.copy(update=self.user_profile_data)
+        dialog_state.user_profile.account_info = account_info
+
+
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.ADVANCED_TO_NEXT_PROMPT: AdvancedToNextPrompt,
     DialogEventType.DRILL_COMPLETED: DrillCompleted,
@@ -257,6 +277,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.UNHANDLED_MESSAGE_RECEIVED: UnhandledMessageReceived,
     DialogEventType.SUPPORT_REQUESTED: SupportRequested,
     DialogEventType.DASHBOARD_REQUESTED: DashboardRequested,
+    DialogEventType.USER_UPDATED: UserUpdated,
 }
 
 
