@@ -7,7 +7,7 @@ class InboundCommandType(Enum):
     INBOUND_SMS = "INBOUND_SMS"
     START_DRILL = "START_DRILL"
     SEND_AD_HOC_MESSAGE = "SEND_AD_HOC_MESSAGE"
-    CREATE_USER = "CREATE_USER"
+    UPDATE_USER = "UPDATE_USER"
 
 
 class InboundCommand(pydantic.BaseModel):

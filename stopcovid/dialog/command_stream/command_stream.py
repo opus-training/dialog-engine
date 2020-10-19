@@ -5,7 +5,7 @@ from stopcovid.dialog.engine import (
     StartDrill,
     ProcessSMSMessage,
     SendAdHocMessage,
-    CreateUser,
+    UpdateUser,
 )
 from .types import InboundCommand, InboundCommandType
 
@@ -40,13 +40,11 @@ def handle_inbound_commands(commands: List[InboundCommand]) -> dict:
                 ),
                 command.sequence_number,
             )
-        elif command.command_type is InboundCommandType.CREATE_USER:
+        elif command.command_type is InboundCommandType.UPDATE_USER:
             process_command(
-                CreateUser(
+                UpdateUser(
                     phone_number=command.payload["phone_number"],
-                    name=command.payload["name"],
-                    unit_id=command.payload["unit_id"],
-                    employer_id=command.payload["employer_id"],
+                    user_profile_data=command.payload["user_profile_data"],
                 ),
                 command.sequence_number,
             )

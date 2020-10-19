@@ -7,7 +7,7 @@ from typing import Optional, Dict, Type, Any, List
 import pydantic
 from pytz import UTC
 
-from stopcovid.dialog.registration import CodeValidationPayload, AccountInfo
+from stopcovid.dialog.registration import CodeValidationPayload
 from stopcovid.dialog.models.state import (
     DialogState,
     UserProfile,
@@ -36,7 +36,7 @@ class DialogEventType(enum.Enum):
     UNHANDLED_MESSAGE_RECEIVED = "UNHANDLED_MESSAGE_RECEIVED"
     SUPPORT_REQUESTED = "SUPPORT_REQUESTED"
     DASHBOARD_REQUESTED = "DASHBOARD_REQUESTED"
-    USER_CREATED = "USER_CREATED"
+    USER_UPDATED = "USER_UPDATED"
 
 
 class DialogEvent(pydantic.BaseModel):
@@ -240,21 +240,12 @@ class MenuRequested(DialogEvent):
         dialog_state.user_profile.opted_out = False
 
 
-class UserCreated(DialogEvent):
-    event_type: DialogEventType = DialogEventType.USER_CREATED
-    name: str
-    unit_id: int
-    employer_id: int
+class UserUpdated(DialogEvent):
+    event_type: DialogEventType = DialogEventType.USER_UPDATED
+    user_profile_data: dict
 
     def apply_to(self, dialog_state: DialogState) -> None:
-        dialog_state.user_profile.name = self.name
-        if dialog_state.user_profile.account_info:
-            dialog_state.user_profile.account_info.unit_id = self.unit_id
-            dialog_state.user_profile.account_info.employer_id = self.employer_id
-        else:
-            dialog_state.user_profile.account_info = AccountInfo(
-                unit_id=self.unit_id, employer_id=self.employer_id
-            )
+        dialog_state.user_profile = dialog_state.user_profile.copy(update=self.user_profile_data)
 
 
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
@@ -275,7 +266,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.UNHANDLED_MESSAGE_RECEIVED: UnhandledMessageReceived,
     DialogEventType.SUPPORT_REQUESTED: SupportRequested,
     DialogEventType.DASHBOARD_REQUESTED: DashboardRequested,
-    DialogEventType.USER_CREATED: UserCreated,
+    DialogEventType.USER_UPDATED: UserUpdated,
 }
 
 
