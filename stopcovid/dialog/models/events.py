@@ -7,7 +7,7 @@ from typing import Optional, Dict, Type, Any, List
 import pydantic
 from pytz import UTC
 
-from stopcovid.dialog.registration import CodeValidationPayload
+from stopcovid.dialog.registration import CodeValidationPayload, AccountInfo
 from stopcovid.dialog.models.state import (
     DialogState,
     UserProfile,
@@ -245,7 +245,15 @@ class UserUpdated(DialogEvent):
     user_profile_data: dict
 
     def apply_to(self, dialog_state: DialogState) -> None:
+        account_info = (
+            dialog_state.user_profile.account_info
+            if dialog_state.user_profile.account_info
+            else AccountInfo()
+        )
+        if "account_info" in self.user_profile_data:
+            account_info = account_info.copy(update=self.user_profile_data["account_info"])
         dialog_state.user_profile = dialog_state.user_profile.copy(update=self.user_profile_data)
+        dialog_state.user_profile.account_info = account_info
 
 
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
