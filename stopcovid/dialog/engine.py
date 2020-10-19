@@ -25,6 +25,7 @@ from stopcovid.dialog.models.events import (
     UnhandledMessageReceived,
     SupportRequested,
     DashboardRequested,
+    UserCreated,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -354,5 +355,23 @@ class SendAdHocMessage(Command):
         return [
             AdHocMessageSent(
                 phone_number=self.phone_number, user_profile=dialog_state.user_profile, sms=self.sms
+            )
+        ]
+
+
+class CreateUser(Command):
+    def __init__(self, phone_number: str, name: str, unit_id: int, employer_id: int):
+        super().__init__(phone_number)
+        self.name = name
+        self.unit_id = unit_id
+        self.employer_id = employer_id
+
+    def execute(self, dialog_state: DialogState) -> List[DialogEvent]:
+        return [
+            UserCreated(
+                phone_number=self.phone_number,
+                name=self.name,
+                unit_id=self.unit_id,
+                employer_id=self.employer_id,
             )
         ]

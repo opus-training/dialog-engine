@@ -10,6 +10,7 @@ from stopcovid.dialog.engine import (
     ProcessSMSMessage,
     StartDrill,
     SendAdHocMessage,
+    CreateUser,
 )
 from stopcovid.dialog.models.events import (
     DialogEventBatch,
@@ -19,6 +20,7 @@ from stopcovid.dialog.models.events import (
     AdvancedToNextPrompt,
     FailedPrompt,
     DrillCompleted,
+    UserCreated,
 )
 from stopcovid.dialog.models.state import DialogState, PromptState, AccountInfo
 
@@ -558,3 +560,17 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
         self.assertEqual(batch.events[0].message, "BLABLABLA")
+
+    def test_create_user(self):
+        name = "foo"
+        unit_id = 123
+        employer_id = 456
+        command = CreateUser(self.phone_number, name, unit_id, employer_id)
+
+        batch = self._process_command(command)
+
+        self._assert_event_types(batch, DialogEventType.USER_CREATED)
+        event: UserCreated = batch.events[0]  # type: ignore
+        self.assertEqual(event.name, name)
+        self.assertEqual(event.unit_id, unit_id)
+        self.assertEqual(event.employer_id, employer_id)
