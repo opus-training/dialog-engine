@@ -566,7 +566,7 @@ class TestProcessCommand(unittest.TestCase):
         employer_id = 456
         user_profile_data = {
             "name": name,
-            "account_info": {"unit_id": unit_id, "employe_id": employer_id},
+            "account_info": {"unit_id": unit_id, "employer_id": employer_id},
         }
         command = UpdateUser(self.phone_number, user_profile_data)
 
