@@ -571,4 +571,4 @@ class TestProcessCommand(unittest.TestCase):
         self._assert_event_types(batch, DialogEventType.USER_CREATED)
         self.assertEqual(self.dialog_state.user_profile.name, name)
         self.assertEqual(self.dialog_state.user_profile.account_info.unit_id, unit_id)
-        self.assertEqual(self.dialog_state.user_profile.account_into.employer_id, employer_id)
+        self.assertEqual(self.dialog_state.user_profile.account_info.employer_id, employer_id)
