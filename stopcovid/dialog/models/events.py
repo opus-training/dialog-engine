@@ -245,13 +245,16 @@ class UserUpdated(DialogEvent):
     user_profile_data: dict
 
     def apply_to(self, dialog_state: DialogState) -> None:
-        account_info = (
-            dialog_state.user_profile.account_info
-            if dialog_state.user_profile.account_info
-            else AccountInfo()
-        )
+        # TODO: revisit this (pretty unfortunate) updating logic. Maybe we should always just
+        # overwrite the dialog engine user profile data from scadmin, rather than having two
+        # sources of truth?
+        account_info = dialog_state.user_profile.account_info
         if "account_info" in self.user_profile_data:
-            account_info = account_info.copy(update=self.user_profile_data["account_info"])
+            account_info = (
+                account_info.copy(update=self.user_profile_data["account_info"])
+                if account_info
+                else AccountInfo(**self.user_profile_data["account_info"])
+            )
         dialog_state.user_profile = dialog_state.user_profile.copy(update=self.user_profile_data)
         dialog_state.user_profile.account_info = account_info
 
