@@ -20,7 +20,6 @@ from stopcovid.dialog.models.events import (
     AdvancedToNextPrompt,
     FailedPrompt,
     DrillCompleted,
-    UserCreated,
 )
 from stopcovid.dialog.models.state import DialogState, PromptState, AccountInfo
 
