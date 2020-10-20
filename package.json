@@ -6,6 +6,7 @@
   "devDependencies": {
     "serverless-dotenv-plugin": "^2.3.2",
     "serverless-log-forwarding": "^1.4.0",
+    "serverless-plugin-datadog": "^2.5.0",
     "serverless-python-requirements": "^5.1.0"
   }
 }
