@@ -4,11 +4,9 @@ org: jeffreysilver
 
 custom:
   datadog:
-    forwarder: ${ssm:/stopcovid/${self:provider.stage}/logForwardingDestinationArn}
+    forwarder: ${ssm:/stopcovid/${self:provider.stage}/datadogForwarderArn}
   enterprise:
     collectLambdaLogs: false
-  logForwarding:
-      destinationARN: ${ssm:/stopcovid/${self:provider.stage}/logForwardingDestinationArn}
   pythonRequirements:
     usePoetry: false
     usePipenv: false
