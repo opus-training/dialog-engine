@@ -50,7 +50,6 @@ provider:
 
 plugins:
   - serverless-python-requirements
-  - serverless-log-forwarding
   - serverless-plugin-datadog
 
 functions:
