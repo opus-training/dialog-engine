@@ -43,7 +43,7 @@ You can simulate the core of dialog processing on the command line — by feedin
 
 The `manage.py` script contains commands that we've found helpful while operating the Dialog Engine in production. You'll need appropriate AWS credentials in your environment to use this script. Type `python manage.py --help` for info on what this script can do.
 
-### Replay SQS DQL message:
+### Replay SQS DQL messages:
 ```python -m manage --stage=prod redrive-sqs sms```
 
 ## CI
