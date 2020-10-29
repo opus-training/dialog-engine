@@ -43,6 +43,9 @@ You can simulate the core of dialog processing on the command line — by feedin
 
 The `manage.py` script contains commands that we've found helpful while operating the Dialog Engine in production. You'll need appropriate AWS credentials in your environment to use this script. Type `python manage.py --help` for info on what this script can do.
 
+### Replay SQS DQL message:
+```python -m manage --stage=prod redrive-sqs sms```
+
 ## CI
 We use [black](https://black.readthedocs.io/en/stable/) for code formatting and flake8 for linting, with a custom rule setting maximum line length to 100.
 - `black --config black.toml .`
