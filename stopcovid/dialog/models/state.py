@@ -32,7 +32,7 @@ class UserProfile(pydantic.BaseModel):
     team_size: Optional[str] = None
     company_name: Optional[str] = None
     whatsapp_opt_in: Optional[str] = None
-    
+
     def __str__(self) -> str:
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
 
