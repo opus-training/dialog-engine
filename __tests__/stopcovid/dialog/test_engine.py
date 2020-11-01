@@ -451,7 +451,6 @@ class TestProcessCommand(unittest.TestCase):
         messages = ["schedule", "calendario"]
         for message in messages:
             self.dialog_state.user_profile.validated = True
-            self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
@@ -468,7 +467,6 @@ class TestProcessCommand(unittest.TestCase):
     def test_change_name_drill_requested(self):
         for message in ["name", "nombre"]:
             self.dialog_state.user_profile.validated = True
-            self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
@@ -485,7 +483,6 @@ class TestProcessCommand(unittest.TestCase):
     def test_change_language_drill_requested(self):
         for message in ["lang", "language", "idioma"]:
             self.dialog_state.user_profile.validated = True
-            self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
@@ -497,6 +494,18 @@ class TestProcessCommand(unittest.TestCase):
             self.assertEqual(
                 batch.events[0].abandoned_drill_instance_id,
                 uuid.UUID("11111111-1111-1111-1111-111111111111"),
+            )
+
+    def test_certain_keywords_ignored_while_during_lesson(self):
+        for message in ["lang", "schedule", "horario", "more", "mas", "name"]:
+            self.dialog_state.user_profile.validated = True
+            self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
+            self._set_current_prompt(1)
+            self.dialog_state.current_drill = self.drill
+            command = ProcessSMSMessage(self.phone_number, message)
+            batch = self._process_command(command)
+            self._assert_event_types(
+                batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT
             )
 
     def test_dashboard_requested(self):
