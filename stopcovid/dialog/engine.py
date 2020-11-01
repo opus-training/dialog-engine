@@ -149,15 +149,15 @@ class ProcessSMSMessage(Command):
             self._respond_to_help,
             self._menu_requested,
             self._support_requested,
-            self._name_change_drill_requested,
-            self._language_change_drill_requested,
-            self._update_schedule_requested,
             self._dashboard_requested,
             self._handle_opt_out,
             self._handle_opt_back_in,
             self._validate_registration,
             self._check_response,
-            self._advance_to_next_drill,
+            self._next_drill_requested,
+            self._name_change_drill_requested,
+            self._language_change_drill_requested,
+            self._update_schedule_requested,
             self._unhandled_message,
         ]
         for handler in handlers:
@@ -265,7 +265,7 @@ class ProcessSMSMessage(Command):
 
         return events
 
-    def _advance_to_next_drill(
+    def _next_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
         prompt = dialog_state.get_prompt()
