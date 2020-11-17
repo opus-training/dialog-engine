@@ -520,9 +520,8 @@ class TestProcessCommand(unittest.TestCase):
             self.assertIsNone(self.dialog_state.current_drill)
             self.assertIsNone(self.dialog_state.drill_instance_id)
             self.assertIsNone(self.dialog_state.current_prompt_state)
-            self.assertEqual(
+            self.assertIsNone(
                 batch.events[0].abandoned_drill_instance_id,
-                uuid.UUID("11111111-1111-1111-1111-111111111111"),
             )
 
     def test_support_requested(self):
