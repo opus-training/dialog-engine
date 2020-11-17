@@ -278,11 +278,7 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["dashboard", "tablero"]:
-            return [
-                DashboardRequested(
-                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
-                )
-            ]
+            return [DashboardRequested(**base_args)]
         return None
 
     def _update_schedule_requested(
