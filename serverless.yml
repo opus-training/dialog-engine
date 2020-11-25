@@ -149,6 +149,14 @@ functions:
               - DialogEventBatches
               - StreamArn
           startingPosition: LATEST
+          maximumRetryAttempts: 5
+          destinations:
+            onFailure:
+              arn:
+                Fn::GetAtt:
+                  - PublishDialogEventBatchesFailureQueue
+                  - Arn
+              type: sqs
 
 resources:
   Resources:
@@ -318,3 +326,8 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: distribute-dialog-events-failures-${self:provider.stage}
+
+    PublishDialogEventBatchesFailureQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: publish-dialog-events-batches-failures-${self:provider.stage}
