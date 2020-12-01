@@ -215,9 +215,6 @@ class DashboardRequested(DialogEvent):
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
 
     def apply_to(self, dialog_state: DialogState) -> None:
-        dialog_state.current_drill = None
-        dialog_state.drill_instance_id = None
-        dialog_state.current_prompt_state = None
         dialog_state.user_profile.opted_out = False
 
 
