@@ -270,8 +270,7 @@ class ProcessSMSMessage(Command):
     def _drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        prompt = dialog_state.get_prompt()
-        if prompt is None:
+        if not dialog_state.current_drill:
             if self.content_lower in ["go", "vamos"]:
                 return [DrillRequested(**base_args)]
         return None
