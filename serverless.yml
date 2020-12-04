@@ -264,7 +264,7 @@ resources:
             Projection:
               ProjectionType: ALL
         StreamSpecification:
-          StreamViewType: NEW_IMAGE
+          StreamViewType: NEW_AND_OLD_IMAGES
         BillingMode: PAY_PER_REQUEST
 
     # GENERAL IDEMPOTENCY
