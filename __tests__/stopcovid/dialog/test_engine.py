@@ -433,6 +433,22 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
 
+    def test_ask_for_drill(self):
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.current_drill = None
+        command = ProcessSMSMessage(self.phone_number, "go")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.DRILL_REQUESTED)
+
+        command = ProcessSMSMessage(self.phone_number, "vamos")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.DRILL_REQUESTED)
+
+        self.dialog_state.current_drill = self.drill
+        command = ProcessSMSMessage(self.phone_number, "go")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
+
     def test_send_ad_hoc_message(self):
         self.dialog_state.user_profile.validated = True
         message = "An ad hoc message to a user"

@@ -14,6 +14,7 @@ from stopcovid.dialog.models.events import (
     AdvancedToNextPrompt,
     DrillCompleted,
     OptedOut,
+    DrillRequested,
     NextDrillRequested,
     SchedulingDrillRequested,
     AdHocMessageSent,
@@ -154,6 +155,7 @@ class ProcessSMSMessage(Command):
             self._handle_opt_back_in,
             self._validate_registration,
             self._check_response,
+            self._drill_requested,
             self._next_drill_requested,
             self._name_change_drill_requested,
             self._language_change_drill_requested,
@@ -264,6 +266,14 @@ class ProcessSMSMessage(Command):
                 )
 
         return events
+
+    def _drill_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        if not dialog_state.current_drill:
+            if self.content_lower in ["go", "vamos"]:
+                return [DrillRequested(**base_args)]
+        return None
 
     def _next_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
