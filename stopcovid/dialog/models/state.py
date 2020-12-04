@@ -33,6 +33,7 @@ class UserProfile(pydantic.BaseModel):
     company_name: Optional[str] = None
     whatsapp_opt_in: Optional[str] = None
     ssl_opt_in: Optional[str] = None
+    is_working: Optional[str] = None
 
     def __str__(self) -> str:
         return f"lang={self.language}, validated={self.validated}, " f"name={self.name}"
