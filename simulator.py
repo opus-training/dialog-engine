@@ -83,7 +83,6 @@ class InMemoryRepository(DialogRepository):
         self.repo[dialog_state.phone_number] = dialog_state.json()
         assert dialog_state.user_profile.language
         drill_to_start = None
-        print(event_batch.user_profile)
         for event in event_batch.events:
             if isinstance(event, AdvancedToNextPrompt):
                 fake_sms(
