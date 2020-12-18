@@ -540,15 +540,10 @@ class TestSerialization(unittest.TestCase):
         original = MenuRequested(
             phone_number="123456789",
             user_profile=UserProfile(validated=True),
-            abandoned_drill_instance_id="11111111-1111-1111-1111-111111111111",
         )
         serialized = original.dict()
         deserialized = event_from_dict(serialized)
         self._make_base_assertions(original, deserialized)
-        self.assertEqual(
-            deserialized.abandoned_drill_instance_id,
-            uuid.UUID("11111111-1111-1111-1111-111111111111"),
-        )
 
     def test_unhandled_message_received(self):
         original = UnhandledMessageReceived(

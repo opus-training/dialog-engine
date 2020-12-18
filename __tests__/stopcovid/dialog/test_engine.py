@@ -566,13 +566,6 @@ class TestProcessCommand(unittest.TestCase):
             command = ProcessSMSMessage(self.phone_number, message)
             batch = self._process_command(command)
             self._assert_event_types(batch, DialogEventType.MENU_REQUESTED)
-            self.assertIsNone(self.dialog_state.current_drill)
-            self.assertIsNone(self.dialog_state.drill_instance_id)
-            self.assertIsNone(self.dialog_state.current_prompt_state)
-            self.assertEqual(
-                batch.events[0].abandoned_drill_instance_id,
-                uuid.UUID("11111111-1111-1111-1111-111111111111"),
-            )
 
     def test_unhandled_message_received(self):
         self.dialog_state.user_profile.validated = True

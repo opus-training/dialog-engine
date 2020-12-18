@@ -339,11 +339,7 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["menu", "menú"]:
-            return [
-                MenuRequested(
-                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
-                )
-            ]
+            return [MenuRequested(**base_args)]
         return None
 
     def _unhandled_message(
