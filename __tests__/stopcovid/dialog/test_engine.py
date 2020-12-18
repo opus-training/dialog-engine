@@ -329,7 +329,7 @@ class TestProcessCommand(unittest.TestCase):
         self.dialog_state.user_profile.validated = True
         self.dialog_state.current_drill = choose_language_drill
         self._set_current_prompt(0, drill=choose_language_drill)
-        command = ProcessSMSMessage(self.phone_number, "en")
+        command = ProcessSMSMessage(self.phone_number, "es")
         batch = self._process_command(command)
 
         self._assert_event_types(
@@ -337,7 +337,8 @@ class TestProcessCommand(unittest.TestCase):
             DialogEventType.COMPLETED_PROMPT,
             DialogEventType.DRILL_COMPLETED,
         )
-        self.assertEqual(batch.events[0].user_profile_updates, {"language": "en"})
+        self.assertEqual(batch.events[0].user_profile_updates, {"language": "es"})
+        self.assertEqual(batch.user_profile.language, "es")
 
     @patch("stopcovid.drills.drills.Prompt.should_advance_with_answer", return_value=False)
     def test_conclude_with_too_many_wrong_answers(self, *args):

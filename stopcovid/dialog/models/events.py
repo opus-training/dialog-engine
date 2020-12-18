@@ -295,6 +295,7 @@ class DialogEventBatch(pydantic.BaseModel):
     seq: str
     batch_id: uuid.UUID = pydantic.Field(default_factory=uuid.uuid4)
     created_time: datetime = pydantic.Field(default_factory=lambda: datetime.now(UTC))
+    user_profile: Optional[UserProfile] = None
 
 
 def batch_from_dict(batch_dict: Dict[str, Any]) -> DialogEventBatch:
