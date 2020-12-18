@@ -300,6 +300,11 @@ class DialogEventBatch(pydantic.BaseModel):
 
 def batch_from_dict(batch_dict: Dict[str, Any]) -> DialogEventBatch:
     events = batch_dict.pop("events") if "events" in batch_dict else []
+    user_profile = (
+        UserProfile(**batch_dict.pop("user_profile")) if "user_profile" in batch_dict else None
+    )
     return DialogEventBatch(
-        events=[event_from_dict(event_dict) for event_dict in events], **batch_dict
+        events=[event_from_dict(event_dict) for event_dict in events],
+        user_profile=user_profile,
+        **batch_dict,
     )
