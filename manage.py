@@ -34,10 +34,6 @@ def handle_redrive_sqs(args: Any) -> None:
             "queue": f"drill-initiation-{args.stage}",
             "dlq": f"drill-initiation-dlq-{args.stage}",
         },
-        "drill-initiation": {
-            "queue": f"drill-initiation-{args.stage}",
-            "dlq": f"drill-initiation-dlq-{args.stage}",
-        },
     }
     queue_config = queue_configs[args.queue]
 
