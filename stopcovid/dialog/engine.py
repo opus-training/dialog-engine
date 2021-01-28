@@ -232,7 +232,9 @@ class ProcessSMSMessage(Command):
             should_advance = True
         else:
             assert dialog_state.current_prompt_state
-            should_advance = dialog_state.current_prompt_state.failures >= prompt.max_failures
+            should_advance = dialog_state.current_prompt_state.failures >= (
+                prompt.max_failures or 1
+            )
             events.append(
                 FailedPrompt(
                     prompt=prompt,

@@ -15,7 +15,7 @@ class Prompt(pydantic.BaseModel):
     messages: List[PromptMessage]
     response_user_profile_key: Optional[str] = None
     correct_response: Optional[str] = None
-    max_failures: int = 1
+    max_failures: Optional[int] = 1
 
     def should_advance_with_answer(self, answer: str) -> bool:
         if self.correct_response is None:
