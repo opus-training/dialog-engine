@@ -165,6 +165,7 @@ class ProcessSMSMessage(Command):
             self._name_change_drill_requested,
             self._language_change_drill_requested,
             self._update_schedule_requested,
+            self._thank_you,
             self._unhandled_message,
         ]
         for handler in handlers:
@@ -232,9 +233,7 @@ class ProcessSMSMessage(Command):
             should_advance = True
         else:
             assert dialog_state.current_prompt_state
-            should_advance = dialog_state.current_prompt_state.failures >= (
-                prompt.max_failures or 1
-            )
+            should_advance = dialog_state.current_prompt_state.failures >= prompt.max_failures
             events.append(
                 FailedPrompt(
                     prompt=prompt,
@@ -278,7 +277,15 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
         if not dialog_state.current_drill:
-            if self.content_lower in ["go", "vamos"]:
+            if self.content_lower in [
+                "go",
+                "vamos",
+                "start",
+                "comienzo",
+                "aller",
+                "debut",
+                "début",
+            ]:
                 return [DrillRequested(**base_args)]
         return None
 
@@ -343,6 +350,13 @@ class ProcessSMSMessage(Command):
         return None
 
     def _menu_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        if self.content_lower in ["menu", "menú"]:
+            return [MenuRequested(**base_args)]
+        return None
+
+    def _thank_you(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
         if self.content_lower in ["menu", "menú"]:
