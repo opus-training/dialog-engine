@@ -278,7 +278,15 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
         if not dialog_state.current_drill:
-            if self.content_lower in ["go", "vamos"]:
+            if self.content_lower in [
+                "go",
+                "vamos",
+                "start",
+                "comienzo",
+                "aller",
+                "debut",
+                "début",
+            ]:
                 return [DrillRequested(**base_args)]
         return None
 
