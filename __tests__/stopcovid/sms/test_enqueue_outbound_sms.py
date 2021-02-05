@@ -116,6 +116,7 @@ class TestHandleCommand(unittest.TestCase):
                 phone_number=self.phone,
                 user_profile=self.validated_user_profile,
                 drill_instance_id=uuid.uuid4(),
+                last_prompt_response="response",
             )
         ]
         outbound_messages = get_outbound_sms_commands(dialog_events)
