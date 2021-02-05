@@ -268,7 +268,7 @@ class ProcessSMSMessage(Command):
                 events.append(
                     DrillCompleted(
                         drill_instance_id=dialog_state.drill_instance_id,
-                        last_prompt_response=self.content,
+                        last_prompt_response=self.content or None,
                         **base_args,
                     )
                 )
