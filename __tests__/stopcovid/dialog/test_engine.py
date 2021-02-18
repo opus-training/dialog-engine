@@ -575,6 +575,12 @@ class TestProcessCommand(unittest.TestCase):
         self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
         self.assertEqual(batch.events[0].message, "BLABLABLA")
 
+    def test_thank_you_received(self):
+        self.dialog_state.user_profile.validated = True
+        command = ProcessSMSMessage(self.phone_number, "Thanks!!")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.THANK_YOU_RECEIVED)
+
     def test_update_user(self):
         name = "foo"
         unit_id = 123
