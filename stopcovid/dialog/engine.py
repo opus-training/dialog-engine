@@ -364,6 +364,10 @@ class ProcessSMSMessage(Command):
         return [UnhandledMessageReceived(**base_args, message=self.content)]
 
 
+    def _thank_you(self, dialog_state: DialogState, base_args: Dict[str, Any]):
+        if self.content_lower in
+
+
 class SendAdHocMessage(Command):
     def __init__(self, phone_number: str, message: str, media_url: Optional[str] = None):
         super().__init__(phone_number)

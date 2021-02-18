@@ -38,6 +38,7 @@ class DialogEventType(enum.Enum):
     SUPPORT_REQUESTED = "SUPPORT_REQUESTED"
     DASHBOARD_REQUESTED = "DASHBOARD_REQUESTED"
     USER_UPDATED = "USER_UPDATED"
+    THANK_YOU_RECEIVED = "THANK_YOU_RECEIVED"
 
 
 class DialogEvent(pydantic.BaseModel):
@@ -230,6 +231,13 @@ class DashboardRequested(DialogEvent):
 class UnhandledMessageReceived(DialogEvent):
     event_type: DialogEventType = DialogEventType.UNHANDLED_MESSAGE_RECEIVED
     message: str = "None"
+
+    def apply_to(self, dialog_state: DialogState) -> None:
+        pass
+
+
+class ThankYouReceived(DialogEvent):
+    event_type: DialogEventType = DialogEventType.THANK_YOU_RECEIVED
 
     def apply_to(self, dialog_state: DialogState) -> None:
         pass
