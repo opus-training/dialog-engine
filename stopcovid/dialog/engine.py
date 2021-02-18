@@ -27,6 +27,7 @@ from stopcovid.dialog.models.events import (
     SupportRequested,
     DashboardRequested,
     UserUpdated,
+    ThankYouReceived,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -165,6 +166,7 @@ class ProcessSMSMessage(Command):
             self._name_change_drill_requested,
             self._language_change_drill_requested,
             self._update_schedule_requested,
+            self._thank_you,
             self._unhandled_message,
         ]
         for handler in handlers:
@@ -362,6 +364,14 @@ class ProcessSMSMessage(Command):
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> List[DialogEvent]:
         return [UnhandledMessageReceived(**base_args, message=self.content)]
+
+    def _thank_you(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        for option in ["thank", "thanks", "gracias", "merci", "សូមអរគុណ"]:
+            if option in self.content.lower():
+                return [ThankYouReceived(**base_args)]
+        return None
 
 
 class SendAdHocMessage(Command):

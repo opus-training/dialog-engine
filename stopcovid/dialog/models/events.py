@@ -38,6 +38,7 @@ class DialogEventType(enum.Enum):
     SUPPORT_REQUESTED = "SUPPORT_REQUESTED"
     DASHBOARD_REQUESTED = "DASHBOARD_REQUESTED"
     USER_UPDATED = "USER_UPDATED"
+    THANK_YOU_RECEIVED = "THANK_YOU_RECEIVED"
 
 
 class DialogEvent(pydantic.BaseModel):
@@ -235,6 +236,13 @@ class UnhandledMessageReceived(DialogEvent):
         pass
 
 
+class ThankYouReceived(DialogEvent):
+    event_type: DialogEventType = DialogEventType.THANK_YOU_RECEIVED
+
+    def apply_to(self, dialog_state: DialogState) -> None:
+        pass
+
+
 class MenuRequested(DialogEvent):
     event_type: DialogEventType = DialogEventType.MENU_REQUESTED
     abandoned_drill_instance_id: Optional[uuid.UUID] = None
@@ -282,6 +290,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.SUPPORT_REQUESTED: SupportRequested,
     DialogEventType.DASHBOARD_REQUESTED: DashboardRequested,
     DialogEventType.USER_UPDATED: UserUpdated,
+    DialogEventType.THANK_YOU_RECEIVED: ThankYouReceived,
 }
 
 
