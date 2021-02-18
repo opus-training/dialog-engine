@@ -365,7 +365,9 @@ class ProcessSMSMessage(Command):
     ) -> List[DialogEvent]:
         return [UnhandledMessageReceived(**base_args, message=self.content)]
 
-    def _thank_you(self, dialog_state: DialogState, base_args: Dict[str, Any]) -> Optional[List[DialogEvent]]:
+    def _thank_you(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
         for option in ["thank", "thanks", "gracias", "merci", "សូមអរគុណ"]:
             if option in self.content.lower():
                 return [ThankYouReceived(**base_args)]
