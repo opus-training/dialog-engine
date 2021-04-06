@@ -157,6 +157,7 @@ class ProcessSMSMessage(Command):
             self._dashboard_requested,
             self._handle_opt_out,
             self._handle_opt_back_in,
+            self._validate_demo_registration,
             self._check_response,
             self._validate_registration,
             self._drill_requested,
@@ -195,6 +196,16 @@ class ProcessSMSMessage(Command):
             if self.content_lower in ["start", "unstop", "go"]:
                 return [NextDrillRequested(**base_args)]
             return []
+        return None
+
+    def _validate_demo_registration(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        if not dialog_state.user_profile.is_demo:
+            return None
+        validation_payload = self.registration_validator.validate_code(self.content_lower)
+        if validation_payload.valid:
+            return [UserValidated(code_validation_payload=validation_payload, **base_args)]
         return None
 
     def _validate_registration(
