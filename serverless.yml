@@ -42,9 +42,9 @@ provider:
   environment:
     STAGE: ${self:provider.stage}
     DEPLOY_STAGE: ${ssm:/stopcovid/${self:provider.stage}/deployStage}
-    TWILIO_MESSAGING_SERVICE_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioMessagingServiceSID~true}
-    TWILIO_ACCOUNT_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioAccountSID~true}
-    TWILIO_AUTH_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/twilioAuthToken~true}
+    TWILIO_MESSAGING_SERVICE_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioMessagingServiceSID}
+    TWILIO_ACCOUNT_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioAccountSID}
+    TWILIO_AUTH_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/twilioAuthToken}
     DB_CLUSTER_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbClusterArn}
     DB_SECRET_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbSecretArn}
     DRILL_CONTENT_S3_BUCKET: ${ssm:/stopcovid/${self:provider.stage}/drillContentS3Bucket}
@@ -118,7 +118,7 @@ functions:
     environment:
       DIALOG_TABLE_NAME_SUFFIX: ${self:provider.stage}
       REGISTRATION_VALIDATION_URL: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationUrl}
-      REGISTRATION_VALIDATION_KEY: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationKey~true}
+      REGISTRATION_VALIDATION_KEY: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationKey}
 
   distributeDialogEvents:
     handler: stopcovid/sms/aws_lambdas/enqueue_sms_batch.handler
