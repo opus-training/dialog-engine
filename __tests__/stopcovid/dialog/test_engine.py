@@ -194,6 +194,34 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.DRILL_STARTED)
 
+    def test_revalidate_demo_user(self):
+        validator = MagicMock()
+        validation_payload = CodeValidationPayload(valid=True, is_demo=True)
+        validator.validate_code = MagicMock(return_value=validation_payload)
+        self.assertFalse(self.dialog_state.user_profile.validated)
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
+
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
+
+        command = StartDrill(self.phone_number, self.drill.slug, self.drill.dict(), uuid.uuid4())
+        self._process_command(command)
+
+        validation_payload = CodeValidationPayload(
+            valid=True,
+            account_info={
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+        )
+        validator.validate_code = MagicMock(return_value=validation_payload)
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
+
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
+
     def test_start_drill_opted_out(self):
         self.dialog_state.user_profile.validated = True
         self.dialog_state.user_profile.opted_out = True
