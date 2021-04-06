@@ -3,6 +3,7 @@ app: slowcovid
 org: jeffreysilver
 
 unresolvedVariablesNotificationMode: error
+variablesResolutionMode: 20210326
 
 custom:
   datadog:
