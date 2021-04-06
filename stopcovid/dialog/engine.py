@@ -106,13 +106,11 @@ class StartDrill(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
+        if dialog_state.user_profile.opted_out:
             logging.warning(
-                f"Attempted to initiate a drill for {dialog_state.phone_number}, "
-                f"who hasn't validated or has opted out."
+                f"Attempted to initiate a drill for {dialog_state.phone_number} who has opted out."
             )
             return []
-
         return [
             DrillStarted(
                 phone_number=self.phone_number,
@@ -159,8 +157,8 @@ class ProcessSMSMessage(Command):
             self._dashboard_requested,
             self._handle_opt_out,
             self._handle_opt_back_in,
-            self._validate_registration,
             self._check_response,
+            self._validate_registration,
             self._drill_requested,
             self._next_drill_requested,
             self._name_change_drill_requested,
@@ -202,8 +200,7 @@ class ProcessSMSMessage(Command):
     def _validate_registration(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-
-        if dialog_state.user_profile.is_demo or not dialog_state.user_profile.validated:
+        if not dialog_state.user_profile.validated:
             validation_payload = self.registration_validator.validate_code(self.content_lower)
             if validation_payload.valid:
                 return [UserValidated(code_validation_payload=validation_payload, **base_args)]
