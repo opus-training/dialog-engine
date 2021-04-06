@@ -2,6 +2,8 @@ service: slowcovid
 app: slowcovid
 org: jeffreysilver
 
+unresolvedVariablesNotificationMode: error
+
 custom:
   datadog:
     forwarder: ${ssm:/stopcovid/${self:provider.stage}/datadogForwarderArn}
@@ -34,6 +36,7 @@ provider:
         - secretsmanager:GetSecretValue
         - s3:GetObject
         - s3:GetObjectVersion
+        - ssm:GetParameter
       Resource: "*"
 
   environment:
