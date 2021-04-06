@@ -106,13 +106,6 @@ class StartDrill(Command):
     def execute(
         self, dialog_state: DialogState
     ) -> List[stopcovid.dialog.models.events.DialogEvent]:
-        if dialog_state.user_profile.opted_out or not dialog_state.user_profile.validated:
-            logging.warning(
-                f"Attempted to initiate a drill for {dialog_state.phone_number}, "
-                f"who hasn't validated or has opted out."
-            )
-            return []
-
         return [
             DrillStarted(
                 phone_number=self.phone_number,
