@@ -23,7 +23,7 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.7
+  runtime: python3.7.10
   stage: ${opt:stage, 'dev'}
   region: us-east-1
   iamRoleStatements:
