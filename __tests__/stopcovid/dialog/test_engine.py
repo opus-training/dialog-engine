@@ -581,6 +581,11 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.THANK_YOU_RECEIVED)
 
+    def test_demo_requested(self):
+        command = ProcessSMSMessage(self.phone_number, "OPUS")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.DEMO_REQUESTED)
+
     def test_update_user(self):
         name = "foo"
         unit_id = 123

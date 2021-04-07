@@ -28,6 +28,7 @@ from stopcovid.dialog.models.events import (
     DashboardRequested,
     UserUpdated,
     ThankYouReceived,
+    DemoRequested,
 )
 from stopcovid.dialog.persistence import DialogRepository, DynamoDBDialogRepository
 from stopcovid.dialog.registration import (
@@ -159,6 +160,7 @@ class ProcessSMSMessage(Command):
             self._handle_opt_back_in,
             self._validate_demo_registration,
             self._check_response,
+            self._demo_requested,
             self._validate_registration,
             self._drill_requested,
             self._next_drill_requested,
@@ -217,6 +219,13 @@ class ProcessSMSMessage(Command):
                 return [UserValidated(code_validation_payload=validation_payload, **base_args)]
             if not dialog_state.user_profile.validated:
                 return [UserValidationFailed(**base_args)]
+        return None
+
+    def _demo_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        if self.content_lower == "opus":
+            return [DemoRequested(**base_args)]
         return None
 
     def _check_response(
