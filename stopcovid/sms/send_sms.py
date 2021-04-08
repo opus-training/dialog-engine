@@ -8,7 +8,7 @@ from typing import List, Any, Optional
 from twilio.rest.api.v2010.account.message import MessageInstance
 
 from . import twilio
-from stopcovid.sms.types import SMSBatch
+from stopcovid.sms.types import SMSBatch, OutboundPayload
 
 from . import publish
 from ..utils.idempotency import IdempotencyChecker
@@ -20,9 +20,17 @@ IDEMPOTENCY_REALM = "send-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
 
 
-def _publish_send(twilio_response: Any) -> None:
+def _publish_send(twilio_response: Any, media_url: Optional[str] = None) -> None:
     try:
-        publish.publish_outbound_sms([twilio_response])
+        publish.publish_outbound_sms(
+            OutboundPayload(
+                MessageSid=twilio_response.sid,
+                To=twilio_response.to,
+                Body=twilio_response.body,
+                Status=twilio_response.status,
+                MediaUrl=media_url,
+            )
+        )
     except Exception:
         twilio_dict = {
             "twilio_message_id": twilio_response.sid,
@@ -43,12 +51,8 @@ def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
     twilio_responses = []
     for i, message in enumerate(batch.messages):
         res = twilio.send_message(batch.phone_number, message.body, message.media_url)
-        _publish_send(res)
+        _publish_send(res, message.media_url)
         twilio_responses.append(res)
-        try:
-            logging.info(f"Twilio outbound response: {json.dumps(res)}")
-        except Exception:
-            pass
 
         # sleep after every message besides the last one
         if i < len(batch.messages) - 1:
