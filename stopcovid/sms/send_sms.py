@@ -9,7 +9,6 @@ from twilio.rest.api.v2010.account.message import MessageInstance
 
 from . import twilio
 from stopcovid.sms.types import SMSBatch
-from stopcovid.utils.logging import _is_running_unit_tests
 
 from . import publish
 from ..utils.idempotency import IdempotencyChecker
