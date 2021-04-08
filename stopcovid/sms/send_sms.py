@@ -21,7 +21,6 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
 
 
 def _publish_send(twilio_response: Any) -> None:
-    logging.info(f"Twilio outbound response: {twilio_response}")
     try:
         publish.publish_outbound_sms([twilio_response])
     except Exception:
@@ -44,6 +43,7 @@ def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
     twilio_responses = []
     for i, message in enumerate(batch.messages):
         res = twilio.send_message(batch.phone_number, message.body, message.media_url)
+        logging.info(f"Twilio outbound response: {json.dumps(twilio_response)}")
         _publish_send(res)
         twilio_responses.append(res)
 
