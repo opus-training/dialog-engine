@@ -32,7 +32,7 @@ def _publish_send(twilio_response: Any) -> None:
             "error_code": twilio_response.error_code,
             "error_message": twilio_response.error_message,
         }
-        logging.info(f"Failed to publisht to kinesis log: {json.dumps(twilio_dict)}")
+        logging.info(f"Failed to publish to kinesis log: {json.dumps(twilio_dict)}")
 
 
 def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
