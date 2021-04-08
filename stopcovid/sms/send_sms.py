@@ -46,7 +46,7 @@ def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
         _publish_send(res)
         twilio_responses.append(res)
         try:
-            logging.info(f"Twilio outbound response: {res}")
+            logging.info(f"Twilio outbound response: {json.dumps(res)}")
         except Exception:
             pass
 
