@@ -5,7 +5,7 @@ from stopcovid.sms.types import SMSBatch, SMS
 from stopcovid.sms.send_sms import send_sms_batches, DELAY_SECONDS_AFTER_MEDIA
 
 
-@patch("stopcovid.sms.send_sms.publish")
+@patch("stopcovid.sms.send_sms._publish_send")
 @patch("stopcovid.sms.send_sms.twilio")
 @patch("stopcovid.sms.send_sms.sleep")
 class TestSendSMS(unittest.TestCase):
