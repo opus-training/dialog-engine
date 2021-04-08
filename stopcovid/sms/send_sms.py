@@ -32,7 +32,7 @@ def _publish_send(twilio_response: Any) -> None:
             "error_code": twilio_response.error_code,
             "error_message": twilio_response.error_message,
         }
-        logging.info(f"Failed to publisht to kinesis log: {json.dumps(twilio_dict)}")
+        logging.info(f"Failed to publish to kinesis log: {json.dumps(twilio_dict)}")
 
 
 def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
@@ -45,6 +45,10 @@ def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
         res = twilio.send_message(batch.phone_number, message.body, message.media_url)
         _publish_send(res)
         twilio_responses.append(res)
+        try:
+            logging.info(f"Twilio outbound response: {json.dumps(res)}")
+        except Exception:
+            pass
 
         # sleep after every message besides the last one
         if i < len(batch.messages) - 1:
