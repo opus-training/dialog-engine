@@ -299,6 +299,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.DASHBOARD_REQUESTED: DashboardRequested,
     DialogEventType.USER_UPDATED: UserUpdated,
     DialogEventType.THANK_YOU_RECEIVED: ThankYouReceived,
+    DialogEventType.DEMO_REQUESTED: DemoRequested,
 }
 
 
