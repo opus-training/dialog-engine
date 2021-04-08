@@ -43,7 +43,7 @@ def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
     twilio_responses = []
     for i, message in enumerate(batch.messages):
         res = twilio.send_message(batch.phone_number, message.body, message.media_url)
-        logging.info(f"Twilio outbound response: {json.dumps(twilio_response)}")
+        logging.info(f"Twilio outbound response: {json.dumps(res)}")
         _publish_send(res)
         twilio_responses.append(res)
 
