@@ -4,8 +4,10 @@ import boto3
 import os
 import json
 
+from stopcovid.sms.types import OutboundPayload
 
-def publish_outbound_sms(twilio_responses: list) -> dict:
+
+def publish_outbound_sms(payload: OutboundPayload) -> dict:
     kinesis = boto3.client("kinesis")
     stage = os.environ.get("STAGE")
     records = [
@@ -13,17 +15,11 @@ def publish_outbound_sms(twilio_responses: list) -> dict:
             "Data": json.dumps(
                 {
                     "type": "OUTBOUND_SMS",
-                    "payload": {
-                        "MessageSid": response.sid,
-                        "To": response.to,
-                        "Body": response.body,
-                        "MessageStatus": response.status,
-                    },
+                    "payload": payload.dict(),
                 }
             ),
-            "PartitionKey": response.to,
+            "PartitionKey": payload.To,
         }
-        for response in twilio_responses
     ]
 
     return cast(dict, kinesis.put_records(Records=records, StreamName=f"message-log-{stage}"))
