@@ -9,6 +9,7 @@ from twilio.rest.api.v2010.account.message import MessageInstance
 
 from . import twilio
 from stopcovid.sms.types import SMSBatch
+from stopcovid.utils.logging import _is_running_unit_tests
 
 from . import publish
 from ..utils.idempotency import IdempotencyChecker
@@ -23,7 +24,10 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
 def _publish_send(twilio_response: Any) -> None:
     try:
         publish.publish_outbound_sms([twilio_response])
-        logging.info(f"Twilio outbound response: {json.dumps(twilio_response)}")
+        try:
+            logging.info(f"Twilio outbound response: {twilio_response}")
+        except Exception:
+            pass
     except Exception:
         twilio_dict = {
             "twilio_message_id": twilio_response.sid,
