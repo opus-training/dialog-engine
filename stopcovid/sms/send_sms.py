@@ -27,7 +27,7 @@ def _publish_send(twilio_response: Any, media_url: Optional[str] = None) -> None
                 MessageSid=twilio_response.sid,
                 To=twilio_response.to,
                 Body=twilio_response.body,
-                Status=twilio_response.status,
+                MessageStatus=twilio_response.status,
                 MediaUrl=media_url,
             )
         )
