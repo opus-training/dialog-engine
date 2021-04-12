@@ -26,8 +26,12 @@ def is_correct_response(user_response: str, correct_response: str) -> bool:
         or 1
     )
 
-    # if first token is a single letter and matches, user is correct
-    if re.match(r"^[a-zA-Z]$", clean_user_response[0]) and len(clean_correct_response[0]) == 1:
+    # if user responds a single letter and it matches, user is correct
+    if (
+        len(clean_user_response) == 1
+        and re.match(r"^[a-zA-Z]$", clean_user_response[0])
+        and len(clean_correct_response[0]) == 1
+    ):
         return clean_user_response[0] == clean_correct_response[0]
 
     # If answer includes "yes", accept "si" and vice versa
