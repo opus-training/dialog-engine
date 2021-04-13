@@ -18,6 +18,7 @@ SAMPLES = [
     ["She uses a knife", "d) uses / mandolin", False],
     ["2-3 pumps", "b) 2-3 pumps", True],
     ["1 pump", "b) 2-3 pumps", False],
+    ["a water proof bandage", "a. first aid kit", False],
 ]
 
 
