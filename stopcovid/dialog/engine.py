@@ -159,6 +159,7 @@ class ProcessSMSMessage(Command):
             self._handle_opt_out,
             self._handle_opt_back_in,
             self._validate_demo_registration,
+            self._demo_user_demo_requested,
             self._check_response,
             self._demo_requested,
             self._validate_registration,
@@ -219,6 +220,14 @@ class ProcessSMSMessage(Command):
                 return [UserValidated(code_validation_payload=validation_payload, **base_args)]
             if not dialog_state.user_profile.validated:
                 return [UserValidationFailed(**base_args)]
+        return None
+
+    # let the system test user text "opus" to restart the demo without finishing it
+    def _demo_user_demo_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        if dialog_state.user_profile.is_demo and self.content_lower == "opus":
+            return [DemoRequested(**base_args)]
         return None
 
     def _demo_requested(
