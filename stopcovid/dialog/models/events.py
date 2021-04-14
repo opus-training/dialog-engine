@@ -241,7 +241,7 @@ class DemoRequested(DialogEvent):
     event_type: DialogEventType = DialogEventType.DEMO_REQUESTED
 
     def apply_to(self, dialog_state: DialogState) -> None:
-        pass
+        dialog_state.user_profile.is_demo = True
 
 
 class ThankYouReceived(DialogEvent):
