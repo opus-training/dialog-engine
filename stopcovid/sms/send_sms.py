@@ -50,6 +50,8 @@ def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
         return None
     twilio_responses = []
     for i, message in enumerate(batch.messages):
+        if (message.body is None) and (message.media_url is None):
+            continue
         res = twilio.send_message(batch.phone_number, message.body, message.media_url)
         _publish_send(res, message.media_url)
         twilio_responses.append(res)
