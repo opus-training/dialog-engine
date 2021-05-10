@@ -85,11 +85,7 @@ def get_messages_for_event(event: DialogEvent) -> List[OutboundSMS]:  # noqa: C9
         if event.prompt.correct_response is not None:
             return get_messages(
                 event,
-                [
-                    PromptMessage(
-                        text=correct_answer_response(language)
-                    )
-                ],
+                [PromptMessage(text=correct_answer_response(language))],
             )
 
     elif isinstance(event, UserValidated):

@@ -125,7 +125,11 @@ class InMemoryRepository(DialogRepository):
                     fake_sms(
                         event.phone_number,
                         dialog_state.user_profile,
-                        [correct_answer_response(dialog_state.user_profile.language,)],
+                        [
+                            correct_answer_response(
+                                dialog_state.user_profile.language,
+                            )
+                        ],
                     )
             elif isinstance(event, UserValidated):
                 assert dialog_state.user_profile.account_info
@@ -173,7 +177,10 @@ class FakeRegistrationValidator(RegistrationValidator):
             return CodeValidationPayload(
                 valid=True,
                 account_info=AccountInfo(
-                    employer_id=1, employer_name=code, unit_id=1, unit_name="unit_name",
+                    employer_id=1,
+                    employer_name=code,
+                    unit_id=1,
+                    unit_name="unit_name",
                 ),
             )
         return CodeValidationPayload(valid=False)
