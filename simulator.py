@@ -22,7 +22,12 @@ from stopcovid.dialog.models.events import (
 from stopcovid.dialog.engine import process_command, StartDrill, ProcessSMSMessage
 from stopcovid.dialog.registration import RegistrationValidator, CodeValidationPayload, AccountInfo
 from stopcovid.dialog.models.state import DialogState, UserProfile
-from stopcovid.drills.content_loader import SourceRepoDrillLoader, translate, SupportedTranslation
+from stopcovid.drills.content_loader import (
+    SourceRepoDrillLoader,
+    translate,
+    SupportedTranslation,
+    correct_answer_response,
+)
 
 SEQ = 1
 PHONE_NUMBER = "123456789"
@@ -120,12 +125,7 @@ class InMemoryRepository(DialogRepository):
                     fake_sms(
                         event.phone_number,
                         dialog_state.user_profile,
-                        [
-                            translate(
-                                dialog_state.user_profile.language,
-                                SupportedTranslation.MATCH_CORRECT_ANSWER,
-                            )
-                        ],
+                        [correct_answer_response(dialog_state.user_profile.language,)],
                     )
             elif isinstance(event, UserValidated):
                 assert dialog_state.user_profile.account_info
@@ -173,10 +173,7 @@ class FakeRegistrationValidator(RegistrationValidator):
             return CodeValidationPayload(
                 valid=True,
                 account_info=AccountInfo(
-                    employer_id=1,
-                    employer_name=code,
-                    unit_id=1,
-                    unit_name="unit_name",
+                    employer_id=1, employer_name=code, unit_id=1, unit_name="unit_name",
                 ),
             )
         return CodeValidationPayload(valid=False)
