@@ -15,7 +15,7 @@ class TestTranslate(unittest.TestCase):
             ),
             "🤖 The correct answer is *a) Philadelphia*.\n\nLets move to the next one.",
         )
-        self.assertEqual(translate("en", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 Correct!")
+        self.assertEqual(translate("en", SupportedTranslation.MATCH_CORRECT_ANSWER), "Correct!")
 
     def test_non_supported_lang_falls_back_to_english(self):
         self.assertEqual(
@@ -28,7 +28,7 @@ class TestTranslate(unittest.TestCase):
             ),
             "🤖 The correct answer is *a) Philadelphia*.\n\nLets move to the next one.",
         )
-        self.assertEqual(translate("zh", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 Correct!")
+        self.assertEqual(translate("zh", SupportedTranslation.MATCH_CORRECT_ANSWER), "Correct!")
 
     def test_spanish(self):
         self.assertEqual(
@@ -41,7 +41,7 @@ class TestTranslate(unittest.TestCase):
             ),
             "🤖 La respuesta correcta es *a) Philadelphia*.\n\nAvancemos a la siguiente.",
         )
-        self.assertEqual(translate("es", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 ¡Correcto!")
+        self.assertEqual(translate("es", SupportedTranslation.MATCH_CORRECT_ANSWER), "¡Correcto!")
 
     def test_french(self):
         self.assertEqual(
@@ -55,5 +55,5 @@ class TestTranslate(unittest.TestCase):
             "🤖 La bonne réponse est *a) Philadelphia*.\n\nPassons à la suite.",
         )
         self.assertEqual(
-            translate("fr", SupportedTranslation.MATCH_CORRECT_ANSWER), "🤖 C'est Correct!"
+            translate("fr", SupportedTranslation.MATCH_CORRECT_ANSWER), "C'est Correct!"
         )

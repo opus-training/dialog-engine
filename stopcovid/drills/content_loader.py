@@ -1,6 +1,7 @@
 import json
 import os
 import enum
+import random
 from typing import Dict, Any, List, Optional
 from jinja2 import Template
 
@@ -20,24 +21,28 @@ TRANSLATIONS = {
     "en": {
         SupportedTranslation.INCORRECT_ANSWER: "🤖 Sorry, not correct. Try again one more time.",
         SupportedTranslation.CORRECTED_ANSWER: "🤖 The correct answer is *{{correct_answer}}*.\n\nLets move to the next one.",
-        SupportedTranslation.MATCH_CORRECT_ANSWER: "🤖 Correct!",
+        SupportedTranslation.MATCH_CORRECT_ANSWER: "Correct!",
     },
     "es": {
         SupportedTranslation.INCORRECT_ANSWER: "🤖 Lo siento, no es correcto. ¡Inténtalo de nuevo!",
         SupportedTranslation.CORRECTED_ANSWER: "🤖 La respuesta correcta es *{{correct_answer}}*.\n\nAvancemos a la siguiente.",
-        SupportedTranslation.MATCH_CORRECT_ANSWER: "🤖 ¡Correcto!",
+        SupportedTranslation.MATCH_CORRECT_ANSWER: "¡Correcto!",
     },
     "fr": {
         SupportedTranslation.INCORRECT_ANSWER: "🤖 Désolé, ce n'est pas correct. Essayez à nouveau!",
         SupportedTranslation.CORRECTED_ANSWER: "🤖 La bonne réponse est *{{correct_answer}}*.\n\nPassons à la suite.",
-        SupportedTranslation.MATCH_CORRECT_ANSWER: "🤖 C'est Correct!",
+        SupportedTranslation.MATCH_CORRECT_ANSWER: "C'est Correct!",
     },
     "km": {
         SupportedTranslation.INCORRECT_ANSWER: "🤖សូមអភ័យទោសមិនត្រឹមត្រូវ។ ព្យាយាមម្តងទៀត។",
         SupportedTranslation.CORRECTED_ANSWER: "🤖ចម្លើយដែលត្រឹមត្រូវគឺ * {{correct_answer}} * ។\n\nអាចទៅកន្លែងបន្ទាប់។",
-        SupportedTranslation.MATCH_CORRECT_ANSWER: "🤖ត្រឹមត្រូវ!",
+        SupportedTranslation.MATCH_CORRECT_ANSWER: "ត្រឹមត្រូវ!",
     },
 }
+
+
+def correct_answer_response(language: Optional[str]) -> str:
+    return f"{random.choice(CORRECT_ANSWER_EMOJI)} {translate(language, SupportedTranslation.MATCH_CORRECT_ANSWER)}"
 
 
 def template_additional_args(message: str, **kwargs: Any) -> str:
@@ -79,3 +84,56 @@ class SourceRepoDrillLoader:
 
     def get_drills(self) -> Dict[str, Drill]:
         return self.drills_dict
+
+
+CORRECT_ANSWER_EMOJI = [
+    "⚡",
+    "🏄",
+    "🚀",
+    "📈",
+    "🏎",
+    "😇",
+    "😸",
+    "🙌",
+    "👌",
+    "🐶",
+    "🐞",
+    "🦋",
+    "🦄",
+    "🦖",
+    "🦕",
+    "🐬",
+    "🐟",
+    "🐎",
+    "🍀",
+    "🌱",
+    "�",
+    "�",
+    "🌸",
+    "🌞",
+    "🌻",
+    "🌼",
+    "🌝",
+    "💫",
+    "🌟",
+    "🌈",
+    "🔥",
+    "✨",
+    "🌊",
+    "🥂",
+    "🍬",
+    "🍭",
+    "⛳",
+    "️",
+    "🪁",
+    "🏆",
+    "🎗",
+    "🎯",
+    "🚁",
+    "🏝",
+    "🎊",
+    "🎏",
+    "🎉",
+    "🥇",
+    "🎖",
+]

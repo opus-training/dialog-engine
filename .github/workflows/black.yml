@@ -15,5 +15,5 @@ jobs:
     - name: Run a multi-line script
       run: |
         python -m pip install --upgrade pip
-        pip install black
+        pip install black==20.8b0
         black --check .

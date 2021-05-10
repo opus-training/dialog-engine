@@ -154,7 +154,7 @@ class TestHandleCommand(unittest.TestCase):
         message = outbound_messages[0]
         self.assertEqual(message.phone_number, self.phone)
         self.assertEqual(message.event_id, dialog_events[0].event_id)
-        self.assertEqual(message.body, "🤖 Correct!")
+        self.assertTrue(message.body.endswith("Correct!"))
 
     def test_abandoned_failed_prompt_event(self):
         dialog_events: List[DialogEvent] = [

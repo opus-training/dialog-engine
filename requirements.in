@@ -4,5 +4,3 @@ Jinja2
 pydantic
 rollbar
 twilio
-sqlalchemy-aurora-data-api
-SQLAlchemy
