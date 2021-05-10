@@ -24,7 +24,7 @@ from stopcovid.dialog.models.events import (
     AdHocMessageSent,
 )
 from stopcovid.drills.drills import PromptMessage
-from stopcovid.drills.content_loader import translate, SupportedTranslation
+from stopcovid.drills.content_loader import translate, SupportedTranslation, correct_answer_response
 
 USER_VALIDATION_FAILED_COPY = (
     "Invalid Code. Check with your administrator and make sure you have the right code."
@@ -87,7 +87,7 @@ def get_messages_for_event(event: DialogEvent) -> List[OutboundSMS]:  # noqa: C9
                 event,
                 [
                     PromptMessage(
-                        text=translate(language, SupportedTranslation.MATCH_CORRECT_ANSWER)
+                        text=correct_answer_response(language)
                     )
                 ],
             )
