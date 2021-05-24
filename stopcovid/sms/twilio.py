@@ -2,19 +2,11 @@ from typing import Optional
 
 from twilio.rest import Client
 import os
-import logging
+
 from twilio.rest.api.v2010.account.message import MessageInstance
 
-from ..utils.phones import is_fake_phone_number
 
-
-def send_message(
-    to: str, body: Optional[str], media_url: Optional[str]
-) -> Optional[MessageInstance]:
-    if is_fake_phone_number(to):
-        logging.info(f"({to}) Abandoning message to fake phone number")
-        return None
-
+def send_message(to: str, body: Optional[str], media_url: Optional[str]) -> MessageInstance:
     client = Client(os.environ["TWILIO_ACCOUNT_SID"], os.environ["TWILIO_AUTH_TOKEN"])
     if body is None:
         emoji_escaped_body = None
