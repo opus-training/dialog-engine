@@ -3,15 +3,14 @@ import logging
 import json
 
 
-from typing import List, Any, Optional
-
-from twilio.rest.api.v2010.account.message import MessageInstance
+from typing import List, Optional
 
 from . import twilio
 from stopcovid.sms.types import SMSBatch, OutboundPayload
 
 from . import publish
 from ..utils.idempotency import IdempotencyChecker
+from ..utils.phones import is_fake_phone_number
 
 DELAY_SECONDS_BETWEEN_MESSAGES = 3
 DELAY_SECONDS_AFTER_MEDIA = 10
@@ -20,7 +19,7 @@ IDEMPOTENCY_REALM = "send-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
 
 
-def _publish_send(twilio_response: Any, media_url: Optional[str] = None) -> None:
+def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[str] = None) -> None:
     try:
         publish.publish_outbound_sms(
             OutboundPayload(
@@ -43,7 +42,10 @@ def _publish_send(twilio_response: Any, media_url: Optional[str] = None) -> None
         logging.info(f"Failed to publish to kinesis log: {json.dumps(twilio_dict)}")
 
 
-def _send_batch(batch: SMSBatch) -> Optional[List[MessageInstance]]:
+def _send_batch(batch: SMSBatch) -> Optional[List[twilio.TwilioResponse]]:
+    if is_fake_phone_number(batch.phone_number):
+        logging.info(f"Abandoning batch to fake phone number: {batch.phone_number}")
+        return None
     idempotency_checker = IdempotencyChecker()
     if idempotency_checker.already_processed(batch.idempotency_key, IDEMPOTENCY_REALM):
         logging.info(f"SMS Batch already processed. Skipping. {batch}")
