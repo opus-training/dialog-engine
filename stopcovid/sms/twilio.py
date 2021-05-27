@@ -8,10 +8,10 @@ import os
 class TwilioResponse(pydantic.BaseModel):
     sid: str
     to: str
-    body: str
+    body: Optional[str]
     status: str
-    error_code: str
-    error_message: str
+    error_code: Optional[str]
+    error_message: Optional[str]
 
 
 def send_message(to: str, body: Optional[str], media_url: Optional[str]) -> TwilioResponse:
