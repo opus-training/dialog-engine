@@ -4,7 +4,6 @@ import unittest
 from unittest.mock import MagicMock, Mock, patch
 from typing import Optional
 import uuid
-import os
 
 from stopcovid.dialog.engine import (
     process_command,
@@ -22,7 +21,7 @@ from stopcovid.dialog.models.events import (
     FailedPrompt,
     DrillCompleted,
 )
-from stopcovid.dialog.models.state import DialogState, PromptState, AccountInfo, UserProfile
+from stopcovid.dialog.models.state import DialogState, PromptState, AccountInfo
 
 from stopcovid.dialog.registration import CodeValidationPayload
 from stopcovid.drills.drills import Drill, Prompt, PromptMessage
