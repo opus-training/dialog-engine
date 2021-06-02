@@ -242,7 +242,7 @@ class TestProcessCommand(unittest.TestCase):
             },
         )
 
-    def test_doesnt_revalidated_someone_with_an_org(self):
+    def test_doesnt_revalidate_someone_with_an_org(self):
         validator = MagicMock()
         validation_payload = CodeValidationPayload(valid=True, is_demo=True)
         validator.validate_code = MagicMock(return_value=validation_payload)
