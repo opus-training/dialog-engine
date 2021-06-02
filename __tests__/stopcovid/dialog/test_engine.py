@@ -222,6 +222,37 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
 
+    def test_revalidate_user_without_org(self):
+        validator = MagicMock()
+        validation_payload = CodeValidationPayload(valid=True, is_demo=True)
+        validator.validate_code = MagicMock(return_value=validation_payload)
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=None)
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.USER_VALIDATED)
+        validation_payload = CodeValidationPayload(
+            valid=True,
+            account_info={
+                "employer_id": 1,
+                "unit_id": 1,
+                "employer_name": "employer_name",
+                "unit_name": "unit_name",
+            },
+        )
+
+    def test_doesnt_revalidate_someone_with_an_org(self):
+        validator = MagicMock()
+        validation_payload = CodeValidationPayload(valid=True, is_demo=True)
+        validator.validate_code = MagicMock(return_value=validation_payload)
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
+        batch = self._process_command(command)
+
+        # not a USER_VALIDATED event
+        self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
+
     def test_start_drill_opted_out(self):
         self.dialog_state.user_profile.validated = True
         self.dialog_state.user_profile.opted_out = True
@@ -402,6 +433,7 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_opt_back_in(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         self.dialog_state.user_profile.opted_out = True
         command = ProcessSMSMessage(self.phone_number, "start")
         batch = self._process_command(command)
@@ -414,18 +446,21 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_ask_for_help_validated(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         command = ProcessSMSMessage(self.phone_number, "help")
         batch = self._process_command(command)
         self.assertEqual(0, len(batch.events))  # response handled by twilio
 
     def test_ask_for_more(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         command = ProcessSMSMessage(self.phone_number, "more")
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
 
     def test_ask_for_mas(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         command = ProcessSMSMessage(self.phone_number, "mas")
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.NEXT_DRILL_REQUESTED)
@@ -436,6 +471,7 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_ask_for_drill(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         self.dialog_state.current_drill = None
         command = ProcessSMSMessage(self.phone_number, "go")
         batch = self._process_command(command)
@@ -452,6 +488,7 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_send_ad_hoc_message(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         message = "An ad hoc message to a user"
         media_url = "https://gph.is/1w6mM6h"
         command = SendAdHocMessage(
@@ -468,6 +505,7 @@ class TestProcessCommand(unittest.TestCase):
         messages = ["schedule", "calendario"]
         for message in messages:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
@@ -484,6 +522,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_change_name_drill_requested(self):
         for message in ["name", "nombre"]:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
@@ -500,6 +539,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_change_language_drill_requested(self):
         for message in ["lang", "language", "idioma"]:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
             command = ProcessSMSMessage(self.phone_number, message)
@@ -516,6 +556,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_certain_keywords_ignored_while_during_lesson(self):
         for message in ["lang", "schedule", "horario", "more", "mas", "name"]:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self._set_current_prompt(1)
             self.dialog_state.current_drill = self.drill
@@ -528,6 +569,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_dashboard_requested(self):
         for message in ["dashboard", "tablero"]:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
@@ -544,6 +586,7 @@ class TestProcessCommand(unittest.TestCase):
             "ayuda",
         ]:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
@@ -561,6 +604,7 @@ class TestProcessCommand(unittest.TestCase):
     def test_menu_requested(self):
         for message in ["menu", "menú"]:
             self.dialog_state.user_profile.validated = True
+            self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.current_drill = "balbla"
             self.dialog_state.drill_instance_id = "11111111-1111-1111-1111-111111111111"
             self.dialog_state.current_prompt_state = "blabla"
@@ -570,6 +614,7 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_unhandled_message_received(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         command = ProcessSMSMessage(self.phone_number, "BLABLABLA")
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
@@ -577,6 +622,7 @@ class TestProcessCommand(unittest.TestCase):
 
     def test_thank_you_received(self):
         self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
         command = ProcessSMSMessage(self.phone_number, "Thanks!!")
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.THANK_YOU_RECEIVED)
