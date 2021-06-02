@@ -232,7 +232,7 @@ class TestProcessCommand(unittest.TestCase):
         validator = MagicMock()
         validation_payload = CodeValidationPayload(valid=True, is_demo=True)
         validator.validate_code = MagicMock(return_value=validation_payload)
-        self.assertFalse(self.dialog_state.user_profile.validated)
+        self.dialog_state.user_profile.validated = True
         self.dialog_state.user_profile.account_info = AccountInfo(employer_id=None)
         command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
         batch = self._process_command(command)
@@ -246,6 +246,18 @@ class TestProcessCommand(unittest.TestCase):
                 "unit_name": "unit_name",
             },
         )
+
+    def test_doesnt_revalidated_someone_with_an_org(self):
+        validator = MagicMock()
+        validation_payload = CodeValidationPayload(valid=True, is_demo=True)
+        validator.validate_code = MagicMock(return_value=validation_payload)
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
+        command = ProcessSMSMessage(self.phone_number, "hey", registration_validator=validator)
+        batch = self._process_command(command)
+
+        # not a USER_VALIDATED event
+        self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
 
     def test_start_drill_opted_out(self):
         self.dialog_state.user_profile.validated = True
