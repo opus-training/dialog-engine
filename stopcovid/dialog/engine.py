@@ -213,7 +213,9 @@ class ProcessSMSMessage(Command):
     def _validate_registration(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        if not dialog_state.user_profile.validated:
+        if not dialog_state.user_profile.validated or not getattr(
+            dialog_state.user_profile.account_info, "employer_id", None
+        ):
             validation_payload = self.registration_validator.validate_code(self.content_lower)
             if validation_payload.valid:
                 return [UserValidated(code_validation_payload=validation_payload, **base_args)]
