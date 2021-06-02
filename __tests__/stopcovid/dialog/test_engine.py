@@ -37,9 +37,6 @@ class TestProcessCommand(unittest.TestCase):
             phone_number=self.phone_number,
             seq="0",
             drill_instance_id=self.drill_instance_id,
-            user_profile=UserProfile(
-                validated=False,
-            ),
         )
         self.drill = Drill(
             name="test-drill",
@@ -69,8 +66,6 @@ class TestProcessCommand(unittest.TestCase):
         self.repo.persist_dialog_state = MagicMock()
         self.next_seq = 1
         self.now = datetime.datetime.now(datetime.timezone.utc)
-
-        os.environ["REGISTRATION_VALIDATION_URL"] = "www.foo.com"
 
     def _process_command(self, command) -> DialogEventBatch:
         persist_dialog_call_count = self.repo.persist_dialog_state.call_count
