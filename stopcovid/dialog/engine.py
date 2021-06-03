@@ -304,7 +304,7 @@ class ProcessSMSMessage(Command):
     def _drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        if self._should_emit_drill_requested(dialog_state):
+        if not dialog_state.current_drill or self._current_drill_is_stale(dialog_state):
             if self.content_lower in [
                 "go",
                 "vamos",
@@ -317,8 +317,8 @@ class ProcessSMSMessage(Command):
                 return [DrillRequested(**base_args)]
         return None
 
-    def _should_emit_drill_requested(self, dialog_state: DialogState) -> bool:
-        if not dialog_state.current_drill or not dialog_state.current_prompt_state:
+    def _current_drill_is_stale(self, dialog_state: DialogState) -> bool:
+        if not dialog_state.current_prompt_state:
             return True
         return datetime.now(UTC) - dialog_state.current_prompt_state.start_time > timedelta(
             minutes=DRILL_REQUESTED_OVERRIDE_CURRENT_DRILL_MINUTES
