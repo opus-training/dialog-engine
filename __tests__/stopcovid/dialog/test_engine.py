@@ -500,7 +500,7 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.DRILL_REQUESTED)
 
-        # but if you have a drill you recently interacted with it will
+        # but if you have a drill you recently interacted with, go is treated as a response
         self.dialog_state.current_prompt_state = PromptState(
             slug=self.drill.prompts[0].slug, start_time=self.now - timedelta(minutes=1)
         )
