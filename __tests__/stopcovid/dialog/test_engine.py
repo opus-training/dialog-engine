@@ -1,9 +1,10 @@
-import datetime
 import logging
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 from typing import Optional
 import uuid
+from datetime import datetime, timedelta
+from pytz import UTC
 
 from stopcovid.dialog.engine import (
     process_command,
@@ -64,7 +65,7 @@ class TestProcessCommand(unittest.TestCase):
         self.repo.fetch_dialog_state = MagicMock(return_value=self.dialog_state)
         self.repo.persist_dialog_state = MagicMock()
         self.next_seq = 1
-        self.now = datetime.datetime.now(datetime.timezone.utc)
+        self.now = datetime.now(UTC)
 
     def _process_command(self, command) -> DialogEventBatch:
         persist_dialog_call_count = self.repo.persist_dialog_state.call_count
@@ -485,6 +486,29 @@ class TestProcessCommand(unittest.TestCase):
         command = ProcessSMSMessage(self.phone_number, "go")
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.UNHANDLED_MESSAGE_RECEIVED)
+
+    def test_ask_for_drill_on_stale_drill(self):
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
+        self.dialog_state.current_drill = self.drill
+
+        # texting go while you have an old drill emits a DRILL_REQUESTED event
+        self.dialog_state.current_prompt_state = PromptState(
+            slug=self.drill.prompts[0].slug, start_time=self.now - timedelta(hours=40)
+        )
+        command = ProcessSMSMessage(self.phone_number, "go")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.DRILL_REQUESTED)
+
+        # but if you have a drill you recently interacted with it will
+        self.dialog_state.current_prompt_state = PromptState(
+            slug=self.drill.prompts[0].slug, start_time=self.now - timedelta(minutes=1)
+        )
+        command = ProcessSMSMessage(self.phone_number, "go")
+        batch = self._process_command(command)
+        self._assert_event_types(
+            batch, DialogEventType.COMPLETED_PROMPT, DialogEventType.ADVANCED_TO_NEXT_PROMPT
+        )
 
     def test_send_ad_hoc_message(self):
         self.dialog_state.user_profile.validated = True
