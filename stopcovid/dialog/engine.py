@@ -318,9 +318,8 @@ class ProcessSMSMessage(Command):
         return None
 
     def _should_emit_drill_requested(self, dialog_state: DialogState) -> bool:
-        if not dialog_state.current_drill:
+        if not dialog_state.current_drill or not dialog_state.current_prompt_state:
             return True
-        assert dialog_state.current_prompt_state
         return datetime.now(UTC) - dialog_state.current_prompt_state.start_time > timedelta(
             minutes=DRILL_REQUESTED_OVERRIDE_CURRENT_DRILL_MINUTES
         )
