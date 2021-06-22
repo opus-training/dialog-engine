@@ -4,3 +4,7 @@ pip-tools
 black==20.8b0
 flake8
 mypy
+
+types-requests
+types-pytz
+types-jinja2
