@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import MagicMock, Mock, patch
 from typing import Optional
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from pytz import UTC
 
 from stopcovid.dialog.engine import (
