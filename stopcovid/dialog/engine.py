@@ -304,7 +304,7 @@ class ProcessSMSMessage(Command):
     def _drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        if not dialog_state.current_drill:  # or self._current_drill_is_stale(dialog_state):
+        if not dialog_state.current_drill or self._current_drill_is_stale(dialog_state):
             if self.content_lower in [
                 "go",
                 "vamos",
