@@ -482,6 +482,18 @@ class TestProcessCommand(unittest.TestCase):
         batch = self._process_command(command)
         self._assert_event_types(batch, DialogEventType.DRILL_REQUESTED)
 
+    def test_ask_for_english_lesson_drill(self):
+        self.dialog_state.user_profile.validated = True
+        self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
+        self.dialog_state.current_drill = None
+        command = ProcessSMSMessage(self.phone_number, "english")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.ENGLISH_LESSON_DRILL_REQUESTED)
+
+        command = ProcessSMSMessage(self.phone_number, "esl")
+        batch = self._process_command(command)
+        self._assert_event_types(batch, DialogEventType.ENGLISH_LESSON_DRILL_REQUESTED)
+
     def test_ask_for_drill_on_stale_drill(self):
         self.dialog_state.user_profile.validated = True
         self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
