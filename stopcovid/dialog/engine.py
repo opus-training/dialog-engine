@@ -17,6 +17,7 @@ from stopcovid.dialog.models.events import (
     DrillCompleted,
     OptedOut,
     DrillRequested,
+    EnglishLessonDrillRequested,
     NextDrillRequested,
     SchedulingDrillRequested,
     AdHocMessageSent,
@@ -165,6 +166,7 @@ class ProcessSMSMessage(Command):
             self._validate_demo_registration,
             self._demo_requested,
             self._drill_requested,
+            self._english_lesson_drill_requested,
             self._check_response,
             self._validate_registration,
             self._next_drill_requested,
@@ -315,6 +317,17 @@ class ProcessSMSMessage(Command):
                 "début",
             ]:
                 return [DrillRequested(**base_args)]
+        return None
+
+    def _english_lesson_drill_requested(
+        self, dialog_state: DialogState, base_args: Dict[str, Any]
+    ) -> Optional[List[DialogEvent]]:
+        if not dialog_state.current_drill or self._current_drill_is_stale(dialog_state):
+            if self.content_lower in [
+                "english",
+                "esl",
+            ]:
+                return [EnglishLessonDrillRequested(**base_args)]
         return None
 
     def _current_drill_is_stale(self, dialog_state: DialogState) -> bool:

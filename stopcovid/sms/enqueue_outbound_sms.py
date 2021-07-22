@@ -21,6 +21,8 @@ from stopcovid.dialog.models.events import (
     NextDrillRequested,
     SchedulingDrillRequested,
     DialogEvent,
+    DrillRequested,
+    EnglishLessonDrillRequested,
     AdHocMessageSent,
 )
 from stopcovid.drills.drills import PromptMessage
@@ -103,11 +105,16 @@ def get_messages_for_event(event: DialogEvent) -> List[OutboundSMS]:  # noqa: C9
             event, [PromptMessage(text=event.sms.body, media_url=event.sms.media_url)]
         )
 
-    elif (
-        isinstance(event, DrillCompleted)
-        or isinstance(event, OptedOut)
-        or isinstance(event, NextDrillRequested)
-        or isinstance(event, SchedulingDrillRequested)
+    elif isinstance(
+        event,
+        (
+            DrillCompleted,
+            OptedOut,
+            NextDrillRequested,
+            SchedulingDrillRequested,
+            EnglishLessonDrillRequested,
+            DrillRequested,
+        ),
     ):
         pass
 

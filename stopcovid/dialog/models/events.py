@@ -27,6 +27,7 @@ class DialogEventType(enum.Enum):
     ADVANCED_TO_NEXT_PROMPT = "ADVANCED_TO_NEXT_PROMPT"
     DRILL_COMPLETED = "DRILL_COMPLETED"
     DRILL_REQUESTED = "DRILL_REQUESTED"
+    ENGLISH_LESSON_DRILL_REQUESTED = "ENGLISH_LESSON_DRILL_REQUESTED"
     NEXT_DRILL_REQUESTED = "NEXT_DRILL_REQUESTED"
     OPTED_OUT = "OPTED_OUT"
     SCHEDULING_DRILL_REQUESTED = "SCHEDULING_DRILL_REQUESTED"
@@ -170,6 +171,13 @@ class DrillRequested(DialogEvent):
         pass
 
 
+class EnglishLessonDrillRequested(DialogEvent):
+    event_type: DialogEventType = DialogEventType.ENGLISH_LESSON_DRILL_REQUESTED
+
+    def apply_to(self, dialog_state: DialogState) -> None:
+        pass
+
+
 class NextDrillRequested(DialogEvent):
     event_type: DialogEventType = DialogEventType.NEXT_DRILL_REQUESTED
 
@@ -289,6 +297,7 @@ TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
     DialogEventType.OPTED_OUT: OptedOut,
     DialogEventType.NEXT_DRILL_REQUESTED: NextDrillRequested,
     DialogEventType.DRILL_REQUESTED: DrillRequested,
+    DialogEventType.ENGLISH_LESSON_DRILL_REQUESTED: EnglishLessonDrillRequested,
     DialogEventType.SCHEDULING_DRILL_REQUESTED: SchedulingDrillRequested,
     DialogEventType.AD_HOC_MESSAGE_SENT: AdHocMessageSent,
     DialogEventType.NAME_CHANGE_DRILL_REQUESTED: NameChangeDrillRequested,
