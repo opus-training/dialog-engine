@@ -26,7 +26,8 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 60
 @rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
-    kinesis = boto3.client("kinesis")
+
+    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
     stage = os.environ["STAGE"]
     idempotency_checker = IdempotencyChecker()
 

@@ -29,7 +29,7 @@ def handler(event: dict, context: dict) -> dict:
 
 
 def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]) -> None:
-    kinesis = boto3.client("kinesis")
+    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
     stage = os.environ.get("STAGE")
     stream_name = f"dialog-event-batches-{stage}"
     records = [

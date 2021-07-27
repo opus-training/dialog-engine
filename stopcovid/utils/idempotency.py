@@ -13,7 +13,9 @@ class IdempotencyChecker:
     # succeeds and record_as_processed() fails
 
     def __init__(self, **kwargs: Any) -> None:
-        self.dynamodb = boto3.client("dynamodb", **kwargs)
+        self.dynamodb = boto3.client(
+            "dynamodb", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566', **kwargs
+        )
         self.stage = os.environ.get("STAGE")
 
     def record_as_processed(

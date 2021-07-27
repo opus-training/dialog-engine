@@ -142,7 +142,7 @@ def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]) -> A
     if not outbound_sms_messages:
         return None
 
-    sqs = boto3.resource("sqs")
+    sqs = boto3.resource("sqs", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
 
     queue_name = f"outbound-sms-{os.getenv('STAGE')}.fifo"
     queue = sqs.get_queue_by_name(QueueName=queue_name)

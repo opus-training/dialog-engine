@@ -8,7 +8,7 @@ from stopcovid.sms.types import OutboundPayload
 
 
 def publish_outbound_sms(payload: OutboundPayload) -> dict:
-    kinesis = boto3.client("kinesis")
+    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
     stage = os.environ.get("STAGE")
     records = [
         {
