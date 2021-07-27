@@ -23,7 +23,7 @@ def get_env(stage: str) -> Dict[str, str]:
 
 
 def handle_redrive_sqs(args: Any) -> None:
-    sqs = boto3.resource("sqs")
+    sqs = boto3.resource("sqs", endpoint_url="http://localhost:4566")
 
     queue_configs = {
         "sms": {
@@ -78,8 +78,8 @@ def handle_redrive_sqs(args: Any) -> None:
 
 
 def handle_replay_sqs_failures(args: Any) -> None:
-    sqs = boto3.resource("sqs")
-    kinesis = boto3.client("kinesis")
+    sqs = boto3.resource("sqs", endpoint_url="http://localhost:4566")
+    kinesis = boto3.client("kinesis", endpoint_url="http://localhost:4566")
 
     queue_name = f"{args.sqs_queue}-failures-{args.stage}"
     stream_name = f"{args.kinesis_stream}-{args.stage}"
@@ -113,7 +113,7 @@ def handle_replay_sqs_failures(args: Any) -> None:
 
 
 def _get_dialog_events(phone_number: str, stage: str) -> Iterator[DialogEventBatch]:
-    dynamodb = boto3.client("dynamodb")
+    dynamodb = boto3.client("dynamodb", endpoint_url="http://localhost:4566")
     table_name = f"dialog-event-batches-{stage}"
     args: Dict[str, str] = {}
     while True:
@@ -132,7 +132,7 @@ def _get_dialog_events(phone_number: str, stage: str) -> Iterator[DialogEventBat
 
 
 def get_all_users(args: Any) -> None:
-    dynamodb = boto3.client("dynamodb")
+    dynamodb = boto3.client("dynamodb", endpoint_url="http://localhost:4566")
     table_name = f"dialog-state-{args.stage}"
     args = {}
     while True:
@@ -145,7 +145,7 @@ def get_all_users(args: Any) -> None:
 
 
 def handle_show_stream_record(args: Any) -> None:
-    kinesis = boto3.client("kinesis")
+    kinesis = boto3.client("kinesis", endpoint_url="http://localhost:4566")
     stream_name = f"{args.kinesis_stream}-{args.stage}"
     shard_iterator = kinesis.get_shard_iterator(
         StreamName=stream_name,

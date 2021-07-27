@@ -34,7 +34,8 @@ def _make_inbound_command(record: dict) -> InboundCommand:
 @rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
-    kinesis = boto3.client("kinesis")
+    print("HEREHERE_____", os.environ.get("LOCALSTACK_HOSTNAME"))
+    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
     stage = os.environ["STAGE"]
     idempotency_checker = IdempotencyChecker()
 

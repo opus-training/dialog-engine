@@ -32,7 +32,7 @@ class CommandPublisher:
 
     @staticmethod
     def _get_kinesis_client() -> Any:
-        return boto3.client("kinesis")
+        return boto3.client("kinesis", endpoint_url="http://localhost:4566")
 
     def _publish_commands(self, commands: List[Tuple[str, Dict[str, Any]]]) -> None:
         kinesis = self._get_kinesis_client()
@@ -43,3 +43,5 @@ class CommandPublisher:
         response = kinesis.put_records(StreamName=f"command-stream-{self.stage}", Records=records)
         if response.get("FailedRecordCount"):
             rollbar.report_exc_info(extra_data=response)
+
+CommandPublisher().publish_process_sms_command("+14802865415", "5555", {})

@@ -5,6 +5,7 @@ from copy import deepcopy
 from typing import List, Optional, Dict, Any, Callable
 from datetime import datetime, timedelta
 from pytz import UTC
+import os
 
 import stopcovid.dialog.models.events
 from stopcovid.dialog.models.events import (
@@ -58,7 +59,9 @@ class Command(ABC):
 
 def process_command(command: Command, seq: str, repo: DialogRepository = None) -> None:
     if repo is None:
-        repo = DynamoDBDialogRepository()
+        repo = DynamoDBDialogRepository(
+            endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566'
+        )
     dialog_state = repo.fetch_dialog_state(command.phone_number)
     command_seq = int(seq)
     state_seq = int(dialog_state.seq)
