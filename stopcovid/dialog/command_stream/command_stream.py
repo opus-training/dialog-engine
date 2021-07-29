@@ -11,7 +11,6 @@ from .types import InboundCommand, InboundCommandType
 
 
 def handle_inbound_commands(commands: List[InboundCommand]) -> dict:
-
     for command in commands:
         if command.command_type is InboundCommandType.INBOUND_SMS:
             process_command(

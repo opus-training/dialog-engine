@@ -230,7 +230,7 @@ class TestHandleCommand(unittest.TestCase):
         self.assertEqual(outbound_messages[0].media_url, None)
 
 
-@patch("stopcovid.sms.enqueue_outbound_sms.boto3")
+@patch("stopcovid.sms.enqueue_outbound_sms.get_boto3_resource")
 class TestPublishOutboundSMS(unittest.TestCase):
     def setUp(self) -> None:
         logging.disable(logging.CRITICAL)

@@ -1,14 +1,14 @@
 from typing import cast
 
-import boto3
 import os
 import json
 
 from stopcovid.sms.types import OutboundPayload
+from stopcovid.utils.boto3 import get_boto3_client
 
 
 def publish_outbound_sms(payload: OutboundPayload) -> dict:
-    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
+    kinesis = get_boto3_client("kinesis")
     stage = os.environ.get("STAGE")
     records = [
         {

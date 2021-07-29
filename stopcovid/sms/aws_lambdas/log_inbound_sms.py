@@ -1,7 +1,6 @@
 import json
 import os
 
-import boto3
 import rollbar
 
 from stopcovid.utils.idempotency import IdempotencyChecker
@@ -14,6 +13,7 @@ from stopcovid.dialog.command_stream.types import (
 )
 from stopcovid.utils.logging import configure_logging
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
+from stopcovid.utils.boto3 import get_boto3_client
 
 configure_logging()
 configure_rollbar()
@@ -34,8 +34,7 @@ def _make_inbound_command(record: dict) -> InboundCommand:
 @rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
-    print("HEREHERE_____", os.environ.get("LOCALSTACK_HOSTNAME"))
-    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
+    kinesis = get_boto3_client("kinesis")
     stage = os.environ["STAGE"]
     idempotency_checker = IdempotencyChecker()
 

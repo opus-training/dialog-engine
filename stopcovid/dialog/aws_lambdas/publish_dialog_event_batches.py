@@ -1,4 +1,3 @@
-import boto3
 import os
 from typing import List
 
@@ -9,6 +8,7 @@ from stopcovid.utils import dynamodb as dynamodb_utils
 from stopcovid.utils.logging import configure_logging
 from stopcovid.utils.rollbar import configure_rollbar
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
+from stopcovid.utils.boto3 import get_boto3_client
 
 configure_logging()
 configure_rollbar()
@@ -29,7 +29,7 @@ def handler(event: dict, context: dict) -> dict:
 
 
 def _publish_event_batches_to_kinesis(event_batches: List[DialogEventBatch]) -> None:
-    kinesis = boto3.client("kinesis", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566')
+    kinesis = get_boto3_client("kinesis")
     stage = os.environ.get("STAGE")
     stream_name = f"dialog-event-batches-{stage}"
     records = [

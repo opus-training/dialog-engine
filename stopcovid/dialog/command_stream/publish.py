@@ -3,7 +3,8 @@ import logging
 import os
 from typing import Dict, Any, List, Tuple
 import rollbar
-import boto3
+
+from stopcovid.utils.boto3 import get_boto3_client
 
 
 class CommandPublisher:
@@ -30,12 +31,8 @@ class CommandPublisher:
             ]
         )
 
-    @staticmethod
-    def _get_kinesis_client() -> Any:
-        return boto3.client("kinesis", endpoint_url="http://localhost:4566")
-
     def _publish_commands(self, commands: List[Tuple[str, Dict[str, Any]]]) -> None:
-        kinesis = self._get_kinesis_client()
+        kinesis = get_boto3_client("kinesis")
         records = [
             {"Data": json.dumps(data), "PartitionKey": phone_number}
             for phone_number, data in commands
@@ -43,5 +40,3 @@ class CommandPublisher:
         response = kinesis.put_records(StreamName=f"command-stream-{self.stage}", Records=records)
         if response.get("FailedRecordCount"):
             rollbar.report_exc_info(extra_data=response)
-
-CommandPublisher().publish_process_sms_command("+14802865415", "5555", {})

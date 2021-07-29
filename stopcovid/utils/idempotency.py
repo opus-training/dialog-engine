@@ -2,9 +2,8 @@ import datetime
 import os
 from typing import Any
 
-import boto3
-
 from stopcovid.utils import dynamodb as dynamodb_utils
+from stopcovid.utils.boto3 import get_boto3_client
 
 
 class IdempotencyChecker:
@@ -13,9 +12,7 @@ class IdempotencyChecker:
     # succeeds and record_as_processed() fails
 
     def __init__(self, **kwargs: Any) -> None:
-        self.dynamodb = boto3.client(
-            "dynamodb", endpoint_url=f'http://{os.environ.get("LOCALSTACK_HOSTNAME")}:4566', **kwargs
-        )
+        self.dynamodb = get_boto3_client("dynamodb", **kwargs)
         self.stage = os.environ.get("STAGE")
 
     def record_as_processed(

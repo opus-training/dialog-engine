@@ -31,10 +31,7 @@ class DefaultRegistrationValidator(RegistrationValidator):
     def validate_code(self, code: str, **kwargs: Any) -> CodeValidationPayload:
         url = kwargs.get("url", os.environ["REGISTRATION_VALIDATION_URL"])
         key = kwargs.get("key", os.getenv("REGISTRATION_VALIDATION_KEY"))
-        return CodeValidationPayload(
-            valid=True,
-            account_info=AccountInfo(employed_id=1)
-        )
+        return CodeValidationPayload(valid=True, account_info=AccountInfo(employed_id=1))
         print("REGURL", url, key)
         response = requests.post(
             url=url,

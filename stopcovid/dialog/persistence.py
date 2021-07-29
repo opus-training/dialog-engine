@@ -4,9 +4,8 @@ import uuid
 from abc import ABC, abstractmethod
 from typing import Any
 
-import boto3
-
 from stopcovid.utils import dynamodb as dynamodb_utils
+from stopcovid.utils.boto3 import get_boto3_client
 from .models.state import DialogState
 from .models.events import DialogEventBatch, batch_from_dict
 
@@ -25,7 +24,7 @@ class DialogRepository(ABC):
 
 class DynamoDBDialogRepository(DialogRepository):
     def __init__(self, table_name_suffix: str = None, **kwargs: Any) -> None:
-        self.dynamodb = boto3.client("dynamodb", **kwargs)
+        self.dynamodb = get_boto3_client("dynamodb", **kwargs)
         if table_name_suffix is None:
             table_name_suffix = os.getenv("DIALOG_TABLE_NAME_SUFFIX", "")
         self.table_name_suffix = table_name_suffix

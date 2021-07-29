@@ -1,0 +1,6 @@
+SERVICES=kinesis,lambda,sqs,s3,dynamodb,ssm,secretsmanager,cloudformation,sts,apigateway,iam
+AWS_DEFAULT_REGION=us-east-1
+AWS_ACCESS_KEY=BACON
+AWS_SECRET_ACCESS_KEY=BACON
+KINESIS_LATENCY=0
+LAMBDA_EXECUTOR=local

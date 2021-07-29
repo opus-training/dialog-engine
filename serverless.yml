@@ -1,13 +1,17 @@
 service: slowcovid
 app: slowcovid
-org: jeffreysilver
 
 unresolvedVariablesNotificationMode: error
 variablesResolutionMode: 20210326
 
 custom:
-  # datadog:
-    # forwarder: ${ssm:/stopcovid/${self:provider.stage}/datadogForwarderArn, 'bacon'}
+  datadog:
+    forwarder: ${ssm:/stopcovid/${self:provider.stage}/datadogForwarderArn, 'bacon'}
+    enabled: ${self:custom.datadogEnabled.${self:provider.stage}}
+  datadogEnabled:
+    local: false
+    dev: true
+    prd: true
   enterprise:
     collectLambdaLogs: false
   pythonRequirements:
@@ -25,6 +29,18 @@ custom:
       - local
     host: http://localhost  # optional - LocalStack host to connect to
     edgePort: 4566  # optional - LocalStack edge port to connect to
+  logInboundSMSTimeout:
+    local: 60
+    dev: 6
+    prd: 6
+  handleCommandTimeout:
+    local: 60
+    dev: 6
+    prd: 6
+  distributeDialogEventsTimeout:
+    local: 60
+    dev: 6
+    prd: 6
 
 
 provider:
@@ -60,7 +76,7 @@ provider:
 
 plugins:
   - serverless-python-requirements
-  # - serverless-plugin-datadog
+  - serverless-plugin-datadog
   - serverless-localstack
 
 functions:
@@ -87,6 +103,7 @@ functions:
 
   log_inbound_sms:
     handler: stopcovid/sms/aws_lambdas/log_inbound_sms.handler
+    timeout: ${self:custom.logInboundSMSTimeout.${self:provider.stage}}
     package: {}
     events:
       - stream:
@@ -108,6 +125,7 @@ functions:
 
   handleCommand:
     handler: stopcovid/dialog/aws_lambdas/handle_command.handler
+    timeout: ${self:custom.handleCommandTimeout.${self:provider.stage}}
     provisionedConcurrency: 3
     package: {}
     events:
@@ -134,6 +152,7 @@ functions:
 
   distributeDialogEvents:
     handler: stopcovid/sms/aws_lambdas/enqueue_sms_batch.handler
+    timeout: ${self:custom.distributeDialogEventsTimeout.${self:provider.stage}}
     provisionedConcurrency: 3
     package: {}
     events:
@@ -186,12 +205,12 @@ resources:
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
-            - Effect: Allow
-              Action:
-                - ec2:CreateNetworkInterface
-                - ec2:DescribeNetworkInterfaces
-                - ec2:DeleteNetworkInterface
-              Resource: "*"
+           - Effect: Allow
+             Action:
+               - ec2:CreateNetworkInterface
+               - ec2:DescribeNetworkInterfaces
+               - ec2:DeleteNetworkInterface
+             Resource: "*"
 
     # COMMAND STREAM
     CommandStream:
