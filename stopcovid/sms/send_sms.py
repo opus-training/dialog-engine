@@ -43,7 +43,7 @@ def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[st
 
 
 def _send_batch(batch: SMSBatch) -> Optional[List[twilio.TwilioResponse]]:
-    if os.environ["STAGE"] == "local":
+    if os.environ.get("STAGE") == "local":
         logging.info(f"Local environment; skipping Twilio send: {batch}")
         return None
     if is_fake_phone_number(batch.phone_number):
