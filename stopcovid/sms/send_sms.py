@@ -35,7 +35,7 @@ def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[st
             "twilio_message_id": twilio_response.sid,
             "to": twilio_response.to,
             "body": twilio_response.body,
-            "cstatus": twilio_response.status,
+            "status": twilio_response.status,
             "error_code": twilio_response.error_code,
             "error_message": twilio_response.error_message,
         }
