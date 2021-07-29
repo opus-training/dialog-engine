@@ -235,9 +235,9 @@ class TestPublishOutboundSMS(unittest.TestCase):
     def setUp(self) -> None:
         logging.disable(logging.CRITICAL)
 
-    def _get_mocked_send_messages(self, boto_mock):
+    def _get_mocked_send_messages(self, get_resource_mock):
         sqs_mock = MagicMock()
-        boto_mock.resource.return_value = sqs_mock
+        get_resource_mock.return_value = sqs_mock
         queue = MagicMock(name="queue")
         send_messages_mock = MagicMock()
         queue.send_messages = send_messages_mock
@@ -250,13 +250,13 @@ class TestPublishOutboundSMS(unittest.TestCase):
         _, *kwargs = call
         return kwargs[1]["Entries"]  # type: ignore
 
-    def test_no_messages(self, boto_mock):
-        send_messages_mock = self._get_mocked_send_messages(boto_mock)
+    def test_no_messages(self, get_resource_mock):
+        send_messages_mock = self._get_mocked_send_messages(get_resource_mock)
         publish_outbound_sms_messages([])
         send_messages_mock.assert_not_called()
 
-    def test_sends_messages_to_one_phone_number_for_one_event(self, boto_mock):
-        send_messages_mock = self._get_mocked_send_messages(boto_mock)
+    def test_sends_messages_to_one_phone_number_for_one_event(self, get_resource_mock):
+        send_messages_mock = self._get_mocked_send_messages(get_resource_mock)
         phone_number = "+15551234321"
 
         event_id = uuid.uuid4()
@@ -284,8 +284,8 @@ class TestPublishOutboundSMS(unittest.TestCase):
         )
         self.assertEqual(entry["MessageGroupId"], phone_number)
 
-    def test_sends_messages_to_one_phone_number_for_multiple_events(self, boto_mock):
-        send_messages_mock = self._get_mocked_send_messages(boto_mock)
+    def test_sends_messages_to_one_phone_number_for_multiple_events(self, get_resource_mock):
+        send_messages_mock = self._get_mocked_send_messages(get_resource_mock)
         phone_number = "+15551234321"
 
         event_1_id = uuid.uuid4()
@@ -314,8 +314,8 @@ class TestPublishOutboundSMS(unittest.TestCase):
         ),
         self.assertEqual(entry["MessageGroupId"], phone_number)
 
-    def test_sends_messages_to_multiple_phone_numbers_for_one_event_each(self, boto_mock):
-        send_messages_mock = self._get_mocked_send_messages(boto_mock)
+    def test_sends_messages_to_multiple_phone_numbers_for_one_event_each(self, get_resource_mock):
+        send_messages_mock = self._get_mocked_send_messages(get_resource_mock)
         phone_number_1 = "+15551234321"
         phone_number_2 = "+15559998888"
         event_1_id = uuid.uuid4()
@@ -354,8 +354,10 @@ class TestPublishOutboundSMS(unittest.TestCase):
         self.assertEqual(sqs_message["messages"], [{"body": "message 3", "media_url": None}])
         self.assertEqual(entry["MessageGroupId"], phone_number_2)
 
-    def test_sends_messages_to_multiple_phone_numbers_for_multiple_events_each(self, boto_mock):
-        send_messages_mock = self._get_mocked_send_messages(boto_mock)
+    def test_sends_messages_to_multiple_phone_numbers_for_multiple_events_each(
+        self, get_resource_mock
+    ):
+        send_messages_mock = self._get_mocked_send_messages(get_resource_mock)
         phone_number_1 = "+15551234321"
         phone_number_2 = "+15559998888"
         phone_number_3 = "+15551110000"
