@@ -87,7 +87,7 @@ functions:
     package: {}
     events:
       - http:
-          path:  webhooks/twilio
+          path: webhooks/twilio
           method: post
 
   sendMessage:
