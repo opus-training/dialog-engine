@@ -11,6 +11,7 @@ from stopcovid.sms.types import SMSBatch, OutboundPayload
 from . import publish
 from ..utils.idempotency import IdempotencyChecker
 from ..utils.phones import is_fake_phone_number
+from ..utils.logging import _is_running_unit_tests
 
 DELAY_SECONDS_BETWEEN_MESSAGES = 3
 DELAY_SECONDS_AFTER_MEDIA = 10
@@ -35,7 +36,7 @@ def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[st
             "twilio_message_id": twilio_response.sid,
             "to": twilio_response.to,
             "body": twilio_response.body,
-            "status": twilio_response.status,
+            "cstatus": twilio_response.status,
             "error_code": twilio_response.error_code,
             "error_message": twilio_response.error_message,
         }
@@ -43,7 +44,7 @@ def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[st
 
 
 def _send_batch(batch: SMSBatch) -> Optional[List[twilio.TwilioResponse]]:
-    if os.environ["STAGE"] == "local":
+    if os.environ["STAGE"] == "local" and not _is_running_unit_tests():
         logging.info(f"Local environment; skipping Twilio send: {batch}")
         return None
     if is_fake_phone_number(batch.phone_number):
