@@ -11,7 +11,7 @@ custom:
   datadogEnabled:
     local: false
     dev: true
-    prd: true
+    prod: true
   enterprise:
     collectLambdaLogs: false
   pythonRequirements:
@@ -32,15 +32,15 @@ custom:
   logInboundSMSTimeout:
     local: 60
     dev: 6
-    prd: 6
+    prod: 6
   handleCommandTimeout:
     local: 60
     dev: 6
-    prd: 6
+    prod: 6
   distributeDialogEventsTimeout:
     local: 60
     dev: 6
-    prd: 6
+    prod: 6
 
 
 provider:
