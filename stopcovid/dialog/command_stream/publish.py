@@ -3,7 +3,8 @@ import logging
 import os
 from typing import Dict, Any, List, Tuple
 import rollbar
-import boto3
+
+from stopcovid.utils.boto3 import get_boto3_client
 
 
 class CommandPublisher:
@@ -30,12 +31,8 @@ class CommandPublisher:
             ]
         )
 
-    @staticmethod
-    def _get_kinesis_client() -> Any:
-        return boto3.client("kinesis")
-
     def _publish_commands(self, commands: List[Tuple[str, Dict[str, Any]]]) -> None:
-        kinesis = self._get_kinesis_client()
+        kinesis = get_boto3_client("kinesis")
         records = [
             {"Data": json.dumps(data), "PartitionKey": phone_number}
             for phone_number, data in commands

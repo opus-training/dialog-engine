@@ -4,7 +4,6 @@ import os
 from typing import Any, Dict, cast
 from urllib.parse import unquote_plus
 
-import boto3
 import rollbar
 from twilio.request_validator import RequestValidator
 from twilio.twiml.messaging_response import MessagingResponse
@@ -15,6 +14,7 @@ from stopcovid.utils.idempotency import IdempotencyChecker
 from stopcovid.utils.logging import configure_logging
 from stopcovid.utils.rollbar import configure_rollbar
 from stopcovid.utils.verify_deploy_stage import verify_deploy_stage
+from stopcovid.utils.boto3 import get_boto3_client
 
 configure_logging()
 configure_rollbar()
@@ -26,7 +26,8 @@ IDEMPOTENCY_EXPIRATION_MINUTES = 60
 @rollbar.lambda_function  # type: ignore
 def handler(event: dict, context: dict) -> dict:
     verify_deploy_stage()
-    kinesis = boto3.client("kinesis")
+
+    kinesis = get_boto3_client("kinesis")
     stage = os.environ["STAGE"]
     idempotency_checker = IdempotencyChecker()
 

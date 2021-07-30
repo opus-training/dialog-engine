@@ -1,22 +1,6 @@
 # The StopCOVID Dialog Engine
 
-This repo contains the production code that powers [StopCOVID](https://www.stopcovid.co/). It's licensed as open-source software (see [license](LICENSE)) so feel free to copy as you see fit for your needs.
-
 The code in this repo is deployed on Amazon's serverless platform, using Lambda, Kinesis, DynamoDB, among other things. This was our first substantial experience writing a serverless app, and we were pleasantly surprised by how quickly we could create a useful app with well-defined, decoupled components. If you're curious about building serverless event-driven applications, have a look around this repo and copy what you'd like.
-
-We also welcome feedback and advice. We built this in a hurry and there's room for improvement. Demand for StopCOVID has been high and it was critical to get something launched as soon as we could. So you'll find rough edges.
-
-## About StopCOVID
-
-StopCOVID provides COVID-19 training for businesses. It is an emergency initiative built by humans who wanted to be part of the solution to protect essential workers while helping to stop the spread of Coronavirus. We are partnering with essential businesses up and down the supply chain. We provide them with high-impact training for their frontline workers that's delivered over text message. 
-
-Each trainee receives one interactive training daily drill over SMS. Each drill is interactive and delivers digestible training. Then, stopCOVID reports statistics on completion back to businesses.
-
-See [our website](https://www.stopcovid.co/) for more information.
-
-![example drill in progress](drill.png)
-
-*A StopCOVID drill, in progress.*
 
 ## Architecture
 
@@ -26,8 +10,11 @@ The StopCOVID backend is serverless and event-driven. The core of the system is 
 
 *A simplified overview of the StopCOVID architecture.*
 
-
 For a lot more detail, see the [architecture overview](docs/README.md).
+
+## The simulator
+
+You can simulate the core of dialog processing on the command line — by feeding the dialog engine with command-line entries rather than entries from a kinesis stream. Try it out by running `python simulator.py`.
 
 ## Interesting parts of the code
 
@@ -35,24 +22,41 @@ The heart of the system is in [`engine.py`](stopcovid/dialog/engine.py) and, in 
 
 We aggressively adopted type checking. We used Python type hints wherever we could and we used the [pyright](https://github.com/microsoft/pyright) type checker to enforce type hints. We also used [Marshmallow](https://marshmallow.readthedocs.io/en/stable/) schemas for everything that we serialized to or deserialized from JSON.
 
-## The simulator
-
-You can simulate the core of dialog processing on the command line — by feeding the dialog engine with command-line entries rather than entries from a kinesis stream. Try it out by running `python simulator.py`.
-
 ## `manage.py`
 
 The `manage.py` script contains commands that we've found helpful while operating the Dialog Engine in production. You'll need appropriate AWS credentials in your environment to use this script. Type `python manage.py --help` for info on what this script can do.
-
-### Replay SQS DQL messages:
-```python -m manage --stage=prod redrive-sqs sms```
 
 ## CI
 We use [black](https://black.readthedocs.io/en/stable/) for code formatting and flake8 for linting, with a custom rule setting maximum line length to 100.
 - `black --config black.toml .`
 - `flake8`
 
-
-
 ## Running tests
 - Run `docker-compose up` in the `db_local` directory
 - `python -m unittest`
+
+## localstack
+
+To run `dialog-engine` (and `scadmin`) against local, mocked AWS infrastructure, we use [localstack](https://localstack.cloud/).
+
+1. [Start localstack](https://github.com/localstack/localstack#running). This README & config assumes you'll run it in host mode on your machine (by passing the `--host` option), not using Docker. Make sure to include the configuration in `.locastack-env`. e.g.:
+```
+pip install localstack
+set -a
+. ./.localstack-env
+set +a
+localstack start --host
+```
+
+2. Install serverless dependencies with `npm i`
+
+3. `npm run deploy`
+
+4. In `scadmin`, ensure the `BOTO_ENDPOINT_URL` env var is set
+
+### Notes
+
+- Running in host mode requires Java 8+--which you must install yourself--for DynamoDB to run
+- When restarting localstack in host mode, Kinesis/DynamoDB will sometimes end up in a corrupted state and/or fail to shut down, leaving lingering processes & blocked ports. Usually, manually stopping any `java` or `kinesis-*` processes will fix this, or removing the localstack `infra` directory (more details in [this GitHub issue](https://github.com/localstack/localstack/issues/514))
+- At time of writing, [localstack Kinesis directly invokes Lambda functions (if they are linked to a stream) before returning a response to PUT record requests](https://github.com/localstack/localstack/issues/4354). If there are errors in the lambda invocation, this can result in confusing "timeouts" in the client PUTing records to Kinesis
+- The `start` npm script should work in theory, but is currently broken in practice: Cloudformation updates in localstack "fail" to deploy our lambdas (even though they successfully provision), so the `deploy` script always has an exit code of 1

@@ -12,7 +12,7 @@ class TestCommandPublisher(unittest.TestCase):
         self.put_records_mock = MagicMock()
         self.kinesis_client.put_records = self.put_records_mock
         get_kinesis_client_patch = patch(
-            "stopcovid.dialog.command_stream.publish.CommandPublisher._get_kinesis_client",
+            "stopcovid.dialog.command_stream.publish.get_boto3_client",
             return_value=self.kinesis_client,
         )
         get_kinesis_client_patch.start()

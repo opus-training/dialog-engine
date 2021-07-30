@@ -13,8 +13,10 @@ def configure_rollbar() -> None:
         return
 
     stage = os.environ.get("STAGE")
+    is_local = stage == "local"
     rollbar.init(
         os.environ.get("ROLLBAR_TOKEN"),
+        enabled=not is_local,
         environment=f"dialog-engine-{stage}",
         locals={
             "safe_repr": False,

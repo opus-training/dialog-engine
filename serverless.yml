@@ -1,13 +1,17 @@
 service: slowcovid
 app: slowcovid
-org: jeffreysilver
 
 unresolvedVariablesNotificationMode: error
 variablesResolutionMode: 20210326
 
 custom:
   datadog:
-    forwarder: ${ssm:/stopcovid/${self:provider.stage}/datadogForwarderArn}
+    forwarder: ${ssm:/stopcovid/${self:provider.stage}/datadogForwarderArn, 'bacon'}
+    enabled: ${self:custom.datadogEnabled.${self:provider.stage}}
+  datadogEnabled:
+    local: false
+    dev: true
+    prd: true
   enterprise:
     collectLambdaLogs: false
   pythonRequirements:
@@ -20,47 +24,67 @@ custom:
       - db_local/**
       - env/***
       - node_modules/**
+  localstack:
+    stages:
+      - local
+    host: http://localhost  # optional - LocalStack host to connect to
+    edgePort: 4566  # optional - LocalStack edge port to connect to
+  logInboundSMSTimeout:
+    local: 60
+    dev: 6
+    prd: 6
+  handleCommandTimeout:
+    local: 60
+    dev: 6
+    prd: 6
+  distributeDialogEventsTimeout:
+    local: 60
+    dev: 6
+    prd: 6
+
 
 provider:
   name: aws
   runtime: python3.8
   stage: ${opt:stage, 'dev'}
   region: us-east-1
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - lambda:InvokeFunction
-        - kinesis:*
-        - sqs:*
-        - dynamodb:*
-        - rds-data:*
-        - secretsmanager:GetSecretValue
-        - s3:GetObject
-        - s3:GetObjectVersion
-        - ssm:*
-      Resource: "*"
+  lambdaHashingVersion: 20201221
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - lambda:InvokeFunction
+            - kinesis:*
+            - sqs:*
+            - dynamodb:*
+            - rds-data:*
+            - secretsmanager:GetSecretValue
+            - s3:GetObject
+            - s3:GetObjectVersion
+            - ssm:*
+          Resource: "*"
 
   environment:
     STAGE: ${self:provider.stage}
-    DEPLOY_STAGE: ${ssm:/stopcovid/${self:provider.stage}/deployStage}
-    TWILIO_MESSAGING_SERVICE_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioMessagingServiceSID}
-    TWILIO_ACCOUNT_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioAccountSID}
-    TWILIO_AUTH_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/twilioAuthToken}
-    DB_CLUSTER_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbClusterArn}
-    DB_SECRET_ARN: ${ssm:/stopcovid/${self:provider.stage}/dbSecretArn}
-    DRILL_CONTENT_S3_BUCKET: ${ssm:/stopcovid/${self:provider.stage}/drillContentS3Bucket}
-    ROLLBAR_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/rollbarToken}
+    DEPLOY_STAGE: ${ssm:/stopcovid/${self:provider.stage}/deployStage, 'local'}
+    TWILIO_MESSAGING_SERVICE_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioMessagingServiceSID, 'bacon'}
+    TWILIO_ACCOUNT_SID: ${ssm:/stopcovid/${self:provider.stage}/twilioAccountSID, 'bacon'}
+    TWILIO_AUTH_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/twilioAuthToken, 'bacon'}
+    ROLLBAR_TOKEN: ${ssm:/stopcovid/${self:provider.stage}/rollbarToken, 'bacon'}
 
 
 plugins:
   - serverless-python-requirements
   - serverless-plugin-datadog
+  - serverless-localstack
 
 functions:
   twilioWebhook:
     handler: stopcovid/sms/aws_lambdas/twilio_webhook.handler
     timeout: 20
     provisionedConcurrency: 5
+    package: {}
     events:
       - http:
           path: webhooks/twilio
@@ -69,6 +93,7 @@ functions:
   sendMessage:
     handler: stopcovid/sms/aws_lambdas/send_sms_batch.handler
     timeout: 60
+    package: {}
     events:
       - sqs:
           arn:
@@ -78,6 +103,8 @@ functions:
 
   log_inbound_sms:
     handler: stopcovid/sms/aws_lambdas/log_inbound_sms.handler
+    timeout: ${self:custom.logInboundSMSTimeout.${self:provider.stage}}
+    package: {}
     events:
       - stream:
           type: kinesis
@@ -98,7 +125,9 @@ functions:
 
   handleCommand:
     handler: stopcovid/dialog/aws_lambdas/handle_command.handler
+    timeout: ${self:custom.handleCommandTimeout.${self:provider.stage}}
     provisionedConcurrency: 3
+    package: {}
     events:
       - stream:
           type: kinesis
@@ -118,12 +147,14 @@ functions:
               type: sqs
     environment:
       DIALOG_TABLE_NAME_SUFFIX: ${self:provider.stage}
-      REGISTRATION_VALIDATION_URL: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationUrl}
-      REGISTRATION_VALIDATION_KEY: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationKey}
+      REGISTRATION_VALIDATION_URL: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationUrl, 'http://localhost:8000/api/v1/identity/validate-code'}
+      REGISTRATION_VALIDATION_KEY: ${ssm:/stopcovid/${self:provider.stage}/registrationValidationKey, 'bacon'}
 
   distributeDialogEvents:
     handler: stopcovid/sms/aws_lambdas/enqueue_sms_batch.handler
+    timeout: ${self:custom.distributeDialogEventsTimeout.${self:provider.stage}}
     provisionedConcurrency: 3
+    package: {}
     events:
       - stream:
           type: dynamodb
@@ -145,6 +176,7 @@ functions:
     handler: stopcovid/dialog/aws_lambdas/publish_dialog_event_batches.handler
     timeout: 60
     provisionedConcurrency: 3
+    package: {}
     events:
       - stream:
           type: dynamodb
@@ -173,12 +205,12 @@ resources:
         PolicyDocument:
           Version: "2012-10-17"
           Statement:
-            - Effect: Allow
-              Action:
-                - ec2:CreateNetworkInterface
-                - ec2:DescribeNetworkInterfaces
-                - ec2:DeleteNetworkInterface
-              Resource: "*"
+           - Effect: Allow
+             Action:
+               - ec2:CreateNetworkInterface
+               - ec2:DescribeNetworkInterfaces
+               - ec2:DeleteNetworkInterface
+             Resource: "*"
 
     # COMMAND STREAM
     CommandStream:

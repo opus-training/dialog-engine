@@ -7,8 +7,6 @@ from typing import List, Optional, Any
 from dataclasses import dataclass
 import uuid
 
-import boto3
-
 from stopcovid.dialog.models.events import (
     DrillStarted,
     UserValidated,
@@ -27,6 +25,7 @@ from stopcovid.dialog.models.events import (
 )
 from stopcovid.drills.drills import PromptMessage
 from stopcovid.drills.content_loader import translate, SupportedTranslation, correct_answer_response
+from stopcovid.utils.boto3 import get_boto3_resource
 
 USER_VALIDATION_FAILED_COPY = (
     "Invalid Code. Check with your administrator and make sure you have the right code."
@@ -142,7 +141,7 @@ def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]) -> A
     if not outbound_sms_messages:
         return None
 
-    sqs = boto3.resource("sqs")
+    sqs = get_boto3_resource("sqs")
 
     queue_name = f"outbound-sms-{os.getenv('STAGE')}.fifo"
     queue = sqs.get_queue_by_name(QueueName=queue_name)
