@@ -48,9 +48,9 @@ set +a
 localstack start --host
 ```
 
-2. Install serverless dependencies with `yarn i`
+2. Install serverless dependencies with `npm i`
 
-3. `yarn deploy`
+3. `npm run deploy`
 
 4. In `scadmin`, ensure the `BOTO_ENDPOINT_URL` env var is set
 
