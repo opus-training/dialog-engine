@@ -9,10 +9,3 @@ def verify_deploy_stage() -> None:
             f"There is a mismatch between the stage and environment variables. "
             f"Exiting. (STAGE={stage}, DEPLOY_STAGE={deploy_stage})"
         )
-    if stage == "local":
-        return
-    db_cluster_arn = os.getenv("DB_CLUSTER_ARN", "")
-    if not db_cluster_arn.endswith(stage):
-        raise EnvironmentError(
-            f"Wrong db configuration. (STAGE={stage}, DB_CLUSTER_ARN={db_cluster_arn})"
-        )
