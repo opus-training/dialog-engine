@@ -60,3 +60,15 @@ localstack start --host
 - When restarting localstack in host mode, Kinesis/DynamoDB will sometimes end up in a corrupted state and/or fail to shut down, leaving lingering processes & blocked ports. Usually, manually stopping any `java` or `kinesis-*` processes will fix this, or removing the localstack `infra` directory (more details in [this GitHub issue](https://github.com/localstack/localstack/issues/514))
 - At time of writing, [localstack Kinesis directly invokes Lambda functions (if they are linked to a stream) before returning a response to PUT record requests](https://github.com/localstack/localstack/issues/4354). If there are errors in the lambda invocation, this can result in confusing "timeouts" in the client PUTing records to Kinesis
 - The `start` npm script should work in theory, but is currently broken in practice: Cloudformation updates in localstack "fail" to deploy our lambdas (even though they successfully provision), so the `deploy` script always has an exit code of 1
+
+## SMS Client
+
+After deploying `dialog-engine` to localstack, `sms_client.py` allows for direct interaction with `dialog-engine` as if actually sending & receiving SMS from a client application. Example steps:
+
+1. Start the `api`, `dbq_consumer`, and `dialog_event_consumer` docker-compose services in `scadmin`
+
+2. Start the client, e.g.: `python sms_client.py http://localhost:4566 +15552345678`
+
+3. Invite an employee at the same phone from step 2 using a locally running `dashboard` instance
+
+4. You should receive an invitation in your step 2 shell; send a message back

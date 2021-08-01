@@ -19,6 +19,10 @@ IDEMPOTENCY_REALM = "send-sms"
 IDEMPOTENCY_EXPIRATION_MINUTES = 24 * 60  # one day
 
 
+class LocalEnvironmentException(Exception):
+    pass
+
+
 def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[str] = None) -> None:
     try:
         publish.publish_outbound_sms(
@@ -44,7 +48,8 @@ def _publish_send(twilio_response: twilio.TwilioResponse, media_url: Optional[st
 
 def _send_batch(batch: SMSBatch) -> Optional[List[twilio.TwilioResponse]]:
     if os.environ.get("STAGE") == "local":
-        logging.info(f"Local environment; skipping Twilio send: {batch}")
+        logging.info(f"Local environment; raising: {batch}")
+        raise LocalEnvironmentException
         return None
     if is_fake_phone_number(batch.phone_number):
         logging.info(f"Abandoning batch to fake phone number: {batch.phone_number}")
