@@ -309,6 +309,7 @@ class ProcessSMSMessage(Command):
         if not dialog_state.current_drill or self._current_drill_is_stale(dialog_state):
             if self.content_lower in [
                 "go",
+                "next",
                 "vamos",
                 "start",
                 "comienzo",
