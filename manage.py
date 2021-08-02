@@ -12,15 +12,6 @@ from stopcovid.utils.boto3 import get_boto3_client, get_boto3_resource
 configure_logging()
 
 
-def get_env(stage: str) -> Dict[str, str]:
-    filename = {"dev": ".env.development", "prod": ".env.production"}[stage]
-    with open(filename) as file:
-        return {
-            line_part[0].strip(): line_part[1].strip()
-            for line_part in (line.split("=") for line in file.readlines())
-        }
-
-
 def handle_redrive_sqs(args: Any) -> None:
     sqs = get_boto3_resource("sqs")
 
