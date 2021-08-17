@@ -3,8 +3,6 @@ import uuid
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List, Optional, Dict, Any, Callable
-from datetime import datetime, timedelta
-from pytz import UTC
 
 import stopcovid.dialog.models.events
 from stopcovid.dialog.models.events import (
@@ -306,7 +304,7 @@ class ProcessSMSMessage(Command):
     def _drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        if not dialog_state.current_drill or self._current_drill_is_stale(dialog_state):
+        if not dialog_state.current_drill:
             if self.content_lower in [
                 "go",
                 "next",
@@ -323,20 +321,13 @@ class ProcessSMSMessage(Command):
     def _english_lesson_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        if not dialog_state.current_drill or self._current_drill_is_stale(dialog_state):
+        if not dialog_state.current_drill:
             if self.content_lower in [
                 "english",
                 "esl",
             ]:
                 return [EnglishLessonDrillRequested(**base_args)]
         return None
-
-    def _current_drill_is_stale(self, dialog_state: DialogState) -> bool:
-        if not dialog_state.current_prompt_state:
-            return True
-        return datetime.now(UTC) - dialog_state.current_prompt_state.start_time > timedelta(
-            minutes=DRILL_REQUESTED_OVERRIDE_CURRENT_DRILL_MINUTES
-        )
 
     def _next_drill_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
