@@ -341,7 +341,7 @@ class ProcessSMSMessage(Command):
     def _dashboard_requested(
         self, dialog_state: DialogState, base_args: Dict[str, Any]
     ) -> Optional[List[DialogEvent]]:
-        if self.content_lower in ["dashboard", "tablero"]:
+        if self.content_lower in ["info"]:
             return [DashboardRequested(**base_args)]
         return None
 

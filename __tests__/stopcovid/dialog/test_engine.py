@@ -575,7 +575,7 @@ class TestProcessCommand(unittest.TestCase):
             )
 
     def test_dashboard_requested(self):
-        for message in ["dashboard", "tablero"]:
+        for message in ["info"]:
             self.dialog_state.user_profile.validated = True
             self.dialog_state.user_profile.account_info = AccountInfo(employer_id=1)
             self.dialog_state.current_drill = "balbla"
