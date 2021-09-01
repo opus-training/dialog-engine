@@ -314,6 +314,7 @@ class ProcessSMSMessage(Command):
                 "aller",
                 "debut",
                 "début",
+                "siguiente",
             ]:
                 return [DrillRequested(**base_args)]
         return None
