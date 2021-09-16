@@ -374,7 +374,7 @@ class ProcessSMSMessage(Command):
         if self.content_lower in ["support", "ayuda"]:
             return [
                 SupportRequested(
-                    **base_args, abandoned_drill_instance_id=dialog_state.drill_instance_id
+                    **base_args,
                 )
             ]
         return None
