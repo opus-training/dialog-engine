@@ -26,7 +26,7 @@ jmespath==0.9.5
     #   botocore
 markupsafe==1.1.1
     # via jinja2
-pydantic==1.6.1
+pydantic==1.6.2
     # via -r requirements.in
 pyjwt==1.7.1
     # via twilio
