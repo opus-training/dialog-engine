@@ -34,6 +34,7 @@ class UserProfile(pydantic.BaseModel):
     whatsapp_opt_in: Optional[str] = None
     ssl_opt_in: Optional[str] = None
     is_working: Optional[str] = None
+    messaging_service_sid: Optional[str] = None
 
     @pydantic.validator("language", pre=True, always=True)
     def set_language(cls, value: Optional[str]) -> Optional[str]:

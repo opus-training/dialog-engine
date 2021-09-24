@@ -14,7 +14,9 @@ class TwilioResponse(pydantic.BaseModel):
     error_message: Optional[str]
 
 
-def send_message(to: str, body: Optional[str], media_url: Optional[str]) -> TwilioResponse:
+def send_message(
+    to: str, body: Optional[str], media_url: Optional[str], messaging_service_sid: Optional[str]
+) -> TwilioResponse:
     client = Client(os.environ["TWILIO_ACCOUNT_SID"], os.environ["TWILIO_AUTH_TOKEN"])
     if body is None:
         emoji_escaped_body = None
@@ -24,7 +26,7 @@ def send_message(to: str, body: Optional[str], media_url: Optional[str]) -> Twil
         to=to,
         body=emoji_escaped_body,
         media_url=media_url,
-        messaging_service_sid=os.environ["TWILIO_MESSAGING_SERVICE_SID"],
+        messaging_service_sid=messaging_service_sid or os.environ["TWILIO_MESSAGING_SERVICE_SID"],
     )
     return TwilioResponse(
         sid=message.sid,

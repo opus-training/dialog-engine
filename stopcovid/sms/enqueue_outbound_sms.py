@@ -37,6 +37,7 @@ class OutboundSMS:
     event_id: uuid.UUID
     phone_number: str
     body: Optional[str]
+    messaging_service_sid: Optional[str] = None
     media_url: Optional[str] = None
 
 
@@ -51,6 +52,7 @@ def get_messages(
             phone_number=dialog_event.phone_number,
             body=message.text or None,
             media_url=message.media_url,
+            messaging_service_sid=dialog_event.user_profile.messaging_service_sid,
         )
         for i, message in enumerate(messages)
     ]
