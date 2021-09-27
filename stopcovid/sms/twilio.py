@@ -26,7 +26,7 @@ def send_message(
         to=to,
         body=emoji_escaped_body,
         media_url=media_url,
-        messaging_service_sid=messaging_service_sid or os.environ["TWILIO_MESSAGING_SERVICE_SID"],
+        messaging_service_sid=_get_messaging_service_sid(to, messaging_service_sid),
     )
     return TwilioResponse(
         sid=message.sid,
@@ -36,3 +36,9 @@ def send_message(
         error_code=message.error_code,
         error_message=message.error_message,
     )
+
+
+def _get_messaging_service_sid(to: str, messaging_service_sid: Optional[str]) -> Optional[str]:
+    if messaging_service_sid is None or to.startswith("whatsapp"):
+        return os.environ["TWILIO_MESSAGING_SERVICE_SID"]
+    return messaging_service_sid
