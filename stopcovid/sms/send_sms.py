@@ -62,11 +62,14 @@ def _send_batch(batch: SMSBatch) -> Optional[List[twilio.TwilioResponse]]:
         if (message.body is None) and (message.media_url is None):
             logging.info(f"Skipped messages to {batch.phone_number}; no body or media_url")
             continue
-        res = twilio.send_message(batch.phone_number, message.body, message.media_url)
+        res = twilio.send_message(
+            batch.phone_number, message.body, message.media_url, batch.messaging_service_sid
+        )
         _publish_send(res, message.media_url)
         twilio_responses.append(res)
 
         # sleep after every message besides the last one
+
         if i < len(batch.messages) - 1:
             if message.media_url:
                 sleep(DELAY_SECONDS_AFTER_MEDIA)

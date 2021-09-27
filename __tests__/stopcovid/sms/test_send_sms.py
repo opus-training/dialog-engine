@@ -43,6 +43,27 @@ class TestSendSMS(unittest.TestCase):
             self.assertEqual(args[0], phone)
             self.assertEqual(args[1], batches[0].messages[i].body)
 
+    def test_uses_messaging_service_sid(self, sleep_mock, twilio_mock, *args):
+        phone = "+14801234321"
+        batches = [
+            SMSBatch(
+                phone_number=phone,
+                messages=[
+                    SMS(body="hello"),
+                    SMS(body="how are you"),
+                    SMS(body="goodbye"),
+                ],
+                idempotency_key="foo",
+                messaging_service_sid="foo-bar-baz",
+            )
+        ]
+        send_sms_batches(batches)
+        self.assertEqual(twilio_mock.send_message.call_count, 3)
+
+        call_args = self._get_twilio_call_args(twilio_mock)
+        for i, args in enumerate(call_args):
+            self.assertEqual(args[3], "foo-bar-baz")
+
     def test_doesnt_send_to_fake_phones(self, sleep_mock, twilio_mock, *args):
         phone = "+15559990000"
         batches = [

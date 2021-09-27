@@ -12,6 +12,7 @@ class SMSBatch(pydantic.BaseModel):
     phone_number: str
     messages: List[SMS]
     idempotency_key: str
+    messaging_service_sid: Optional[str] = None
 
 
 class OutboundPayload(pydantic.BaseModel):
