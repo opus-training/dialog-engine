@@ -62,8 +62,6 @@ class TestSendSMS(unittest.TestCase):
 
         call_args = self._get_twilio_call_args(twilio_mock)
         for i, args in enumerate(call_args):
-            self.assertEqual(args[0], phone)
-            self.assertEqual(args[1], batches[0].messages[i].body)
             self.assertEqual(args[3], "foo-bar-baz")
 
     def test_doesnt_send_to_fake_phones(self, sleep_mock, twilio_mock, *args):
