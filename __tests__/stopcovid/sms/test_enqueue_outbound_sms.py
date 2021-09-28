@@ -451,3 +451,75 @@ class TestPublishOutboundSMS(unittest.TestCase):
             ],
         )
         self.assertEqual(entry["MessageGroupId"], phone_number_3)
+
+    def test_sends_messages_to_multiple_messaging_services(self, get_resource_mock):
+        send_messages_mock = self._get_mocked_send_messages(get_resource_mock)
+        phone_number_1 = "+15551234321"
+        phone_number_2 = "+15559998888"
+        phone_number_3 = "+15551110000"
+
+        phone_number_1_event_ids = [uuid.uuid4(), uuid.uuid4()]
+        phone_number_2_event_ids = [uuid.uuid4(), uuid.uuid4()]
+        phone_number_3_event_ids = [uuid.uuid4(), uuid.uuid4(), uuid.uuid4()]
+
+        messages = [
+            OutboundSMS(
+                event_id=phone_number_1_event_ids[0],
+                phone_number=phone_number_1,
+                body="message 1",
+                messaging_service_sid="ms-1",
+            ),
+            OutboundSMS(
+                event_id=phone_number_1_event_ids[1],
+                phone_number=phone_number_1,
+                body="message 2",
+                messaging_service_sid="ms-1",
+            ),
+            OutboundSMS(
+                event_id=phone_number_2_event_ids[0],
+                phone_number=phone_number_2,
+                body="message 3",
+                messaging_service_sid="ms-2",
+            ),
+            OutboundSMS(
+                event_id=phone_number_2_event_ids[1],
+                phone_number=phone_number_2,
+                body="message 4",
+                messaging_service_sid="ms-2",
+            ),
+            OutboundSMS(
+                event_id=phone_number_3_event_ids[0],
+                phone_number=phone_number_3,
+                body="message 5",
+                messaging_service_sid="ms-2",
+            ),
+            OutboundSMS(
+                event_id=phone_number_3_event_ids[1],
+                phone_number=phone_number_3,
+                body="message 6",
+                messaging_service_sid="ms-2",
+            ),
+            OutboundSMS(
+                event_id=phone_number_3_event_ids[2],
+                phone_number=phone_number_3,
+                body="message 7",
+                messaging_service_sid="ms-2",
+            ),
+        ]
+
+        publish_outbound_sms_messages(messages)
+        entries = self._get_send_message_entries(send_messages_mock)
+
+        self.assertEqual(len(entries), 3)
+
+        entry = entries[0]
+        sqs_message = json.loads(entry["MessageBody"])
+        self.assertEqual(sqs_message["messaging_service_sid"], "ms-1")
+
+        entry = entries[1]
+        sqs_message = json.loads(entry["MessageBody"])
+        self.assertEqual(sqs_message["messaging_service_sid"], "ms-2")
+
+        entry = entries[2]
+        sqs_message = json.loads(entry["MessageBody"])
+        self.assertEqual(sqs_message["messaging_service_sid"], "ms-2")
