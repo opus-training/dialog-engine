@@ -37,8 +37,8 @@ class OutboundSMS:
     event_id: uuid.UUID
     phone_number: str
     body: Optional[str]
-    messaging_service_sid: Optional[str] = None
     media_url: Optional[str] = None
+    messaging_service_sid: Optional[str] = None
 
 
 def get_messages(
@@ -162,6 +162,7 @@ def publish_outbound_sms_messages(outbound_sms_messages: List[OutboundSMS]) -> A
                 "MessageBody": json.dumps(
                     {
                         "phone_number": phone,
+                        "messaging_service_sid": messages[0].messaging_service_sid,
                         "messages": [
                             {"body": message.body, "media_url": message.media_url}
                             for message in messages
