@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+from datetime import datetime
+from pytz import UTC
 from typing import Any, Dict, cast
 from urllib.parse import unquote_plus
 
@@ -43,7 +45,13 @@ def handler(event: dict, context: dict) -> dict:
     if "MessageStatus" in form:
         logging.info(f"Outbound message to {form['To']}: Recording STATUS_UPDATE in message log")
         kinesis.put_record(
-            Data=json.dumps({"type": "STATUS_UPDATE", "payload": form}),
+            Data=json.dumps(
+                {
+                    "type": "STATUS_UPDATE",
+                    "received_at": datetime.now(UTC).isoformat(),
+                    "payload": form,
+                }
+            ),
             PartitionKey=form["To"],
             StreamName=f"message-log-{stage}",
         )
