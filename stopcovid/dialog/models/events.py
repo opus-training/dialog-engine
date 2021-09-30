@@ -283,7 +283,6 @@ class UserUpdated(DialogEvent):
         dialog_state.user_profile.account_info = account_info
         if self.purge_lesson_state:
             dialog_state.current_drill = None
-            dialog_state.current_drill = None
             dialog_state.drill_instance_id = None
             dialog_state.current_prompt_state = None
 
