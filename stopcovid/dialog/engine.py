@@ -425,9 +425,7 @@ class SendAdHocMessage(Command):
 
 
 class UpdateUser(Command):
-    def __init__(
-        self, phone_number: str, user_profile_data: dict, purge_drill_state: bool = False
-    ):
+    def __init__(self, phone_number: str, user_profile_data: dict, purge_drill_state: bool = False):
         super().__init__(phone_number)
         self.user_profile_data = user_profile_data
         self.purge_drill_state = purge_drill_state
