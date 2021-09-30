@@ -266,6 +266,7 @@ class MenuRequested(DialogEvent):
 class UserUpdated(DialogEvent):
     event_type: DialogEventType = DialogEventType.USER_UPDATED
     user_profile_data: dict
+    purge_lesson_state: bool = False
 
     def apply_to(self, dialog_state: DialogState) -> None:
         # TODO: revisit this (pretty unfortunate) updating logic. Maybe we should always just
@@ -280,6 +281,11 @@ class UserUpdated(DialogEvent):
             )
         dialog_state.user_profile = dialog_state.user_profile.copy(update=self.user_profile_data)
         dialog_state.user_profile.account_info = account_info
+        if self.purge_lesson_state:
+            dialog_state.current_drill = None
+            dialog_state.current_drill = None
+            dialog_state.drill_instance_id = None
+            dialog_state.current_prompt_state = None
 
 
 TYPE_TO_SCHEMA: Dict[DialogEventType, Type[DialogEvent]] = {
