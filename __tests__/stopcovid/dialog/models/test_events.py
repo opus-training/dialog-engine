@@ -350,7 +350,7 @@ class TestUserUpdate(unittest.TestCase):
             phone_number=phone_number,
             user_profile=profile,
             user_profile_data={"name": "Cat Stevens"},
-            purge_lesson_state=True,
+            purge_drill_state=True,
         )
         dialog_state = DialogState(
             phone_number=phone_number,
