@@ -44,6 +44,7 @@ def handle_inbound_commands(commands: List[InboundCommand]) -> dict:
                 UpdateUser(
                     phone_number=command.payload["phone_number"],
                     user_profile_data=command.payload["user_profile_data"],
+                    purge_drill_state=command.payload.get("purge_drill_state") or False,
                 ),
                 command.sequence_number,
             )

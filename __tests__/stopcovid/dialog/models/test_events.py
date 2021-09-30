@@ -22,6 +22,7 @@ from stopcovid.dialog.models.events import (
     UnhandledMessageReceived,
     SupportRequested,
     ThankYouReceived,
+    UserUpdated,
 )
 from stopcovid.dialog.models.state import UserProfile, DialogState, PromptState
 from stopcovid.dialog.registration import CodeValidationPayload
@@ -339,6 +340,29 @@ class TestNextDrillRequested(unittest.TestCase):
         self.assertTrue(profile.opted_out)
         event.apply_to(dialog_state)
         self.assertFalse(dialog_state.user_profile.opted_out)
+
+
+class TestUserUpdate(unittest.TestCase):
+    def test_user_updated(self):
+        phone_number = "123456789"
+        profile = UserProfile(validated=True)
+        event = UserUpdated(
+            phone_number=phone_number,
+            user_profile=profile,
+            user_profile_data={"name": "Cat Stevens"},
+            purge_drill_state=True,
+        )
+        dialog_state = DialogState(
+            phone_number=phone_number,
+            seq="0",
+            user_profile=profile,
+            drill_instance_id=uuid.uuid4(),
+            current_drill=DRILL,
+        )
+
+        event.apply_to(dialog_state)
+        self.assertIsNone(dialog_state.current_drill)
+        self.assertIsNone(dialog_state.drill_instance_id)
 
 
 class TestSerialization(unittest.TestCase):

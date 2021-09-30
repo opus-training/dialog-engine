@@ -425,9 +425,10 @@ class SendAdHocMessage(Command):
 
 
 class UpdateUser(Command):
-    def __init__(self, phone_number: str, user_profile_data: dict):
+    def __init__(self, phone_number: str, user_profile_data: dict, purge_drill_state: bool = False):
         super().__init__(phone_number)
         self.user_profile_data = user_profile_data
+        self.purge_drill_state = purge_drill_state
 
     def execute(self, dialog_state: DialogState) -> List[DialogEvent]:
         return [
@@ -435,5 +436,6 @@ class UpdateUser(Command):
                 phone_number=self.phone_number,
                 user_profile=dialog_state.user_profile,
                 user_profile_data=self.user_profile_data,
+                purge_drill_state=self.purge_drill_state,
             )
         ]
