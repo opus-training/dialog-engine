@@ -74,10 +74,18 @@ def extract_form(event: dict) -> dict:
     # We aren't using urllib.parse.parse_qs because it gives a slightly different answer, resulting
     # in failed signature validation.
 
-    return {
+    form = {
         split_pair[0]: unquote_plus(split_pair[1])
         for split_pair in [kvpair.split("=") for kvpair in event["body"].split("&")]
     }
+
+    # Twilio or WhatsApp is adding an extra digit to Arnold's phone number.
+    # We need to strip it out whenever he messages us.
+    _from = form.get("From", "")
+    if len(_from) == 23 and _from.startswith("whatsapp:+52") and _from[12] == "1":
+        form["From"] = _from[:12] + _from[13:]
+
+    return form
 
 
 def is_signature_valid(event: Dict[str, Any], form: Dict[str, Any], stage: str) -> bool:
